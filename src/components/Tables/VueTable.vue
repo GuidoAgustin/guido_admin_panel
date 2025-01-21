@@ -54,6 +54,10 @@
             }"
             :data-cell="(head.mask || head.title).ucwords()"
           >
+            <template v-if="head.slot">
+              <slot :name="head.slot" :item="item" :index="a" />
+            </template>
+
             <template v-if="head.editable">
               <div
                 v-if="head.editable !== 'checkbox'"
