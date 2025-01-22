@@ -331,7 +331,7 @@ export default {
     },
 
     changed() {
-      const { sort_by, sort_dir, page, per_page, filters } = this.vTableParams
+      const { sort_by, sort_dir, page, per_page, ...filters } = this.vTableParams
 
       this.$emit('changed', {
         sort_by,
