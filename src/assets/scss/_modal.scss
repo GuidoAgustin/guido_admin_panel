@@ -134,6 +134,42 @@
       }
     }
   }
+
+  &.gallery-modal {
+    .vue-modal-content {
+      background: transparent;
+      box-shadow: unset;
+      filter: drop-shadow(0 0 0.25rem rgba(0, 0, 0, 0.5));
+      border: unset;
+    }
+    .modal-body {
+      background: transparent;
+      padding: 0;
+      overflow: hidden;
+
+      .img-container {
+        height: 80vh;
+        background-size: contain;
+      }
+
+      .swiper-wrapper {
+        margin-bottom: 30px;
+      }
+
+      --swiper-pagination-bottom: -30px;
+    }
+    .modal-header {
+      border: none;
+
+      .close {
+        color: white;
+      }
+    }
+    .modal-footer {
+      gap: 0.25em;
+      border: none;
+    }
+  }
 }
 
 .no-scrollable {
