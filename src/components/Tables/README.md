@@ -1,29 +1,3 @@
-# VueTables
-
-VueTables is a table enhancing VueJs Component with server side pagination, filtering, and
-sorting.
-
-## Installing VueTables
-
-```
-yarn add farena/vue-tables
-
-    or with npm
-
-npm install farena/vue-tables
-```
-
-```
-src/main.js or src/index.js
-
-import Vue from 'vue';
-import App from './App.vue';
-import VueTables from 'vue-tables';
-import 'vue-tables/dist/vue-tables.css';
-
-Vue.use(VueTables);
-```
-
 ## Basic Usage
 
 ```

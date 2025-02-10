@@ -8,8 +8,9 @@
       flex-field
       :options="options"
       v-model="result"
-      v-if="sectionType === 'select'"
+      v-if="sectionType === 'select' && !moduleName"
     />
+    <FormNumber :label="label" flex-field v-model="result" v-else-if="sectionType === 'number'" />
     <FormDate :label="label" flex-field v-model="result" v-else-if="sectionType === 'date'" />
     <FormDateRange
       :label="label"
@@ -23,6 +24,13 @@
       :label="label"
       v-model="result"
       :is="comboComponent"
+    />
+    <component
+      v-else-if="sectionType === 'select' && moduleName"
+      flex-field
+      :label="label"
+      v-model="result"
+      :is="selectComponent"
     />
 
     <template v-else>
@@ -50,10 +58,12 @@
 <script>
 import FormCheckbox from '@/components/Form/FormCheckbox.vue'
 import FormSelect from '@/components/Form/FormSelect.vue'
+import FormNumber from '@/components/Form/FormNumber.vue'
 import FormDate from '@/components/Form/FormDate.vue'
 import FormDateRange from '@/components/Form/FormDateRange.vue'
 import UsersCombobox from '@/components/Comboboxes/UsersCombobox.vue'
-import Comboboxes from '@/components/Comboboxes/combos-modules.js'
+import Comboboxes from '@/components/Comboboxes/_combos-modules.js'
+import Selects from '@/components/Selects/_select-modules.js'
 
 export default {
   components: {
@@ -61,7 +71,8 @@ export default {
     FormDate,
     FormDateRange,
     FormSelect,
-    UsersCombobox
+    UsersCombobox,
+    FormNumber
   },
   props: {
     modelValue: {
@@ -71,7 +82,7 @@ export default {
     sectionType: {
       type: String,
       validator: (value) =>
-        ['select', 'select-multiple', 'date', 'date-range', 'combobox'].includes(value),
+        ['select', 'select-multiple', 'date', 'date-range', 'combobox', 'number'].includes(value),
       default: 'select'
     },
     options: {
@@ -101,6 +112,9 @@ export default {
     },
     comboComponent() {
       return Comboboxes[this.moduleName]
+    },
+    selectComponent() {
+      return Selects[this.moduleName]
     }
   },
   data: () => ({

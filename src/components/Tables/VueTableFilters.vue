@@ -8,32 +8,45 @@
         class="form-control"
         @keyup.enter="search"
       />
+
+      <span class="fa fa-circle-info vt-search-helper" v-if="searchHelper">
+        <div class="tooltip">{{ searchHelper }}</div>
+      </span>
     </div>
 
     <div class="vt-filters">
       <div class="vt-filters-wrapper">
-        <button class="btn btn-sm btn-medium" @click="showFilters = true">
-          <span class="material-symbols-outlined"> tune </span>
+        <a
+          href="#"
+          class="small underlined text-dark px-2"
+          @click="clearFilters"
+          v-if="activeFilters"
+        >
+          Clear filters
+        </a>
+
+        <button class="btn btn-sm btn-dark" @click="showFilters = true">
+          <i class="material-symbols-outlined"> tune </i>
+          <span>Filters</span>
+          <span class="badge badge-white" v-if="activeFilters">{{ activeFilters }}</span>
         </button>
-        <button class="btn btn-sm btn-outline-medium disabled">
-          <span class="material-symbols-outlined"> filter_list </span>
-          <span>Sort: {{ sortedBy }}</span>
+        <button class="btn btn-sm btn-dark" v-if="exportable" @click="$emit('onExport')">
+          <i class="fa fa-file-excel mr-2"></i>
+          <span>Export XLS</span>
         </button>
       </div>
 
-      <Teleport to="#modal-container">
-        <VueTableFiltersModal
-          v-if="showFilters"
-          @close="showFilters = false"
-          v-model="result"
-          @filter="applyFilters"
-          :defaultValue="resultDefault"
-          :sortOpts="sortOpts"
-          :showOpts="showOpts"
-          :hideOpts="hideOpts"
-          :filters="filters"
-        />
-      </Teleport>
+      <VueTableFiltersModal
+        v-if="showFilters"
+        @close="showFilters = false"
+        v-model="result"
+        @filter="applyFilters"
+        @clearFilters="clearFilters"
+        :sortOpts="sortOpts"
+        :showOpts="showOpts"
+        :hideOpts="hideOpts"
+        :filters="filters"
+      />
     </div>
   </div>
 </template>
@@ -63,8 +76,17 @@ export default {
     headers: {
       type: Array,
       default: () => []
+    },
+    exportable: {
+      type: Boolean,
+      default: false
+    },
+    searchHelper: {
+      type: String,
+      default: ''
     }
   },
+  emits: ['onExport', 'filter', 'search'],
   components: {
     VueTableFiltersModal
   },
@@ -73,6 +95,7 @@ export default {
       showFilters: false,
       showOpts: [10, 25, 50, 100],
       types_default_values: {
+        number: null,
         select: null,
         'select-multiple': [],
         date: null,
@@ -88,36 +111,48 @@ export default {
     }
   },
   computed: {
-    sortedBy() {
-      if (!this.result.sort) return 'Last update'
-
-      return this.sortOpts.find((x) => x.value === this.result.sort)?.name
-    },
     sortOpts() {
       const sortableCols = this.headers.filter((x) => x.sortable)
 
       return [
         {
           value: 'null',
-          name: 'Last update'
+          label: 'Last update'
         },
         ...sortableCols.map((x) => ({
           value: `${x.sort_value || x.title}__asc`,
-          name: `${x.title.ucwords()} - ASC`
+          label: `${(x.mask || x.title).replaceAll('_', ' ').ucwords()} - ASC`
         })),
         ...sortableCols.map((x) => ({
           value: `${x.sort_value || x.title}__desc`,
-          name: `${x.title.ucwords()} - DESC`
+          label: `${(x.mask || x.title).replaceAll('_', ' ').ucwords()} - DESC`
         }))
-      ].sort((a, b) => (a.name < b.name ? -1 : 1))
+      ].sort((a, b) => (a.label < b.label ? -1 : 1))
     },
     hideOpts() {
       return this.headers
         .filter((x) => x.hideable)
         .map((x) => ({
           value: x.title,
-          name: x.mask?.ucwords() || x.title.ucwords()
+          name: (x.mask || x.title).replaceAll('_', ' ').ucwords()
         }))
+    },
+    activeFilters() {
+      return Object.keys(this.result).reduce((sum, key) => {
+        const value = this.result[key]
+        const defaultKeys = ['showing', 'sort', 'hidden']
+
+        if (defaultKeys.includes(key) || !value) return sum
+
+        const isDateRange =
+          Object.keys(value).includes('start') && Object.keys(value).includes('end')
+        if (isDateRange && (!value.start || !value.end)) return sum
+
+        const isArray = Array.isArray(value)
+        if (isArray && !value.length) return sum
+
+        return sum + 1
+      }, 0)
     }
   },
   mounted() {
@@ -142,21 +177,34 @@ export default {
 
         if (DEFAULT_KEYS === INMEMORY_KEYS) {
           this.result = JSON.parse(inMemoryFilters)
-          this.applyFilters(this.result)
         }
       }
+
+      this.applyFilters(this.result)
     },
     saveFilters(evt) {
       this.result = evt
       const route = this.$route.fullPath.replaceAll('/', '_')
       localStorage.setItem(`vt_filters_${route}`, JSON.stringify(this.result))
     },
-    applyFilters(evt) {
+    clearFilters(send = true) {
+      this.applyFilters(JSON.parse(this.resultDefault), send)
+    },
+    applyFilters(evt, send = true) {
       this.saveFilters(evt)
-      this.$emit('filter', evt)
+
+      const aux = JSON.parse(JSON.stringify(evt))
+      Object.keys(aux).forEach((key) => {
+        if (aux[key]?.[key]) {
+          aux[key] = aux[key][key]
+        }
+      })
+
+      if (send) this.$emit('filter', aux)
     },
 
     search(evt) {
+      this.clearFilters(false)
       this.$emit('search', evt.target.value)
     }
   }

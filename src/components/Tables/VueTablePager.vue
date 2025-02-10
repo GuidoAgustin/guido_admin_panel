@@ -20,7 +20,7 @@
         v-for="page in pages_list"
         :key="page.number"
         class="vt-desktop vt-number"
-        :class="current_page === page.number ? 'active' : ''"
+        :class="current_page === page.number ? 'active disabled' : ''"
         @click.prevent="changePage(page.number)"
       >
         {{ page.number }}

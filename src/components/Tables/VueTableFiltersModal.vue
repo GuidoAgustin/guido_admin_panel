@@ -1,5 +1,5 @@
 <template>
-  <VueModal size="sm" position="right" class="vt-filters-modal" ref="modal">
+  <VueModal size="md" position="right" class="vt-filters-modal" ref="modal">
     <template #title>
       <span class="material-symbols-outlined"> tune </span>
       <span>FILTERS</span>
@@ -26,8 +26,8 @@
       />
     </template>
     <template #footer>
-      <a href="#" class="underlined text-medium" @click="clearAll">Clear All</a>
-      <button class="btn btn-sm btn-medium" @click="applyFilters">Apply filters</button>
+      <a href="#" class="underlined text-dark" @click="clearAll">Clear All</a>
+      <button class="btn btn-sm btn-dark" @click="applyFilters">Apply filters</button>
     </template>
   </VueModal>
 </template>
@@ -41,10 +41,6 @@ export default {
     modelValue: {
       type: Object,
       default: () => ({})
-    },
-    defaultValue: {
-      type: String,
-      default: ''
     },
     showOpts: {
       type: Array,
@@ -71,14 +67,21 @@ export default {
     result: {}
   }),
   mounted() {
-    this.result = JSON.parse(JSON.stringify(this.modelValue))
+    this.initResult()
   },
   methods: {
     close() {
       this.$refs.modal.close()
     },
+    initResult() {
+      this.result = JSON.parse(JSON.stringify(this.modelValue))
+    },
     clearAll() {
-      this.result = JSON.parse(this.defaultValue)
+      this.$emit('clearFilters')
+
+      this.$nextTick(() => {
+        this.initResult()
+      })
     },
     applyFilters() {
       this.$emit('filter', this.result)
