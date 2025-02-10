@@ -1,44 +1,49 @@
 <template>
-  <transition name="fade" @after-enter="showContent = true">
-    <div
-      class="vue-modal"
-      :class="`position-${position}`"
-      v-if="open"
-      @keypress.esc="showContent = false"
-      tabindex="0"
-    >
-      <transition :name="`modal-pos-${position}`" @after-leave="endClose">
-        <div class="vue-modal-content" v-if="showContent" :class="`modal-${size}`">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <slot name="title"></slot>
-            </h5>
-            <button type="button" class="close" @click="close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="modal-body-wrapper">
-              <slot name="body"></slot>
+  <Teleport to="#modal-container">
+    <transition name="fade" @after-enter="showContent = true">
+      <div
+        class="vue-modal"
+        :class="`position-${position}`"
+        v-if="open"
+        @keypress.esc="showContent = false"
+        tabindex="0"
+        v-bind="$attrs"
+      >
+        <transition :name="`modal-pos-${position}`" @after-leave="endClose">
+          <div class="vue-modal-content" v-show="showContent" :class="`modal-${size}`">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <slot name="title"></slot>
+              </h5>
+              <button type="button" class="close" @click="close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="modal-body-wrapper">
+                <slot name="body"></slot>
+              </div>
+            </div>
+            <div class="modal-footer" v-if="hasFooter">
+              <slot name="footer"></slot>
             </div>
           </div>
-          <div class="modal-footer" v-if="hasFooter">
-            <slot name="footer"></slot>
-          </div>
-        </div>
-      </transition>
-    </div>
-  </transition>
+        </transition>
+      </div>
+    </transition>
+  </Teleport>
 </template>
 
 <script>
 export default {
+  inheritAttrs: false,
   data() {
     return {
       showContent: false,
       open: false
     }
   },
+  emits: ['close', 'onSave'],
   props: {
     size: {
       validator: (value) => ['xs', 'sm', 'md', 'lg'].includes(value),
@@ -54,26 +59,20 @@ export default {
       return !!this.$slots.footer
     }
   },
-  created() {
-    document.addEventListener('keydown', this.escapeHandler)
-  },
   mounted() {
     setTimeout(() => (this.open = true), 100)
     document.body.classList.add('no-scrollable')
 
-    document.querySelector('.sidebar').style.zIndex = 0
+    const sidebar = document.querySelector('.sidebar')
+    if (sidebar) sidebar.style.zIndex = 0
   },
   unmounted() {
-    document.removeEventListener('keydown', this.escapeHandler)
     document.body.classList.remove('no-scrollable')
-    document.querySelector('.sidebar').style.zIndex = 3
+
+    const sidebar = document.querySelector('.sidebar')
+    if (sidebar) sidebar.style.zIndex = 3
   },
   methods: {
-    escapeHandler(e) {
-      if (e.key === 'Escape' && this.showContent) {
-        this.showContent = false
-      }
-    },
     close() {
       this.showContent = false
     },
