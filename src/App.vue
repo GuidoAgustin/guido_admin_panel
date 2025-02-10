@@ -1,6 +1,6 @@
 <template>
   <FullPageLoader v-if="$store.getters.loader_active" />
-  <router-view />
+  <router-view :key="$route.fullPath" />
 
   <div id="modal-container"></div>
 </template>
