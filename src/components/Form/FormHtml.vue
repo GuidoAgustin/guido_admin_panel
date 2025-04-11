@@ -1,67 +1,115 @@
 <template>
-  <div class="form-container">
-    <label v-if="label">{{ label }}</label>
-    <div class="formHtml" :class="{ 'mt-1': label !== null }">
-      <trumbowyg v-model="resultHtml" :config="config" :disabled="disabled" />
+  <div class="form-container form-html" :class="{ disabled }">
+    <label v-if="label">
+      {{ label }}
+      <small class="text-muted"> Use ctrl+enter to create small line breaks </small>
+    </label>
+    <div class="form-wrapper">
+      <ckeditor
+        :editor="editor"
+        v-model="result"
+        :config="editorConfig"
+        @ready="editorRef = $event"
+      ></ckeditor>
     </div>
   </div>
 </template>
 
 <script>
-import Trumbowyg from 'vue-trumbowyg'
-import 'trumbowyg/dist/ui/trumbowyg.css'
+import {
+  ClassicEditor,
+  Bold,
+  Essentials,
+  Italic,
+  Alignment,
+  Paragraph,
+  Mention,
+  Undo,
+  FontFamily,
+  FontSize,
+  FontColor
+} from 'ckeditor5'
+import 'ckeditor5/ckeditor5.css'
+import ckeditor from '@/plugins/CKeditor'
 
 export default {
   components: {
-    Trumbowyg
+    ckeditor
   },
   props: {
     modelValue: {
       type: String,
-      default: null
+      default: ''
     },
+    label: String,
     disabled: {
       type: Boolean,
       default: false
     },
-    label: {
-      type: String,
-      default: null
-    },
-    config: {
-      type: Object,
-      default: () => ({
-        btns: [
-          ['viewHTML'],
-          ['undo', 'redo'], // Only supported in Blink browsers
-          ['formatting'],
-          ['strong', 'em', 'del'],
-          ['superscript', 'subscript'],
-          ['link'],
-          ['insertImage'],
-          ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
-          ['unorderedList', 'orderedList'],
-          ['horizontalRule'],
-          ['removeformat']
-        ],
-        semantic: {
-          div: 'div' // Editor does nothing on div tags now
-        }
-      })
-    }
+    autocompleteOpts: Array,
+    placeholder: String
   },
   data: () => ({
-    resultHtml: null
+    editor: ClassicEditor,
+    editorRef: null
   }),
-  watch: {
-    resultHtml(val) {
-      this.$emit('update:modelValue', val)
+  computed: {
+    editorConfig() {
+      return {
+        plugins: [
+          Bold,
+          Essentials,
+          Italic,
+          Alignment,
+          Paragraph,
+          Undo,
+          FontFamily,
+          FontSize,
+          Mention,
+          FontColor
+        ],
+        toolbar: [
+          'undo',
+          'redo',
+          '|',
+          'alignment',
+          '|',
+          'bold',
+          'italic',
+          'fontfamily',
+          'fontsize',
+          'fontColor'
+        ],
+        mention: !this.autocompleteOpts
+          ? {}
+          : {
+              feeds: [
+                {
+                  marker: '#',
+                  feed: this.autocompleteOpts.filter((x) => x.startsWith('#')),
+                  minimumCharacters: 0,
+                  dropdownLimit: 100
+                }
+              ]
+            },
+        placeholder: this.placeholder || {}
+      }
+    },
+    result: {
+      get() {
+        return this.modelValue
+      },
+      set(val) {
+        this.$emit('update:modelValue', val)
+      }
     }
   },
-  mounted() {
-    this.resultHtml = this.modelValue
+  methods: {
+    focus() {
+      this.editorRef.focus()
+    }
   }
 }
 </script>
 
-<style scoped></style>
+<style></style>

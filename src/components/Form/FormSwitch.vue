@@ -1,7 +1,7 @@
 <template>
   <div class="form-container form-switch" :class="{ disabled, small }">
     <input type="checkbox" :id="itemId" v-model="result" />
-    <label :for="itemId">{{ label }}</label>
+    <label :for="itemId" v-if="label">{{ label }}</label>
   </div>
 </template>
 
@@ -12,10 +12,7 @@ export default {
       type: Boolean,
       default: null
     },
-    label: {
-      type: String,
-      default: 'Nombre'
-    },
+    label: String,
     icon: {
       type: String,
       default: null

@@ -9,6 +9,8 @@
 
 .modal-pos-top-enter-active,
 .modal-pos-top-leave-active,
+.modal-pos-center-enter-active,
+.modal-pos-center-leave-active,
 .modal-pos-bottom-enter-active,
 .modal-pos-bottom-leave-active,
 .modal-pos-left-enter-active,
@@ -34,4 +36,10 @@
 .modal-pos-right-enter-from,
 .modal-pos-right-leave-to {
   transform: translateX(100%);
+}
+
+.modal-pos-center-enter-from,
+.modal-pos-center-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
 }

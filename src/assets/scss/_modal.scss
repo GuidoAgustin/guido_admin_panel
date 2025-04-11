@@ -4,7 +4,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 2000;
+  z-index: 1050;
   overflow: auto;
   outline: 0;
   background: rgba(0, 0, 0, 0.8);
@@ -41,7 +41,7 @@
 
     .modal-header {
       display: flex;
-      align-items: flex-start;
+      align-items: flex-end;
       justify-content: space-between;
       padding: 1rem;
       border-bottom: 1px solid #e9ecef;
@@ -61,7 +61,8 @@
       padding: 0 !important;
       background: unset;
       font-size: 1.8em;
-      color: var(--color-medium);
+      color: var(--color-dark);
+      align-self: flex-start;
     }
 
     .modal-title {

@@ -37,7 +37,7 @@
       v-model="result.properties.statuses"
       multiple
     />
-    <ItemsSelect label="Item" v-model="result.properties.items" multiple />
+    <!-- <ItemsSelect label="Item" v-model="result.properties.items" multiple /> -->
   </template>
 </template>
 
@@ -45,12 +45,12 @@
 import FormButton from '@/components/Form/FormButton.vue'
 import FormCode from '@/components/Form/FormCode.vue'
 import FormSelect from '@/components/Form/FormSelect.vue'
-import ItemsSelect from '@/components/Selects/ItemsSelect.vue'
+// import ItemsSelect from '@/components/Selects/ItemsSelect.vue'
 
 export default {
   components: {
     FormSelect,
-    ItemsSelect,
+    // ItemsSelect,
     FormButton,
     FormCode
   },

@@ -13,11 +13,13 @@ body,
 body {
   color: var(--body-text);
   background: var(--body-bg);
+  font-size: var(--font-size);
 }
 
 // Scrollbar Style
 *::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 
   /* Track */
   &-track {
@@ -65,6 +67,11 @@ ul.unstyled {
 a {
   text-decoration: none;
   color: var(--color-primary);
+  cursor: pointer;
+
+  &:hover {
+    color: colorLightness('primary', -0.3);
+  }
 }
 .underlined {
   text-decoration: underline;
@@ -180,6 +187,7 @@ a {
           li a {
             border-left: 5px solid var(--color-primary);
             background: var(--color-primary-25);
+            padding: 0.5em 1em;
 
             &:hover {
               background: var(--color-primary-50);
@@ -190,7 +198,7 @@ a {
         ul.opened {
           pointer-events: all;
           transition: 0.5s ease;
-          max-height: 500px;
+          max-height: 800px;
         }
         ul.opened + a {
           border-left: 5px solid var(--color-primary);
@@ -249,6 +257,7 @@ a {
       flex-direction: column;
       overflow-y: auto;
       overflow-x: hidden;
+      position: relative;
 
       .content {
         flex: 1;

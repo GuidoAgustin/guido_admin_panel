@@ -3,10 +3,18 @@ import Swal from 'sweetalert2'
 export default {
   install: (app) => {
     const alertInstance = {
-      fireModal(title, html, input = null, inputPlaceholder = null, inputValue = null) {
+      fireModal({
+        title,
+        html,
+        input = null,
+        inputPlaceholder = null,
+        inputValue = null,
+        icon = null
+      }) {
         if (input) {
           return new Promise((resolve, reject) => {
             Swal.fire({
+              icon,
               title,
               html,
               input,
@@ -14,11 +22,27 @@ export default {
               inputPlaceholder,
               showCloseButton: true,
               confirmButtonText: 'OK',
-              confirmButtonClass: 'btn btn-success',
-              cancelButtonClass: 'btn btn-danger'
+              customClass: {
+                confirmButton: 'btn-sm btn btn-primary',
+                cancelButton: 'btn-sm btn btn-danger ml-1'
+              },
+              showClass: {
+                popup: `
+                animate__animated
+                animate__fadeInUp
+                animate__faster
+              `
+              },
+              hideClass: {
+                popup: `
+                animate__animated
+                animate__fadeOutDown
+                animate__faster
+              `
+              }
             }).then((res) => {
-              if (res.value) {
-                resolve(res.value)
+              if (res.isConfirmed) {
+                resolve(res.value || null)
               } else {
                 reject()
               }
@@ -27,11 +51,28 @@ export default {
         }
         return new Promise((resolve, reject) => {
           Swal.fire({
+            icon,
             title,
             html,
             showCloseButton: true,
             confirmButtonText: 'OK',
-            confirmButtonClass: 'btn btn-success'
+            customClass: {
+              confirmButton: 'btn-sm btn btn-primary'
+            },
+            showClass: {
+              popup: `
+                animate__animated
+                animate__fadeInUp
+                animate__faster
+              `
+            },
+            hideClass: {
+              popup: `
+                animate__animated
+                animate__fadeOutDown
+                animate__faster
+              `
+            }
           }).then((res) => {
             if (res.value) {
               resolve(res.value)
@@ -41,18 +82,34 @@ export default {
           })
         })
       },
-      fireConfirm(title, text, cancelButtonText = 'Cancel') {
+      fireConfirm({ title, text, cancelButtonText = 'Cancel', confirmButtonText = 'OK' }) {
         return new Promise((resolve, reject) => {
           Swal.fire({
             icon: 'warning',
             title,
             text,
-            type: 'danger',
             showCancelButton: true,
-            confirmButtonClass: 'btn btn-success',
-            cancelButtonClass: 'btn btn-danger',
+            customClass: {
+              confirmButton: 'btn-sm btn btn-primary',
+              cancelButton: 'btn-sm btn btn-danger ml-1'
+            },
             cancelButtonText,
-            buttonsStyling: false
+            confirmButtonText,
+            buttonsStyling: false,
+            showClass: {
+              popup: `
+                animate__animated
+                animate__fadeInUp
+                animate__faster
+              `
+            },
+            hideClass: {
+              popup: `
+                animate__animated
+                animate__fadeOutDown
+                animate__faster
+              `
+            }
           }).then((res) => {
             if (res.value) {
               resolve()
@@ -65,6 +122,11 @@ export default {
     }
 
     app.config.globalProperties.$alert = alertInstance
-    app.config.globalProperties.$store.$alert = alertInstance
+    app.config.globalProperties.$confirm = alertInstance.fireConfirm
+
+    const { $store } = app.config.globalProperties
+    if ($store) {
+      $store.$alert = alertInstance
+    }
   }
 }

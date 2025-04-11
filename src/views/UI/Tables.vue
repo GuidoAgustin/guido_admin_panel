@@ -71,11 +71,18 @@ export default {
       headers: [
         {
           title: 'name',
+          mask: 'Nombre',
           sortable: true,
           hideable: true
         },
         {
           title: 'username',
+          sortable: true,
+          hideable: true
+        },
+        {
+          title: 'role.role.role.role.name',
+          mask: 'role',
           sortable: true,
           hideable: true
         }
@@ -101,17 +108,38 @@ export default {
           {
             id: 1,
             name: 'Pedro Aznar',
-            username: 'paznar'
+            username: 'paznar',
+            role: {
+              name: 'Admin'
+            }
           },
           {
             id: 2,
             name: 'Charlie Alberti',
-            username: 'chalberti'
+            username: 'chalberti',
+            role: {
+              name: 'Manager',
+              role: {
+                name: 'Manager',
+                role: {
+                  name: 'Manager',
+                  role: {
+                    name: 'Manager',
+                    role: {
+                      name: 'Manager'
+                    }
+                  }
+                }
+              }
+            }
           },
           {
             id: 3,
             name: 'Gustavo Cerati',
-            username: 'gcerati'
+            username: 'gcerati',
+            role: {
+              name: 'Admin'
+            }
           }
         ]
       },

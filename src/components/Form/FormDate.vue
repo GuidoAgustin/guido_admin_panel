@@ -6,10 +6,12 @@
     :masks="masksValues"
     :popover="{ visibility: disabled ? 'hidden' : 'focus' }"
     :disabled-dates="disabledDates"
+    :max-date="maxDate"
+    :min-date="minDate"
   >
     <template v-slot="{ inputValue, inputEvents }">
-      <div class="form-container" :class="{ disabled, 'flex-field': flexField }">
-        <label>{{ label }}</label>
+      <div class="form-container" :class="{ disabled, 'flex-field': flexField }" v-bind="$attrs">
+        <label v-if="label">{{ label }}</label>
         <div class="form-wrapper">
           <div class="icon" v-if="!flexField">
             <i class="fa-solid fa-calendar-day"></i>
@@ -49,6 +51,14 @@ export default {
       // Example:
       // To Disabled Weekends: :disabled-dates='{ weekdays: [1, 7] }'
       // More info: https://vcalendar.io/disable-dates.html
+    },
+    maxDate: {
+      type: Date,
+      default: null
+    },
+    minDate: {
+      type: Date,
+      default: null
     },
     flexField: {
       type: Boolean,

@@ -2,7 +2,7 @@
   <table class="table form-table">
     <thead>
       <tr>
-        <th v-if="checkeable">
+        <th v-if="checkeable" style="width: 1%">
           <input v-model="checkAll" type="checkbox" />
         </th>
         <th
@@ -32,7 +32,9 @@
           :data-cell="(head.mask || head.title).replaceAll('_', ' ').ucwords()"
         >
           <template v-if="head.slot">
-            <slot :name="head.slot" :item="item" :index="ix" />
+            <div>
+              <slot :name="head.slot" :item="item" :index="ix" />
+            </div>
           </template>
           <template v-else>
             <span v-if="head.htmlFormat === true" v-html="parseValue(item, head)" />

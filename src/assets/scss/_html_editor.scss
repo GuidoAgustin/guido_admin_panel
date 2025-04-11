@@ -308,8 +308,6 @@
     max-width: 0;
     background: white;
     transition: 0.25s ease-in-out;
-    display: grid;
-    grid-template-rows: auto 1fr;
     pointer-events: none;
     opacity: 0;
     z-index: 3;
@@ -325,7 +323,8 @@
     .he-wrapper {
       overflow-y: auto;
       overflow-x: hidden;
-      position: relative;
+      position: sticky;
+      top: -15px;
 
       h6.label {
         font-size: 1em !important;
@@ -362,8 +361,6 @@
       position: absolute;
       height: 100%;
       width: 30px;
-      display: grid;
-      place-items: center;
       top: 0px;
       left: -30px;
       cursor: pointer;
@@ -372,6 +369,12 @@
       color: var(--color-primary-text);
       border: none;
       outline: none;
+
+      span {
+        position: sticky;
+        top: 50%;
+        display: block;
+      }
     }
 
     .he-sections-columns {

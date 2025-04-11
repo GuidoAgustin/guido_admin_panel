@@ -68,7 +68,9 @@
             :data-cell="(head.mask || head.title).replaceAll('_', ' ').ucwords()"
           >
             <template v-if="head.slot">
-              <slot :name="head.slot" :item="item" :index="a" />
+              <div>
+                <slot :name="head.slot" :item="item" :index="a" />
+              </div>
             </template>
 
             <template v-else-if="head.editable">

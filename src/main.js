@@ -8,10 +8,18 @@ import alert from './utils/alert'
 import errorHandler from './utils/errorHandler'
 import VueTables from './components/Tables'
 import VueModal from './components/Modal'
+import clients from './utils/clients'
 
 import 'v-calendar/dist/style.css'
 import './assets/scss/styles.scss'
 import './components/Tables/utils/ucwords'
+
+import { loader } from '@guolao/vue-monaco-editor'
+loader.config({
+  paths: {
+    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs'
+  }
+})
 
 createApp(App)
   .use(store)
@@ -22,4 +30,5 @@ createApp(App)
   .use(VCalendar, {})
   .use(VueTables)
   .use(VueModal)
+  .use(clients)
   .mount('#app')

@@ -158,7 +158,7 @@ export default {
   mounted() {
     if (this.filters.length) {
       for (const f of this.filters) {
-        this.result[f.column] = this.types_default_values[f.type]
+        this.result[f.column] = f.default_value || this.types_default_values[f.type]
       }
     }
     this.resultDefault = JSON.stringify(this.result)

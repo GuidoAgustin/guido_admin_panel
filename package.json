@@ -11,16 +11,19 @@
     "new-module": "node ./scripts/new-module.js"
   },
   "dependencies": {
+    "@guolao/vue-monaco-editor": "^1.5.4",
     "axios": "^0.27.2",
+    "ckeditor5": "^42.0.2",
     "core-js": "^3.6.5",
+    "lodash-es": "^4.17.21",
     "moment": "^2.29.4",
     "sweetalert2": "^11.4.19",
-    "trumbowyg": "^2.25.1",
     "v-calendar": "^3.0.0-alpha.8",
     "vue": "^3.3.4",
+    "vue-advanced-cropper": "^2.8.9",
+    "vue-color-input": "git://github.com/farena/vue-color-input.git",
     "vue-router": "^4.2.2",
     "vue-toastification": "^2.0.0-rc.5",
-    "vue-trumbowyg": "^4.0.0",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.0.0-0"
   },

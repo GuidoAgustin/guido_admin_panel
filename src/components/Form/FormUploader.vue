@@ -1,34 +1,44 @@
 <template>
-  <div :class="{ disabled }" @click="launchFilePicker">
-    <slot>
-      <div class="form-container form-uploader" :class="{ 'flex-field': flexField }">
-        <label>{{ label }}</label>
+  <div :class="{ disabled }">
+    <slot :launchPicker="launchFilePicker">
+      <div
+        class="form-container form-uploader"
+        :class="{ 'flex-field': flexField }"
+        v-bind="$attrs"
+      >
+        <label v-if="label">{{ label }}</label>
 
         <div class="form-wrapper">
-          <button class="btn btn-primary btn-sm btn-block">
-            {{ buttonText }}
-          </button>
+          <div class="d-flex gap-2">
+            <slot name="current" />
+            <button class="btn btn-primary btn-sm btn-block" @click="launchFilePicker">
+              {{ buttonText }}
+            </button>
+          </div>
 
           <div>
-            <small v-if="file">{{ file.name }} ({{ (file.size / 1024).toFixed(2) }}kb)</small>
+            <small v-if="file">
+              {{ file.name }} ({{ (file.size / 1024).toFixed(2) }}kb)
+              <i class="fa fa-times ml-2 pointer" @click="resetInput"></i>
+            </small>
           </div>
         </div>
       </div>
     </slot>
-    <input type="file" @change="fileSelected" ref="fileInput" />
+    <input type="file" @change="fileSelected" ref="fileInput" :multiple="multiple" />
   </div>
 </template>
 
 <script>
 export default {
+  emtis: ['onChange', 'onReset'],
   props: {
     modelValue: {
       type: [Object, File, String],
       default: () => ({})
     },
     label: {
-      type: String,
-      default: 'File'
+      type: String
     },
     buttonText: {
       type: String,
@@ -64,10 +74,15 @@ export default {
       type: Boolean,
       default: false
     },
+    resetOnSelect: {
+      type: Boolean,
+      default: false
+    },
     tooBigErrorMsg: {
       type: String,
-      default: 'El archivo no puede pesar mas de {maxSize}MB'
-    }
+      default: 'The file must be less than {maxSize}MB'
+    },
+    multiple: Boolean
   },
   data: () => ({
     file: null
@@ -85,22 +100,22 @@ export default {
           {
             accepted: true,
             mime: 'image.*',
-            error: 'una Imagen'
+            error: 'an Image'
           },
           {
             accepted: true,
             mime: 'application/pdf',
-            error: 'un PDF'
+            error: 'a PDF'
           },
           {
             accepted: true,
             mime: 'video.*',
-            error: 'un Video'
+            error: 'a Video'
           },
           {
             accepted: true,
             mime: 'sheet',
-            error: 'un XLS'
+            error: 'a XLS'
           }
         ]
       }
@@ -111,7 +126,7 @@ export default {
         types.push({
           accepted: true,
           mime: 'image.*',
-          error: 'una Imagen'
+          error: 'an Image'
         })
       }
 
@@ -119,7 +134,7 @@ export default {
         types.push({
           accepted: true,
           mime: 'application/pdf',
-          error: 'un PDF'
+          error: 'a PDF'
         })
       }
 
@@ -127,7 +142,7 @@ export default {
         types.push({
           accepted: true,
           mime: 'video.*',
-          error: 'un Video'
+          error: 'a Video'
         })
       }
 
@@ -135,7 +150,7 @@ export default {
         types.push({
           accepted: true,
           mime: 'sheet',
-          error: 'un XLS'
+          error: 'a XLS'
         })
       }
 
@@ -147,21 +162,62 @@ export default {
       if (this.disabled) return
       this.$refs.fileInput.click()
     },
-    fileSelected(evt) {
+    resetInput() {
+      this.$refs.fileInput.value = null
+      this.file = null
+      this.$emit('update:modelValue', null)
+      this.$emit('onReset')
+    },
+    getBlobUrl(file) {
+      return URL.createObjectURL(file)
+    },
+    getBase64Url(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader()
+
+        reader.onload = function () {
+          const base64String = reader.result
+          resolve(base64String)
+        }
+
+        reader.readAsDataURL(file)
+      })
+    },
+    async fileSelected(evt) {
       if (!evt.target.files.length) return
 
-      this.file = evt.target.files[0]
-      // Check file type
-      if (!this.checkFileType(this.file.type)) return
+      if (this.multiple) {
+        const result = []
 
-      // check whether the size is greater than the size limit
-      if (!this.checkFileSize(this.file.size)) return
+        for (const file of evt.target.files) {
+          if (!this.checkFileType(file.type)) return
+          if (!this.checkFileSize(file.size)) return
 
-      this.$emit('update:modelValue', this.file)
-      this.$emit('onChange', {
-        file: this.file,
-        url: URL.createObjectURL(this.file)
-      })
+          result.push({
+            file,
+            url: this.getBlobUrl(file),
+            base64: await this.getBase64Url(file)
+          })
+        }
+
+        this.$emit('onChange', result)
+      } else {
+        this.file = evt.target.files[0]
+        // Check file type
+        if (!this.checkFileType(this.file.type)) return
+
+        // check whether the size is greater than the size limit
+        if (!this.checkFileSize(this.file.size)) return
+
+        this.$emit('update:modelValue', this.file)
+        this.$emit('onChange', {
+          file: this.file,
+          url: this.getBlobUrl(this.file),
+          base64: await this.getBase64Url(this.file)
+        })
+      }
+
+      if (this.resetOnSelect) this.resetInput()
     },
 
     // check type match with at least 1 of the accepted mimetypes
@@ -178,7 +234,7 @@ export default {
       }
 
       if (!valid) {
-        this.$toast.error(`El archivo no es ${errors.join(' o ')}`)
+        this.$toast.error(`The file is not ${errors.join(' or ')}`)
       }
 
       return valid

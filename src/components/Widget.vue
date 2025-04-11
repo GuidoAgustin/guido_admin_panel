@@ -1,13 +1,18 @@
 <template>
-  <div class="card widget h-auto">
+  <div class="card widget h-auto" :class="{ 'widget-plain': plain }">
     <div class="card-header" v-if="icon || $slots.title || $slots.buttons">
-      <i class="widget-icon" :class="icon" v-if="icon"></i>
-      <h3 class="w-100"><slot name="title"></slot></h3>
+      <slot name="pretitle" />
 
-      <div class="buttons"><slot name="buttons"> </slot></div>
+      <i class="widget-icon" :class="icon" v-if="icon"></i>
+      <h3><slot name="title"></slot></h3>
+      <small class="widget-desc" v-if="$slots.description"><slot name="description" /></small>
+
+      <div class="buttons" v-if="$slots.buttons"><slot name="buttons"> </slot></div>
     </div>
     <div class="card-body">
-      <slot>Widget Body</slot>
+      <slot>
+        <div class="widget-loader"></div>
+      </slot>
     </div>
     <slot name="footer"></slot>
   </div>
@@ -19,7 +24,8 @@ export default {
     icon: {
       type: String,
       default: null
-    }
+    },
+    plain: Boolean
   }
 }
 </script>

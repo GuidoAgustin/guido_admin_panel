@@ -8,14 +8,14 @@
       <li v-for="(menu, mi) of menus" :key="mi">
         <template v-if="menu.children && menu.children.length">
           <ul :id="`deep-${menu.title.toLowerCase().replaceAll(' ', '-')}`">
-            <li v-for="(submenu, smi) of menu.children" :key="smi">
+            <li v-for="(submenu, smi) of sortByTitle(menu.children)" :key="smi">
               <router-link
                 :class="{
                   disabled: !submenu.to
                 }"
                 :to="submenu.to || '#'"
               >
-                <i class="icon" :class="submenu.icon" />
+                <span class="icon">{{ parseSubmenuIcon(submenu) }}</span>
                 {{ submenu.title }}
               </router-link>
             </li>
@@ -48,10 +48,28 @@
 </template>
 
 <script>
-import menus from '@/router/menus.js'
+import allMenus from '@/router/menus.js'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
 export default {
   setup() {
+    const store = useStore()
+    const { userCan } = store.getters
+    const hasFunc = (funcs) => {
+      if (!funcs) return true
+      return funcs?.some((func) => userCan(func.name, func.mode)) || false
+    }
+
+    const menus = computed(() => {
+      return allMenus
+        .map((x) => ({
+          ...x,
+          children: (x.children || []).filter((c) => hasFunc(c.functionalities))
+        }))
+        .filter((x) => x.children?.length || hasFunc(x.functionalities))
+    })
+
     const toggleTarget = (e) => {
       const others = document.querySelectorAll('ul.menu > li > ul')
       const t = document.getElementById(e.target.dataset.target)
@@ -71,8 +89,22 @@ export default {
         x.classList.remove('opened')
       })
     }
+    const parseSubmenuIcon = (submenu) => {
+      return submenu.title
+        .toUpperCase()
+        .split(' ')
+        .map((x) => x[0])
+        .slice(0, 2)
+        .join('')
+    }
 
-    return { toggleTarget, closeSubmenus, menus }
+    const sortByTitle = (submenus) => {
+      return submenus.sort((a, b) => {
+        return a.title > b.title ? 1 : -1
+      })
+    }
+
+    return { toggleTarget, closeSubmenus, parseSubmenuIcon, sortByTitle, menus }
   }
 }
 </script>

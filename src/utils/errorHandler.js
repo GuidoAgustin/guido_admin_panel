@@ -7,7 +7,12 @@ export default {
         const res = e.response.data
 
         // Logout if not authorized
-        if ([401, 403].includes(res.code)) {
+        // if ([401, 403].includes(res.code)) {
+        //   $store.dispatch('logout')
+        // }
+
+        // Logout if expired
+        if (res.message && res.message === 'Token has expired') {
           $store.dispatch('logout')
         }
 

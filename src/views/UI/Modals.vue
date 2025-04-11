@@ -7,8 +7,10 @@
         <button
           class="btn btn-primary btn-block"
           @click="
-            showModal = true
-            size = 'sm'
+            () => {
+              showModal = true
+              size = 'sm'
+            }
           "
         >
           Open Modal Small
@@ -18,8 +20,10 @@
         <button
           class="btn btn-primary btn-block"
           @click="
-            showModal = true
-            size = 'md'
+            () => {
+              showModal = true
+              size = 'md'
+            }
           "
         >
           Open Modal Medium
@@ -29,8 +33,10 @@
         <button
           class="btn btn-primary btn-block"
           @click="
-            showModal = true
-            size = 'lg'
+            () => {
+              showModal = true
+              size = 'lg'
+            }
           "
         >
           Open Modal Large

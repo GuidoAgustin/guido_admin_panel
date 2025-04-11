@@ -1,7 +1,7 @@
 <template>
   <div class="form-container form-checkbox" :class="{ disabled, small }">
     <input type="checkbox" :id="itemId" v-model="result" :value="value" />
-    <label :for="itemId">{{ label }}</label>
+    <label :for="itemId" v-if="label">{{ label }}</label>
   </div>
 </template>
 
@@ -17,8 +17,7 @@ export default {
       default: null
     },
     label: {
-      type: String,
-      default: 'Nombre'
+      type: String
     },
     disabled: {
       type: Boolean,

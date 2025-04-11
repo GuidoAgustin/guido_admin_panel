@@ -2,18 +2,6 @@
   <div class="row">
     <div class="col-md-4">
       <Widget>
-        <template #title>Form Combobox</template>
-
-        <UsersCombobox v-model="selectedUser" label="Users combo no icon" />
-        <UsersCombobox v-model="selectedUser" label="Users combo disabled" disabled />
-        <UsersCombobox v-model="selectedUser" label="Users combo" icon="fa fa-users" />
-        <UsersCombobox v-model="selectedUser" label="Users combo 2" icon="fa fa-users" flex-field />
-
-        <p>Value: {{ selectedUser }}</p>
-      </Widget>
-    </div>
-    <div class="col-md-4">
-      <Widget>
         <template #title>Form Text</template>
 
         <FormText v-model="text" label="Texto" icon="fa-solid fa-equals" />
@@ -21,6 +9,24 @@
         <FormText v-model="text" label="Texto no icon" maxChars="25" />
         <FormText v-model="text" label="Texto **disabled**" disabled icon="fa-solid fa-equals" />
         <p>Texto: {{ text }}</p>
+      </Widget>
+    </div>
+    <div class="col-md-4">
+      <Widget>
+        <template #title>Form Html</template>
+
+        <FormHtml v-model="html" label="Html" />
+        <FormHtml v-model="html" label="Html **disabled**" disabled />
+        <p>Html: {{ html }}</p>
+      </Widget>
+    </div>
+    <div class="col-md-4">
+      <Widget>
+        <template #title>Form Code</template>
+
+        <FormCode v-model="code" label="Code" />
+        <FormCode v-model="code" label="Code **disabled**" disabled />
+        <p>Code: {{ code }}</p>
       </Widget>
     </div>
     <div class="col-md-4">
@@ -35,6 +41,24 @@
           icon="fa-solid fa-phone"
         />
         <p>Numero: {{ number }}</p>
+      </Widget>
+    </div>
+    <div class="col-md-4">
+      <Widget>
+        <template #title>Form Combobox</template>
+
+        <div class="d-grid grid-2-cols">
+          <label>Combo in modal</label>
+
+          <UsersCombobox v-model="selectedUser" label="Users combo keep open" inModal />
+        </div>
+        <UsersCombobox v-model="selectedUser" label="Users combo keep open" keep-open />
+        <UsersCombobox v-model="selectedUser" label="Users combo no icon" />
+        <UsersCombobox v-model="selectedUser" label="Users combo disabled" disabled />
+        <UsersCombobox v-model="selectedUser" label="Users combo" icon="fa fa-users" />
+        <UsersCombobox v-model="selectedUser" label="Users combo 2" icon="fa fa-users" flex-field />
+
+        <p>Value: {{ selectedUser }}</p>
       </Widget>
     </div>
     <div class="col-md-4">
@@ -162,15 +186,15 @@
         <hr />
         <h6>Icons</h6>
 
-        <FormButton icon>
+        <FormButton just-icon>
           <i class="fa fa-users"></i>
         </FormButton>
 
-        <FormButton icon theme="secondary">
+        <FormButton just-icon theme="secondary">
           <i class="fa fa-gears"></i>
         </FormButton>
 
-        <FormButton icon theme="danger">
+        <FormButton just-icon theme="danger">
           <i class="fa fa-house"></i>
         </FormButton>
       </Widget>
@@ -191,6 +215,7 @@
 <script>
 import Widget from '@/components/Widget.vue'
 import FormText from '@/components/Form/FormText.vue'
+import FormHtml from '@/components/Form/FormHtml.vue'
 import FormNumber from '@/components/Form/FormNumber.vue'
 import FormSelect from '@/components/Form/FormSelect.vue'
 import FormUploader from '@/components/Form/FormUploader.vue'
@@ -198,26 +223,29 @@ import FormDate from '@/components/Form/FormDate.vue'
 import FormDateRange from '@/components/Form/FormDateRange.vue'
 import FormSwitch from '@/components/Form/FormSwitch.vue'
 import FormButton from '@/components/Form/FormButton.vue'
-// import FormHtml from '@/components/Form/FormHtml.vue'
+import FormCode from '@/components/Form/FormCode.vue'
 import UsersCombobox from '@/components/Comboboxes/UsersCombobox.vue'
+import code from './html'
 
 export default {
   components: {
     Widget,
     FormText,
+    FormHtml,
     FormNumber,
     FormSelect,
     FormUploader,
     FormDate,
     FormSwitch,
-    // FormHtml,
+    FormCode,
     UsersCombobox,
     FormDateRange,
     FormButton
   },
   data: () => ({
     number: null,
-    html: null,
+    html: '',
+    code,
     text: null,
     selOpt: null,
     selFile: null,

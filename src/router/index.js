@@ -6,8 +6,30 @@ const routes = [
     redirect: '/login'
   },
   {
-    path: '/login',
-    component: () => import('@/views/Auth/Login.vue')
+    path: '/',
+    component: () => import('@/views/Auth/AuthLayout.vue'),
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: () => import('@/views/Auth/Login.vue')
+      },
+      {
+        path: 'forgot_password',
+        name: 'forgotPassword',
+        component: () => import('@/views/Auth/ForgotPassword.vue')
+      },
+      {
+        path: 'reset_password/:token',
+        name: 'resetPassword',
+        component: () => import('@/views/Auth/ResetPassword.vue')
+      },
+      {
+        path: 'activate_user/:token',
+        name: 'resetPassword',
+        component: () => import('@/views/Auth/ActivateUser.vue')
+      }
+    ]
   },
   {
     path: '/',

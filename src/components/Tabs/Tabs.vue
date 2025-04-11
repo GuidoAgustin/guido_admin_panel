@@ -1,9 +1,11 @@
 <template>
-  <div class="tabs">
+  <div class="tabs" :class="[{ 'tabs-underlined': underline }, `tabs-${theme}`]">
     <div class="tabs-head" v-if="$slots.header">
       <slot name="header" />
     </div>
     <div class="tabs-nav">
+      <slot name="addTab" />
+
       <div
         v-for="(item, index) in tabs"
         :key="index"
@@ -19,6 +21,8 @@
           <i :class="item.icon"></i>
         </div>
         {{ item?.title || item }}
+
+        <slot name="removeTab" />
       </div>
     </div>
     <transition name="fade" mode="out-in">
@@ -39,9 +43,10 @@
 export default {
   props: {
     tabs: Array,
+    underline: Boolean,
     theme: {
       type: String,
-      default: 'white'
+      default: 'dark'
     }
   },
   emits: ['change'],

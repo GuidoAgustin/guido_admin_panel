@@ -18,12 +18,18 @@ export default {
       if (value) localStorage.setItem('user', JSON.stringify(value))
       else localStorage.removeItem('user')
       state.user = value
+    },
+    SET_REFRESH_TOKEN(state, value) {
+      if (value) localStorage.setItem('refresh_token', value)
+      else localStorage.removeItem('refresh_token')
+      state.refresh_token = value
     }
   },
   actions: {
     setCredentials({ commit }) {
       commit('SET_TOKEN', localStorage.getItem('token'))
       commit('SET_USER', JSON.parse(localStorage.getItem('user')))
+      commit('SET_REFRESH_TOKEN', localStorage.getItem('refresh_token'))
     },
     login({ commit }) {
       commit('SHOW_LOADER')
@@ -33,85 +39,122 @@ export default {
       commit('HIDE_LOADER')
 
       // return new Promise((resolve) => {
-      //   axios
-      //     .post(baseUrl + "login", form)
+      //   this.$clients.api
+      //     .post('login', form)
       //     .then(({ data }) => {
       //       if (form.remember) {
-      //         localStorage.setItem("default_email", form.email);
-      //         localStorage.setItem("default_pw", form.password);
+      //         localStorage.setItem('default_email', form.email)
+      //         localStorage.setItem('default_pw', form.password)
       //       } else {
-      //         localStorage.removeItem("default_email");
-      //         localStorage.removeItem("default_pw");
+      //         localStorage.removeItem('default_email')
+      //         localStorage.removeItem('default_pw')
       //       }
-      //       commit("SET_TOKEN", data.data.token);
-      //       commit("SET_USER", data.data.user);
-      //       resolve();
+      //       commit('SET_TOKEN', data.data.token)
+      //       commit('SET_USER', data.data.user)
+      //       commit('SET_REFRESH_TOKEN', data.data.refresh_token)
+      //       resolve()
       //     })
       //     .catch(this.$errorHandler)
       //     .finally(() => {
-      //       commit("HIDE_LOADER");
-      //     });
-      // });
+      //       commit('HIDE_LOADER')
+      //     })
+      // })
+    },
+    loginAsUser({ commit }, user_id) {
+      commit('SHOW_LOADER')
+
+      return new Promise((resolve) => {
+        this.$clients.api
+          .post(`login/${user_id}`)
+          .then(({ data }) => {
+            const admin_token = localStorage.getItem('token')
+            const admin_user = localStorage.getItem('user')
+
+            localStorage.setItem('admin_token', admin_token)
+            localStorage.setItem('admin_user', admin_user)
+
+            return data
+          })
+          .then(({ data }) => {
+            commit('SET_TOKEN', data.token)
+            commit('SET_USER', data.user)
+            resolve()
+          })
+          .catch(this.$errorHandler)
+          .finally(() => {
+            commit('HIDE_LOADER')
+            $router.push('/')
+          })
+      })
     },
     logout({ commit }) {
       return new Promise((resolve) => {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
+        localStorage.removeItem('refresh_token')
         commit('SET_TOKEN', null)
         commit('SET_USER', null)
+        commit('SET_REFRESH_TOKEN', null)
         $router.push('/login')
         resolve()
       })
     },
-
-    register({ commit }, form) {
+    logoutToAdmin({ commit }) {
       commit('SHOW_LOADER')
-      return new Promise((resolve, reject) => {
-        axios
-          .post(baseUrl + 'register', form)
+
+      const admin_token = localStorage.getItem('admin_token')
+      const admin_user = localStorage.getItem('admin_user')
+
+      localStorage.removeItem('admin_token')
+      localStorage.removeItem('admin_user')
+
+      commit('SET_TOKEN', admin_token)
+      commit('SET_USER', admin_user)
+
+      commit('HIDE_LOADER')
+
+      $router.push('/')
+    },
+
+    forgotPassword({ commit }, form) {
+      commit('SHOW_LOADER')
+      return new Promise((resolve) => {
+        this.$clients.api
+          .post('forgot_password', form)
           .then(({ data }) => {
             resolve(data.data)
           })
-          .catch((err) => {
-            console.log(err.response.data)
-            reject(err.response.data.message)
-          })
+          .catch(this.$errorHandler)
           .finally(() => {
             commit('HIDE_LOADER')
           })
       })
     },
 
-    forgetPassword({ commit }, form) {
+    resetPassword({ commit }, { token, ...form }) {
       commit('SHOW_LOADER')
-      return new Promise((resolve, reject) => {
-        axios
-          .post(baseUrl + 'forget_password', form)
+      return new Promise((resolve) => {
+        this.$clients.api
+          .post('reset_password/' + token, form)
           .then(({ data }) => {
             resolve(data.data)
           })
-          .catch((err) => {
-            console.log(err.response.data)
-            reject(err.response.data.message)
-          })
+          .catch(this.$errorHandler)
           .finally(() => {
             commit('HIDE_LOADER')
           })
       })
     },
 
-    resetPassword({ commit }, form) {
+    verifyUser({ commit }, { token, ...form }) {
       commit('SHOW_LOADER')
-      return new Promise((resolve, reject) => {
-        axios
-          .post(baseUrl + 'reset_password', form)
+      return new Promise((resolve) => {
+        this.$clients.api
+          .post(`users/${token}/verify`, form)
           .then(({ data }) => {
             resolve(data.data)
           })
-          .catch((err) => {
-            console.log(err.response.data)
-            reject(err.response.data.message)
-          })
+          .catch(this.$errorHandler)
           .finally(() => {
             commit('HIDE_LOADER')
           })
@@ -121,9 +164,9 @@ export default {
     updateProfile({ commit, getters, dispatch }, form) {
       commit('SHOW_LOADER')
       return new Promise((resolve) => {
-        axios
+        this.$clients.api
           .put(
-            baseUrl + 'profile',
+            'profile',
             {
               email: getters.user.email,
               ...form
@@ -153,8 +196,11 @@ export default {
     token(state) {
       return state.token
     },
+    refresh_token(state) {
+      return state.refresh_token
+    },
     user(state) {
       return state.user
-    }
+    },
   }
 }

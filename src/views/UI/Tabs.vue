@@ -4,13 +4,19 @@
       <Widget>
         <Tabs :tabs="tabs" @change="onTabChange">
           <template #header> <h4>TABS HEADER</h4> </template>
-          <template #tabs-pane-1> Pane 1 </template>
-          <template #tabs-pane-2> Pane 2 </template>
+          <template #tabs-pane-1>
+            <TabsPane1 :form="form" />
+          </template>
+          <template #tabs-pane-2>
+            <TabsPane2 :form="form" />
+          </template>
           <template #tabs-pane-3> Pane 3 </template>
           <template #tabs-pane-4> Pane 4 </template>
           <template #tabs-pane-5> Pane 5 </template>
         </Tabs>
       </Widget>
+
+      {{ form }}
     </div>
   </div>
 </template>
@@ -18,11 +24,15 @@
 <script>
 import Widget from '@/components/Widget.vue'
 import Tabs from '@/components/Tabs/Tabs.vue'
+import TabsPane1 from './TabsPane1.vue'
+import TabsPane2 from './TabsPane2.vue'
 
 export default {
   components: {
     Widget,
-    Tabs
+    Tabs,
+    TabsPane1,
+    TabsPane2
   },
   data: () => ({
     tabs: [
@@ -31,7 +41,8 @@ export default {
       'Landlords',
       'Rooms',
       'Beds'
-    ]
+    ],
+    form: {}
   }),
   methods: {
     onTabChange(tab) {

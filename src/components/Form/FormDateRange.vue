@@ -6,12 +6,15 @@
     :masks="masksValues"
     :popover="{ visibility: disabled ? 'hidden' : 'focus' }"
     :disabled-dates="disabledDates"
-    :columns="isDesktop ? 2 : 1"
     ref="popover"
   >
     <template v-slot="{ inputValue, inputEvents }">
-      <div class="form-container form-date" :class="{ disabled, 'flex-field': flexField }">
-        <label>{{ label }}</label>
+      <div
+        class="form-container form-date"
+        :class="{ disabled, 'flex-field': flexField }"
+        v-bind="$attrs"
+      >
+        <label v-if="label">{{ label }}</label>
 
         <div class="d-grid grid-2-cols gap-2">
           <div class="form-wrapper">
@@ -55,10 +58,7 @@ export default {
       type: [Object],
       default: null
     },
-    label: {
-      type: String,
-      default: ''
-    },
+    label: String,
     disabled: {
       type: Boolean,
       default: false
@@ -101,6 +101,14 @@ export default {
     modelValue: {
       immediate: true,
       handler(val) {
+        if (!val) {
+          this.date = {
+            start: null,
+            end: null
+          }
+          return
+        }
+
         this.date = {
           start: parseToDate(val.start, this.dateTime),
           end: parseToDate(val.end, this.dateTime)
