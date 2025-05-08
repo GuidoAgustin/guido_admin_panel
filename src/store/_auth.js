@@ -1,7 +1,5 @@
-import axios from 'axios'
 import $router from '../router/index'
 
-const baseUrl = import.meta.env.VITE_BACKEND_URL
 
 export default {
   state: () => ({
@@ -31,34 +29,34 @@ export default {
       commit('SET_USER', JSON.parse(localStorage.getItem('user')))
       commit('SET_REFRESH_TOKEN', localStorage.getItem('refresh_token'))
     },
-    login({ commit }) {
+    login({ commit }, form) {
       commit('SHOW_LOADER')
 
-      commit('SET_TOKEN', 'test')
-      commit('SET_USER', 'test')
-      commit('HIDE_LOADER')
+    //   commit('SET_TOKEN', 'test')
+    //   commit('SET_USER', 'test')
+    //   commit('HIDE_LOADER')
 
-      // return new Promise((resolve) => {
-      //   this.$clients.api
-      //     .post('login', form)
-      //     .then(({ data }) => {
-      //       if (form.remember) {
-      //         localStorage.setItem('default_email', form.email)
-      //         localStorage.setItem('default_pw', form.password)
-      //       } else {
-      //         localStorage.removeItem('default_email')
-      //         localStorage.removeItem('default_pw')
-      //       }
-      //       commit('SET_TOKEN', data.data.token)
-      //       commit('SET_USER', data.data.user)
-      //       commit('SET_REFRESH_TOKEN', data.data.refresh_token)
-      //       resolve()
-      //     })
-      //     .catch(this.$errorHandler)
-      //     .finally(() => {
-      //       commit('HIDE_LOADER')
-      //     })
-      // })
+      return new Promise((resolve) => {
+        this.$clients.api
+          .post('login', form)
+          .then(({ data }) => {
+            if (form.remember) {
+              localStorage.setItem('default_email', form.email)
+              localStorage.setItem('default_pw', form.password)
+            } else {
+              localStorage.removeItem('default_email')
+              localStorage.removeItem('default_pw')
+            }
+            commit('SET_TOKEN', data.data.token)
+            commit('SET_USER', data.data.user)
+            commit('SET_REFRESH_TOKEN', data.data.refresh_token)
+            resolve()
+          })
+          .catch(this.$errorHandler)
+          .finally(() => {
+            commit('HIDE_LOADER')
+          })
+      })
     },
     loginAsUser({ commit }, user_id) {
       commit('SHOW_LOADER')
