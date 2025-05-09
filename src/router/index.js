@@ -58,6 +58,11 @@ const routes = [
       {
         path: 'opciones',
         component: () => import('@/views/Dashboard/Options.vue')
+      },
+      {
+        path: 'E-Commerce',
+        name: 'E-Commerce',
+        component: () => import('@/views/E-Commerce/E-Commerce.vue')
       }
     ]
   }

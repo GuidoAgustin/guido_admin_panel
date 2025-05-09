@@ -26,6 +26,10 @@ export default [
       {
         title: 'Tabs',
         to: '/tabs'
+      },
+      {
+        title: 'E-Commerce',
+        to: '/E-Commerce'
       }
     ]
   },
