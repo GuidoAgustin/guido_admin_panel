@@ -1,8 +1,8 @@
 <template>
   <div class="topbar">
-    <button class="btn btn-transparent menu-handler" @click.stop="openSidebar">
+    <!-- <button class="btn btn-transparent menu-handler" @click.stop="openSidebar">
       <i class="fa fa-bars"></i>
-    </button>
+    </button> -->
 
     <ul class="topbar-buttons">
       <li><i class="fa-solid fa-bell"></i></li>

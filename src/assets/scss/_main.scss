@@ -1,3 +1,5 @@
+/* frontend/src/assets/scss/_topbar.scss */
+
 * {
   margin: 0;
   padding: 0;
@@ -10,6 +12,7 @@ body,
   height: 100vh;
   width: 100%;
 }
+
 body {
   color: var(--body-text);
   background: var(--body-bg);
@@ -58,7 +61,7 @@ ul.unstyled {
   padding: 0;
   margin: 0;
 
-  > * {
+  >* {
     padding: 0;
     margin: 0;
   }
@@ -73,6 +76,7 @@ a {
     color: colorLightness('primary', -0.3);
   }
 }
+
 .underlined {
   text-decoration: underline;
 }
@@ -127,7 +131,7 @@ a {
       background: white;
       flex: 1;
 
-      > li {
+      >li {
         display: flex;
         flex-direction: column-reverse;
 
@@ -172,13 +176,15 @@ a {
             pointer-events: none;
             transform: translateX(-4px);
           }
+
           .arrow {
             margin-left: auto;
             transition: 0.5s ease;
             pointer-events: none;
           }
         }
-        > ul {
+
+        >ul {
           max-height: 0;
           overflow: hidden;
           pointer-events: none;
@@ -200,7 +206,8 @@ a {
           transition: 0.5s ease;
           max-height: 800px;
         }
-        ul.opened + a {
+
+        ul.opened+a {
           border-left: 5px solid var(--color-primary);
           transition: 0.5s ease;
 
@@ -222,6 +229,7 @@ a {
     z-index: 2;
     padding-left: var(--sidebar-closed-width);
 
+    // Estilos de Topbar dentro de dashboard-layout (originales)
     .topbar {
       display: flex;
       justify-content: flex-end;
@@ -286,6 +294,7 @@ a {
         transition: 0.5s ease;
       }
     }
+
     .main {
       padding-left: 0 !important;
 
@@ -303,6 +312,84 @@ a {
 .form-row {
   row-gap: 10px;
 }
+
 .row {
   row-gap: 30px;
+}
+
+/* --- Estilos generales para la Topbar (fuera de dashboard-layout) --- */
+/* Estos estilos se aplicarán a cualquier elemento con la clase .topbar */
+.topbar {
+  display: flex;
+  justify-content: space-between; // Espacio entre el handler del menú y los botones
+  align-items: center;
+  height: var(--topbar-height, 60px); // Usar variable si existe, o un valor por defecto
+  background: white; // Fondo blanco, puedes ajustarlo
+  box-shadow: var(--shadow, 0 2px 4px rgba(0, 0, 0, 0.1)); // Sombra consistente
+  padding: 0 1.5em; // Padding horizontal
+  z-index: 10; // Asegurar que esté por encima de otros elementos
+  width: 100%; // Ocupar todo el ancho disponible
+  box-sizing: border-box; // Incluir padding en el ancho
+
+  .menu-handler {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em; // Tamaño del icono
+    color: var(--body-text); // Color del icono
+    padding: 0.5em; // Área clickeable
+    display: flex; // Para centrar el icono
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: var(--color-primary); // Color al pasar el mouse
+    }
+  }
+
+  .topbar-buttons {
+    display: flex;
+    align-items: center;
+    list-style: none; // Asegurar que no haya viñetas
+    margin: 0;
+    padding: 0;
+    margin-left: auto; // <-- Esto empuja los botones a la derecha
+
+    li {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 1em; // Espacio entre botones
+      cursor: pointer;
+      font-size: 1.2em; // Tamaño de los iconos de los botones
+      color: var(--body-text); // Color de los iconos
+
+      &:last-child {
+        padding-right: 0; // No padding a la derecha del último ítem
+      }
+
+      &:hover {
+        color: var(--color-primary); // Color al pasar el mouse
+      }
+    }
+  }
+}
+
+// Media query para ajustar el layout en pantallas pequeñas si es necesario
+// Puedes adaptar esto según cómo quieras que se vea en móvil
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 1em; // Menos padding en móvil
+
+    .menu-handler {
+      font-size: 1.2em; // Icono más pequeño en móvil
+    }
+
+    .topbar-buttons {
+      li {
+        padding: 0 0.5em; // Menos espacio entre botones en móvil
+        font-size: 1em; // Iconos más pequeños
+      }
+    }
+  }
 }
