@@ -50,44 +50,44 @@ const routes = [
     ]
   },
 
-  // 4) Rutas protegidas bajo DashboardLayout (requieren autenticación)
-  {
-    path: '/', // Mantener bajo root, las rutas hijas tendrán paths como /dashboard, /forms, etc.
-    component: () => import('@/views/Dashboard/DashboardLayout.vue'), // Layout para las páginas protegidas
-    children: [
-      {
-        path: 'dashboard',
-        name: 'dashboard',
-        component: () => import('@/views/Dashboard/Dashboard.vue')
-      },
-      {
-        path: 'forms',
-        name: 'forms',
-        component: () => import('@/views/UI/Forms.vue')
-      },
-      {
-        path: 'tables',
-        name: 'tables',
-        component: () => import('@/views/UI/Tables.vue')
-      },
-      {
-        path: 'modals',
-        name: 'modals',
-        component: () => import('@/views/UI/Modals.vue')
-      },
-      {
-        path: 'tabs',
-        name: 'tabs',
-        component: () => import('@/views/UI/Tabs.vue')
-      },
-      {
-        path: 'opciones',
-        name: 'opciones',
-        component: () => import('@/views/Dashboard/Options.vue')
-      },
-      // E-Commerce y ticketing se movieron a rutas públicas, por lo que se eliminan de aquí
-    ]
-  },
+  // // 4) Rutas protegidas bajo DashboardLayout (requieren autenticación)
+  // {
+  //   path: '/', // Mantener bajo root, las rutas hijas tendrán paths como /dashboard, /forms, etc.
+  //   component: () => import('@/views/Dashboard/DashboardLayout.vue'), // Layout para las páginas protegidas
+  //   children: [
+  //     {
+  //       path: 'dashboard',
+  //       name: 'dashboard',
+  //       component: () => import('@/views/Dashboard/Dashboard.vue')
+  //     },
+  //     {
+  //       path: 'forms',
+  //       name: 'forms',
+  //       component: () => import('@/views/UI/Forms.vue')
+  //     },
+  //     {
+  //       path: 'tables',
+  //       name: 'tables',
+  //       component: () => import('@/views/UI/Tables.vue')
+  //     },
+  //     {
+  //       path: 'modals',
+  //       name: 'modals',
+  //       component: () => import('@/views/UI/Modals.vue')
+  //     },
+  //     {
+  //       path: 'tabs',
+  //       name: 'tabs',
+  //       component: () => import('@/views/UI/Tabs.vue')
+  //     },
+  //     {
+  //       path: 'opciones',
+  //       name: 'opciones',
+  //       component: () => import('@/views/Dashboard/Options.vue')
+  //     },
+  //     // E-Commerce y ticketing se movieron a rutas públicas, por lo que se eliminan de aquí
+  //   ]
+  // },
 ];
 
 const router = createRouter({

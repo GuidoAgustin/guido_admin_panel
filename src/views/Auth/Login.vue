@@ -41,7 +41,7 @@ export default {
   methods: {
     signIn() {
       this.$store.dispatch('login', this.form).then(() => {
-        this.$router.push('/dashboard')
+        this.$router.push('/home')
       })
     }
   }
