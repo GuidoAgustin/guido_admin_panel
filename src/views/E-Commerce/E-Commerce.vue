@@ -1,5 +1,6 @@
 <template>
   <div class="ecommerce-products-container distinct-style">
+    <Topbar />
     <header class="page-hero">
       <div class="hero-content">
         <h1 class="main-title"><span>Nuestra</span> Selección</h1>
@@ -9,19 +10,39 @@
 
     <div class="products-grid-wrapper">
       <div class="products-grid">
-        <div class="product-card" v-for="product in products" :key="product.id" @mousemove="handleMouseMove($event, product.id)" @mouseleave="handleMouseLeave($event, product.id)">
+        <div
+          class="product-card"
+          v-for="product in products"
+          :key="product.id"
+          @mousemove="handleMouseMove($event, product.id)"
+          @mouseleave="handleMouseLeave($event, product.id)"
+        >
           <div class="product-card-border-glow"></div>
           <div class="product-image-showcase">
             <img :src="product.image" :alt="product.name" class="product-image" />
-            <span class="product-badge" v-if="product.badge" :class="getBadgeClass(product.badge)">{{ product.badge }}</span>
+            <span
+              class="product-badge"
+              v-if="product.badge"
+              :class="getBadgeClass(product.badge)"
+              >{{ product.badge }}</span
+            >
           </div>
           <div class="product-info">
             <p class="product-category">{{ product.category || 'Moda y Accesorios' }}</p>
             <h3 class="product-name">{{ product.name }}</h3>
             <div class="product-pricing">
-              <p class="price-item total"><span>{{ formatCurrency(product.price + (product.shippingCost || 0)) }}</span></p>
-              <p class="price-item subtotal" v-if="product.shippingCost !== undefined && product.shippingCost > 0">Subtotal: {{ formatCurrency(product.price) }} + Envío</p>
-              <p class="price-item subtotal" v-else>Subtotal: {{ formatCurrency(product.price) }} (Envío Gratis)</p>
+              <p class="price-item total">
+                <span>{{ formatCurrency(product.price + (product.shippingCost || 0)) }}</span>
+              </p>
+              <p
+                class="price-item subtotal"
+                v-if="product.shippingCost !== undefined && product.shippingCost > 0"
+              >
+                Subtotal: {{ formatCurrency(product.price) }} + Envío
+              </p>
+              <p class="price-item subtotal" v-else>
+                Subtotal: {{ formatCurrency(product.price) }} (Envío Gratis)
+              </p>
             </div>
             <button class="btn btn-buy-now" @click="addToCart(product)">
               <i class="fas fa-shopping-cart"></i> Comprar Ahora
@@ -30,15 +51,23 @@
         </div>
       </div>
     </div>
-    
+
     <footer class="site-footer-ecommerce">
       <div class="container">
         <h4>Síguenos en Redes</h4>
         <div class="social-icons">
-          <a href="#" target="_blank" aria-label="Facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" target="_blank" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="#" target="_blank" aria-label="Twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" target="_blank" aria-label="Pinterest" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+          <a href="#" target="_blank" aria-label="Facebook" title="Facebook"
+            ><i class="fab fa-facebook-f"></i
+          ></a>
+          <a href="#" target="_blank" aria-label="Instagram" title="Instagram"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a href="#" target="_blank" aria-label="Twitter" title="Twitter"
+            ><i class="fab fa-twitter"></i
+          ></a>
+          <a href="#" target="_blank" aria-label="Pinterest" title="Pinterest"
+            ><i class="fab fa-pinterest-p"></i
+          ></a>
         </div>
         <p class="copyright">
           &copy; {{ new Date().getFullYear() }} TuTienda Favorita. Todos los derechos reservados.
@@ -49,8 +78,13 @@
 </template>
 
 <script>
+import Topbar from '@/components/Topbar.vue'
+
 export default {
-  name: "EcommerceProductsPageFinalTheme",
+  name: 'EcommerceProductsPageFinalTheme',
+  components: {
+    Topbar
+  },
   data() {
     return {
       products: [
@@ -59,7 +93,7 @@ export default {
           name: 'Cartera "Esencia"',
           price: 140.0,
           shippingCost: 18.0,
-          image: '/img/logo.svg', 
+          image: '/img/logo.svg',
           category: 'Bolsos de Diseño',
           badge: 'Tendencia'
         },
@@ -77,7 +111,7 @@ export default {
           name: 'Pantalón "Confort"',
           price: 59.99,
           shippingCost: 10.0,
-          image: '/img/logo.svg', 
+          image: '/img/logo.svg',
           category: 'Básicos Renovados',
           badge: 'Oferta'
         },
@@ -91,49 +125,49 @@ export default {
           badge: 'Nuevo'
         }
       ]
-    };
+    }
   },
   methods: {
     addToCart(product) {
-      alert(`"${product.name}" ha sido añadido al carrito.`);
-      console.log("Añadiendo al carrito:", product);
+      alert(`"${product.name}" ha sido añadido al carrito.`)
+      console.log('Añadiendo al carrito:', product)
     },
     formatCurrency(value) {
       if (typeof value !== 'number') {
-        return '$0.00';
+        return '$0.00'
       }
-      return `$${value.toFixed(2)}`;
+      return `$${value.toFixed(2)}`
     },
     getBadgeClass(badgeText) {
-      if (!badgeText) return '';
-      const text = badgeText.toLowerCase();
-      if (text.includes('oferta')) return 'badge-offer';
-      if (text.includes('nuevo')) return 'badge-new';
-      if (text.includes('popular') || text.includes('tendencia')) return 'badge-popular';
-      return '';
+      if (!badgeText) return ''
+      const text = badgeText.toLowerCase()
+      if (text.includes('oferta')) return 'badge-offer'
+      if (text.includes('nuevo')) return 'badge-new'
+      if (text.includes('popular') || text.includes('tendencia')) return 'badge-popular'
+      return ''
     },
-    handleMouseMove(event,) {
-      const card = event.currentTarget;
-      const glow = card.querySelector('.product-card-border-glow');
-      if (!glow) return; // Safety check
-      const rect = card.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+    handleMouseMove(event) {
+      const card = event.currentTarget
+      const glow = card.querySelector('.product-card-border-glow')
+      if (!glow) return // Safety check
+      const rect = card.getBoundingClientRect()
+      const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
 
-      glow.style.setProperty('--mouse-x', `${x}px`);
-      glow.style.setProperty('--mouse-y', `${y}px`);
-      glow.style.opacity = '1';
+      glow.style.setProperty('--mouse-x', `${x}px`)
+      glow.style.setProperty('--mouse-y', `${y}px`)
+      glow.style.opacity = '1'
     },
-    handleMouseLeave(event,) {
-      const card = event.currentTarget;
-      const glow = card.querySelector('.product-card-border-glow');
-       if (!glow) return; // Safety check
-      glow.style.opacity = '0';
+    handleMouseLeave(event) {
+      const card = event.currentTarget
+      const glow = card.querySelector('.product-card-border-glow')
+      if (!glow) return // Safety check
+      glow.style.opacity = '0'
     }
   }
-};
+}
 </script>
 
 <style>
-@import "@/assets/scss/_e-commerce.scss";
+@import '@/assets/scss/_e-commerce.scss';
 </style>
