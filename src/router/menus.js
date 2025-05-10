@@ -30,6 +30,14 @@ export default [
       {
         title: 'E-Commerce',
         to: '/E-Commerce'
+      },
+      {
+        title: 'Home',
+        to: '/home'
+      },
+      {
+        title: 'Ticketing',
+        to: '/ticketing'
       }
     ]
   },

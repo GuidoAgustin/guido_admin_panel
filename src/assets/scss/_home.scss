@@ -1,0 +1,320 @@
+/* Importación de una fuente (asegúrate que esté disponible) */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
+
+:root {
+    --primary-color: #38a169;
+    /* Un verde similar al de la imagen de referencia */
+    --secondary-color: #f0b90b;
+    /* Un dorado/amarillo para acentos */
+    --dark-bg: #1a2a25;
+    /* Fondo muy oscuro, casi negro verdoso */
+    --medium-dark-bg: #2c3e39;
+    /* Fondo para tarjetas, un poco más claro */
+    --light-text: #e2e8f0;
+    /* Texto claro */
+    --dark-text: #1a202c;
+    /* Texto oscuro para botones claros */
+    --border-radius-main: 12px;
+    /* Bordes redondeados consistentes */
+    --box-shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.2),
+        0 8px 10px -6px rgba(0, 0, 0, 0.15);
+}
+
+.homepage-container {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.7;
+}
+
+.container {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    min-height: 75vh;
+    /* Más alto para impacto */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    color: white;
+    /* Texto blanco para el hero */
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(10, 20, 15, 0.7);
+    /* Overlay más oscuro */
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 750px;
+}
+
+.hero-content h1 {
+    font-size: 2.8rem;
+    /* Ajustado para Poppins */
+    font-weight: 700;
+    margin-bottom: 25px;
+    line-height: 1.2;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.hero-content p {
+    font-size: 1.15rem;
+    font-weight: 300;
+    margin-bottom: 35px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Explanation Section --- */
+.explanation-section {
+    padding: 70px 0;
+    text-align: center;
+}
+
+.explanation-section h2 {
+    font-size: 2.3rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    /* Título con color de acento */
+    margin-bottom: 50px;
+}
+
+.explanation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 35px;
+}
+
+.explanation-item {
+    background-color: var(--medium-dark-bg);
+    padding: 30px;
+    border-radius: var(--border-radius-main);
+    box-shadow: var(--box-shadow-main);
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.explanation-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.25),
+        0 10px 15px -6px rgba(0, 0, 0, 0.2);
+}
+
+.explanation-item img {
+    width: 100%;
+    height: 200px;
+    /* Altura fija para consistencia */
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.explanation-item h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.explanation-item p {
+    font-size: 0.95rem;
+    color: #bdc3c7;
+    /* Un gris claro para el texto de las tarjetas */
+    line-height: 1.6;
+}
+
+/* --- Call to Action Buttons Section --- */
+.cta-buttons-section {
+    padding: 50px 0 70px;
+    text-align: center;
+}
+
+.btn {
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    /* Botones más redondeados */
+    margin: 10px;
+    transition: background-color 0.3s ease, transform 0.2s ease,
+        box-shadow 0.3s ease;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    /* Para alinear icono y texto */
+    align-items: center;
+    gap: 8px;
+    /* Espacio entre icono y texto */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2f855a;
+    /* Un verde ligeramente más oscuro */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 2px solid var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-color);
+    color: var(--dark-text);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(var(--secondary-color), 0.25);
+}
+
+/* --- Footer --- */
+.site-footer {
+    background-color: #121a16;
+    /* Aún más oscuro, casi negro */
+    padding: 50px 0 30px;
+    text-align: center;
+    border-top: 3px solid #2a3b35;
+}
+
+.site-footer h4 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+}
+
+.social-icons a {
+    color: var(--secondary-color);
+    font-size: 1.6rem;
+    /* Tamaño de iconos */
+    margin: 0 12px;
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.3s ease;
+    display: inline-block;
+    /* Para aplicar transform */
+}
+
+.social-icons a:hover {
+    color: white;
+    transform: scale(1.2);
+}
+
+.copyright {
+    margin-top: 30px;
+    font-size: 0.85rem;
+    color: #718096;
+    /* Gris para el copyright */
+}
+
+/* --- Media Queries para Responsividad --- */
+@media (max-width: 992px) {
+    .hero-content h1 {
+        font-size: 2.4rem;
+    }
+
+    .hero-content p {
+        font-size: 1.05rem;
+    }
+
+    .explanation-section h2 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 60vh;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    .explanation-item h3 {
+        font-size: 1.3rem;
+    }
+
+    .btn {
+        padding: 12px 28px;
+        font-size: 0.95rem;
+        /* display: block; /* Opcional: para que ocupen todo el ancho disponible */
+        /* width: 70%; */
+        /* margin-left: auto; */
+        /* margin-right: auto; */
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+
+    .explanation-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+    }
+
+    .explanation-item {
+        padding: 20px;
+    }
+
+    .btn {
+        width: 80%;
+        /* Botones más anchos en móvil */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .social-icons a {
+        font-size: 1.4rem;
+        margin: 0 8px;
+    }
+
+    .site-footer h4 {
+        font-size: 1.4rem;
+    }
+}

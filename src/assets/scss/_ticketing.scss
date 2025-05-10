@@ -1,0 +1,529 @@
+/* Importar variables y estilos base si no son globales o heredados */
+/* Asegúrate que estas variables coincidan con las de tu HomePage.vue o estén definidas globalmente */
+/* Si no usas :root globalmente, define las variables aquí directamente */
+/* Ejemplo: --primary-color: #38a169; */
+
+/* Importación de una fuente (asegúrate que esté disponible en tu proyecto) */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
+
+/* Variables CSS (si no están definidas globalmente) */
+:root {
+    --primary-color: #38a169;
+    /* Un verde similar al de la imagen de referencia */
+    --secondary-color: #f0b90b;
+    /* Un dorado/amarillo para acentos */
+    --tertiary-color: #d9534f;
+    /* Un rojo suave para acciones como limpiar filtros */
+    --dark-bg: #1a2a25;
+    /* Fondo muy oscuro, casi negro verdoso */
+    --medium-dark-bg: #2c3e39;
+    /* Fondo para tarjetas, un poco más claro */
+    --input-bg: #3a4c46;
+    /* Fondo de input ligeramente más claro que medium-dark-bg */
+    --input-border-color: #4a5c56;
+    --light-text: #e2e8f0;
+    /* Texto claro */
+    --medium-light-text: #bdc3c7;
+    /* Texto un poco menos brillante */
+    --dark-text: #1a202c;
+    /* Texto oscuro para botones claros */
+    --border-radius-main: 12px;
+    /* Bordes redondeados consistentes */
+    --border-radius-small: 6px;
+    --box-shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.2),
+        0 8px 10px -6px rgba(0, 0, 0, 0.15);
+    --box-shadow-hover: 0 12px 28px -6px rgba(0, 0, 0, 0.3),
+        0 10px 12px -8px rgba(0, 0, 0, 0.25);
+}
+
+
+.ticket-page-container {
+    font-family: "Poppins", sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    min-height: 100vh;
+    padding-bottom: 1px;
+    /* Para asegurar que el margen del footer no colapse */
+}
+
+.container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.page-header {
+    padding: 40px 0 30px;
+    text-align: center;
+    border-bottom: 1px solid var(--medium-dark-bg);
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    color: var(--medium-light-text);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.ticket-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+/* --- Filtros Sidebar --- */
+.filters-sidebar {
+    flex: 0 0 300px;
+    /* No crece, no se encoge, base de 300px */
+    background-color: var(--medium-dark-bg);
+    padding: 25px;
+    border-radius: var(--border-radius-main);
+    align-self: flex-start;
+    box-shadow: var(--box-shadow-main);
+}
+
+.filters-sidebar h3 {
+    font-size: 1.6rem;
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--light-text);
+}
+
+.filter-group select,
+.filter-group input[type="date"],
+.filter-group input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border-color);
+    border-radius: var(--border-radius-small);
+    color: var(--light-text);
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Estilo para el placeholder del input date si es soportado */
+.filter-group input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    /* Para que el icono del calendario sea visible en fondo oscuro */
+}
+
+
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.3);
+    /* Usando el color primario con opacidad */
+}
+
+.price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.price-inputs span {
+    color: var(--light-text);
+    padding: 0 5px;
+}
+
+.btn-filter {
+    width: 100%;
+    padding: 12px;
+}
+
+/* Ajuste para el botón terciario */
+.btn.btn-tertiary {
+    background-color: var(--tertiary-color);
+    color: white;
+}
+
+.btn.btn-tertiary:hover {
+    background-color: #c9302c;
+    /* Un rojo más oscuro para el hover */
+}
+
+
+/* --- Tickets Main Content --- */
+.tickets-main-content {
+    flex: 1;
+    /* Ocupa el espacio restante */
+    min-width: 0;
+}
+
+.tickets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    text-align: center;
+    background-color: var(--medium-dark-bg);
+    border-radius: var(--border-radius-main);
+    min-height: 300px;
+    /* Para que ocupe algo de espacio */
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+}
+
+.no-results p {
+    font-size: 1.2rem;
+    color: var(--light-text);
+}
+
+.ticket-card {
+    background-color: var(--medium-dark-bg);
+    border-radius: var(--border-radius-main);
+    box-shadow: var(--box-shadow-main);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ticket-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.ticket-image-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    background-color: var(--dark-bg);
+    /* Placeholder color si la imagen tarda en cargar */
+}
+
+.ticket-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ticket-category-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background-color: rgba(56, 161, 105, 0.85);
+    /* Color primario con opacidad */
+    color: white;
+    padding: 6px 12px;
+    border-radius: var(--border-radius-small);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+.ticket-info {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.ticket-info h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--light-text);
+    margin-top: 0;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.ticket-description {
+    font-size: 0.9rem;
+    color: var(--medium-light-text);
+    margin-bottom: 15px;
+    line-height: 1.6;
+    flex-grow: 1;
+    /* Para que la descripción ocupe espacio disponible */
+    min-height: 4.8em;
+    /* Aprox 3 líneas */
+}
+
+.ticket-details {
+    font-size: 0.85rem;
+    color: #95a5a6;
+    /* Un gris más suave */
+    margin-bottom: 15px;
+}
+
+.ticket-details p {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ticket-details p:last-child {
+    margin-bottom: 0;
+}
+
+.ticket-details i {
+    color: var(--secondary-color);
+    width: 16px;
+    /* Para alinear iconos */
+    text-align: center;
+}
+
+
+.ticket-purchase-section {
+    padding: 15px 20px 20px;
+    border-top: 1px solid var(--input-border-color);
+    /* Borde sutil */
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    /* Para que se adapte si no hay espacio */
+}
+
+.ticket-price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--light-text);
+    margin: 0;
+}
+
+.ticket-price span {
+    font-size: 1.6rem;
+    /* Precio más grande */
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* --- Botones (estilo base) --- */
+.btn {
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    /* Botones bien redondeados */
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Para centrar contenido si el botón es display block */
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    line-height: 1.5;
+    /* Para mejor alineación vertical del texto */
+}
+
+.btn i {
+    font-size: 1em;
+    /* Icono relativo al texto del botón */
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: rgb(94, 94, 94);
+}
+
+.btn-primary:hover {
+    background-color: #2f855a;
+    /* Verde ligeramente más oscuro */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--dark-text);
+    /* Texto oscuro para contraste con fondo amarillo */
+}
+
+.btn-secondary:hover {
+    background-color: #d4a00a;
+    /* Dorado más oscuro */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+/* --- Footer (reutilizado de HomePage.vue) --- */
+.site-footer {
+    background-color: #121a16;
+    /* Fondo del footer aún más oscuro */
+    padding: 50px 20px 30px;
+    text-align: center;
+    border-top: 3px solid #2a3b35;
+    /* Separador sutil */
+    margin-top: 60px;
+    /* Espacio antes del footer */
+}
+
+.site-footer h4 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.social-icons a {
+    color: var(--secondary-color);
+    font-size: 1.6rem;
+    margin: 0 12px;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.social-icons a:hover {
+    color: white;
+    transform: scale(1.15) translateY(-2px);
+}
+
+.copyright {
+    margin-top: 30px;
+    font-size: 0.85rem;
+    color: #718096;
+    /* Gris para el copyright */
+}
+
+/* --- Media Queries --- */
+@media (max-width: 992px) {
+
+    /* Tabletas y layouts más estrechos */
+    .filters-sidebar {
+        flex: 1 1 100%;
+        /* Ocupa todo el ancho y permite encogerse */
+        max-width: none;
+        margin-bottom: 30px;
+    }
+
+    .ticket-layout {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Móviles grandes */
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .page-header p {
+        font-size: 1rem;
+    }
+
+    .ticket-purchase-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ticket-purchase-section .btn {
+        width: 100%;
+    }
+
+    .ticket-price {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 1rem;
+    }
+
+    .ticket-price span {
+        font-size: 1.4rem;
+    }
+
+    .tickets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* Móviles pequeños */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .filters-sidebar {
+        padding: 20px;
+    }
+
+    .filters-sidebar h3 {
+        font-size: 1.4rem;
+    }
+
+    .tickets-grid {
+        grid-template-columns: 1fr;
+        /* Una tarjeta por fila */
+    }
+
+    .ticket-info h3 {
+        font-size: 1.2rem;
+    }
+
+    .ticket-description {
+        min-height: auto;
+        font-size: 0.85rem;
+    }
+
+    .ticket-details {
+        font-size: 0.8rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+    }
+
+    .site-footer h4 {
+        font-size: 1.4rem;
+    }
+
+    .social-icons a {
+        font-size: 1.4rem;
+        margin: 0 10px;
+    }
+}
