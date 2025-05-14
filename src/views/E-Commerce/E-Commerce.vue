@@ -10,22 +10,13 @@
 
     <div class="products-grid-wrapper">
       <div class="products-grid">
-        <div
-          class="product-card"
-          v-for="product in products"
-          :key="product.id"
-          @mousemove="handleMouseMove($event, product.id)"
-          @mouseleave="handleMouseLeave($event, product.id)"
-        >
+        <div class="product-card" v-for="product in products" :key="product.id"
+          @mousemove="handleMouseMove($event, product.id)" @mouseleave="handleMouseLeave($event, product.id)">
           <div class="product-card-border-glow"></div>
           <div class="product-image-showcase">
             <img :src="product.image" :alt="product.name" class="product-image" />
-            <span
-              class="product-badge"
-              v-if="product.badge"
-              :class="getBadgeClass(product.badge)"
-              >{{ product.badge }}</span
-            >
+            <span class="product-badge" v-if="product.badge" :class="getBadgeClass(product.badge)">{{ product.badge
+              }}</span>
           </div>
           <div class="product-info">
             <p class="product-category">{{ product.category || 'Moda y Accesorios' }}</p>
@@ -34,10 +25,7 @@
               <p class="price-item total">
                 <span>{{ formatCurrency(product.price + (product.shippingCost || 0)) }}</span>
               </p>
-              <p
-                class="price-item subtotal"
-                v-if="product.shippingCost !== undefined && product.shippingCost > 0"
-              >
+              <p class="price-item subtotal" v-if="product.shippingCost !== undefined && product.shippingCost > 0">
                 Subtotal: {{ formatCurrency(product.price) }} + Envío
               </p>
               <p class="price-item subtotal" v-else>
@@ -51,23 +39,18 @@
         </div>
       </div>
     </div>
-
+    
     <footer class="site-footer-ecommerce">
+      <button class="btn btn-back" @click="$router.back()" style="margin: 16px 0 10px 16px;">
+        <i class="fas fa-arrow-left"></i> Ir para atrás
+      </button>
       <div class="container">
         <h4>Síguenos en Redes</h4>
         <div class="social-icons">
-          <a href="#" target="_blank" aria-label="Facebook" title="Facebook"
-            ><i class="fab fa-facebook-f"></i
-          ></a>
-          <a href="#" target="_blank" aria-label="Instagram" title="Instagram"
-            ><i class="fab fa-instagram"></i
-          ></a>
-          <a href="#" target="_blank" aria-label="Twitter" title="Twitter"
-            ><i class="fab fa-twitter"></i
-          ></a>
-          <a href="#" target="_blank" aria-label="Pinterest" title="Pinterest"
-            ><i class="fab fa-pinterest-p"></i
-          ></a>
+          <a href="#" target="_blank" aria-label="Facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" target="_blank" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" target="_blank" aria-label="Twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" target="_blank" aria-label="Pinterest" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
         </div>
         <p class="copyright">
           &copy; {{ new Date().getFullYear() }} TuTienda Favorita. Todos los derechos reservados.

@@ -393,3 +393,14 @@ a {
     }
   }
 }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-message {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 2rem;
+}

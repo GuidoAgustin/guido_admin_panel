@@ -1,7 +1,6 @@
 <template>
   <div class="ticket-page-container">
     <Topbar />
-
     <header class="page-header container">
       <h1>Nuestros Próximos Eventos y Entradas</h1>
       <p>
@@ -9,7 +8,7 @@
         experiencias inolvidables!
       </p>
     </header>
-
+    
     <div class="ticket-layout container">
       <main class="tickets-main-content">
         <div v-if="tickets.length === 0" class="no-results">
@@ -22,7 +21,7 @@
               <img :src="ticket.imageUrl" :alt="ticket.name" />
               <span class="ticket-category-badge" v-if="ticket.category">{{
                 ticket.category
-              }}</span>
+                }}</span>
             </div>
             <div class="ticket-info">
               <h3>{{ ticket.name }}</h3>
@@ -46,8 +45,11 @@
         </div>
       </main>
     </div>
-
+    
     <footer class="site-footer">
+      <button class="btn btn-back" @click="$router.back()" style="margin: 0px 0 10px 16px;">
+        <i class="fas fa-arrow-left"></i> Ir para atrás
+      </button>
       <div class="container">
         <h4>Contáctanos</h4>
         <div class="social-icons">

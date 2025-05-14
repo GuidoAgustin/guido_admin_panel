@@ -1,9 +1,9 @@
 <template>
   <div class="topbar">
-    <!-- <button class="btn btn-transparent menu-handler" @click.stop="openSidebar">
-      <i class="fa fa-bars"></i>
-    </button> -->
-
+    <div class="welcome-message">
+      Bienvenido <span v-if="$store.getters.isLoggedIn && $store.getters.user"> {{ $store.getters.user.first_name
+        }}!</span>!
+    </div>
     <ul class="topbar-buttons">
       <li><i class="fa-solid fa-bell"></i></li>
       <li><i class="fa-solid fa-gear"></i></li>
@@ -33,7 +33,8 @@ export default {
     },
     openSidebar() {
       const sb = document.querySelector('.sidebar')
-      sb.classList.add('sidebar-open')
+      if (sb)
+        sb.classList.add('sidebar-open')
     }
   }
 }
