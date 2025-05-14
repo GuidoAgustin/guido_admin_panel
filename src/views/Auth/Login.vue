@@ -14,6 +14,10 @@
   <router-link class="small text-center d-block mt-2" :to="{ name: 'forgotPassword' }">
     Forgot your password?
   </router-link>
+
+  <button class="btn btn-secondary btn-block mt-2" @click="goToRegister">
+    Crear cuenta
+  </button>
 </template>
 
 <script>
@@ -43,6 +47,9 @@ export default {
       this.$store.dispatch('login', this.form).then(() => {
         this.$router.push('/home')
       })
+    },
+    goToRegister() {
+      this.$router.push({ name: 'register' })
     }
   }
 }

@@ -58,6 +58,26 @@ export default {
           })
       })
     },
+
+    registrar({ commit }, form) {
+      commit('SHOW_LOADER')
+      return new Promise((resolve) => {
+        this.$clients.api
+          .post('registro', {
+            first_name: form.first_name,
+            last_name: form.last_name,
+            email: form.email,
+            password: form.password
+          })
+          .then(({ data }) => {
+            resolve(data.data)
+          })
+          .catch(this.$errorHandler)
+          .finally(() => {
+            commit('HIDE_LOADER')
+          })
+      })
+    },
     loginAsUser({ commit }, user_id) {
       commit('SHOW_LOADER')
 
