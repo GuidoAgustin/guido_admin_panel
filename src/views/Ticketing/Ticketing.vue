@@ -45,6 +45,35 @@
         </div>
       </main>
     </div>
+
+    <!-- Modal para compra exitosa -->
+    <VueModal v-if="showBuyModal" size="sm" position="center" @close="showBuyModal = false">
+      <template #title>
+        Compra de Entrada
+      </template>
+      <template #body>
+        <p>Iniciando proceso de compra para: <b>{{ ticketSeleccionado?.name }}</b></p>
+      </template>
+      <template #footer>
+        <button class="btn btn-primary" @click="showBuyModal = false">Cerrar</button>
+      </template>
+    </VueModal>
+
+    <!-- Modal para pedir registro -->
+    <VueModal v-if="showRegisterModal" size="md" position="center" @close="showRegisterModal = false">
+      <template #title>
+        Registro requerido
+      </template>
+      <template #body>
+        <p>Debes estar registrado para comprar una entrada.
+          ¿Deseas registrarte?
+        </p>
+      </template>
+      <template #footer>
+        <button class="btn btn-secondary" @click="showRegisterModal = false">Cancelar</button>
+        <button class="btn btn-primary" @click="goToRegister">Registrarme</button>
+      </template>
+    </VueModal>
     
     <footer class="site-footer">
       <button class="btn btn-back" @click="$router.back()" style="margin: 0px 0 10px 16px;">
@@ -68,12 +97,14 @@
 </template>
 
 <script>
-import Topbar from '@/components/Topbar.vue'; // Importar el componente Topbar
+import Topbar from '@/components/Topbar.vue'
+import VueModal from '@/components/Modal/VueModal.vue'
 
 export default {
   name: "TicketPage",
   components: {
-    Topbar // Registrar el componente Topbar
+    Topbar,
+    VueModal
   },
   data() {
     return {
@@ -139,6 +170,9 @@ export default {
           imageUrl: "/img/logo.svg",
         },
       ],
+      showBuyModal: false,
+      showRegisterModal: false,
+      ticketSeleccionado: null
     };
   },
   methods: {
@@ -157,10 +191,19 @@ export default {
         .replace(",", " -");
     },
     buyTicket(ticket) {
-      alert(`Iniciando proceso de compra para: ${ticket.name}`);
-      console.log("Comprando ticket:", ticket);
+      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user');
+      if (!isLoggedIn) {
+        this.showRegisterModal = true;
+        return;
+      }
+      this.ticketSeleccionado = ticket;
+      this.showBuyModal = true;
     },
-  },
+    goToRegister() {
+      this.showRegisterModal = false;
+      this.$router.push({ name: 'login' });
+    }
+  }
 };
 </script>
 

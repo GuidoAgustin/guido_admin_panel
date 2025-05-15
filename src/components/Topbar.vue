@@ -1,13 +1,13 @@
 <template>
   <div class="topbar">
     <div class="welcome-message">
-      Bienvenido <span v-if="$store.getters.isLoggedIn && $store.getters.user"> {{ $store.getters.user.first_name
-        }}!</span>!
+      Bienvenido
+      <span v-if="$store.getters.isLoggedIn && $store.getters.user">
+        {{ $store.getters.user.first_name }}!
+      </span>!
     </div>
     <ul class="topbar-buttons">
-      <li><i class="fa-solid fa-bell"></i></li>
-      <li><i class="fa-solid fa-gear"></i></li>
-      <li @click="$store.dispatch('logout')">
+      <li @click="handleLogoutOrLogin">
         <i class="fa-solid fa-power-off"></i>
       </li>
     </ul>
@@ -27,7 +27,6 @@ export default {
       const sb = document.querySelector('.sidebar')
       if (sb && sb.classList.contains('sidebar-open')) {
         if (e.target.closest('.sidebar')) return
-
         sb.classList.remove('sidebar-open')
       }
     },
@@ -35,6 +34,14 @@ export default {
       const sb = document.querySelector('.sidebar')
       if (sb)
         sb.classList.add('sidebar-open')
+    },
+    async handleLogoutOrLogin() {
+  if (this.$store.getters.isLoggedIn) {
+    await this.$store.dispatch('logout', { redirect: false })
+    // El usuario se desloguea y permanece en la página actual
+  } else {
+    this.$router.push({ name: 'login' })
+  }
     }
   }
 }

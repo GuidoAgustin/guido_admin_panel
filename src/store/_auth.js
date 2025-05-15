@@ -105,7 +105,7 @@ export default {
           })
       })
     },
-    logout({ commit }) {
+    logout({ commit }, { redirect = true } = {}) {
       return new Promise((resolve) => {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
@@ -113,7 +113,7 @@ export default {
         commit('SET_TOKEN', null)
         commit('SET_USER', null)
         commit('SET_REFRESH_TOKEN', null)
-        $router.push('/login')
+        if (redirect) $router.push('/login')
         resolve()
       })
     },

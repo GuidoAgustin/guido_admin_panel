@@ -39,6 +39,35 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal para compra exitosa -->
+    <VueModal v-if="showBuyModal" size="sm" position="center" @close="showBuyModal = false">
+      <template #title>
+        Producto añadido
+      </template>
+      <template #body>
+        <p><b>{{ productoSeleccionado?.name }}</b> ha sido añadido al carrito.</p>
+      </template>
+      <template #footer>
+        <button class="btn btn-primary" @click="showBuyModal = false">Cerrar</button>
+      </template>
+    </VueModal>
+
+<!-- Modal para pedir registro -->
+<VueModal v-if="showRegisterModal" size="md" position="center" @close="showRegisterModal = false">
+  <template #title>
+    Registro requerido
+  </template>
+  <template #body>
+    <p>Debes estar registrado para comprar productos.
+      ¿Deseas registrarte?
+    </p>
+  </template>
+  <template #footer>
+    <button class="btn btn-secondary" @click="showRegisterModal = false">Cancelar</button>
+    <button class="btn btn-primary" @click="goToRegister">Registrarme</button>
+  </template>
+</VueModal>
     
     <footer class="site-footer-ecommerce">
       <button class="btn btn-back" @click="$router.back()" style="margin: 16px 0 10px 16px;">
@@ -62,11 +91,13 @@
 
 <script>
 import Topbar from '@/components/Topbar.vue'
+import VueModal from '@/components/Modal/VueModal.vue'
 
 export default {
   name: 'EcommerceProductsPageFinalTheme',
   components: {
-    Topbar
+    Topbar,
+    VueModal
   },
   data() {
     return {
@@ -103,17 +134,29 @@ export default {
           name: 'Chaqueta "Estilo"',
           price: 129.99,
           shippingCost: 15.0,
-          image: '/img/logo.svg', // Un azul como alternativo para badges
+          image: '/img/logo.svg',
           category: 'Abrigos Modernos',
           badge: 'Nuevo'
         }
-      ]
+      ],
+      showBuyModal: false,
+      showRegisterModal: false,
+      productoSeleccionado: null
     }
   },
   methods: {
     addToCart(product) {
-      alert(`"${product.name}" ha sido añadido al carrito.`)
-      console.log('Añadiendo al carrito:', product)
+      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user');
+      if (!isLoggedIn) {
+        this.showRegisterModal = true;
+        return;
+      }
+      this.productoSeleccionado = product;
+      this.showBuyModal = true;
+    },
+    goToRegister() {
+      this.showRegisterModal = false;
+      this.$router.push({ name: 'login' });
     },
     formatCurrency(value) {
       if (typeof value !== 'number') {
