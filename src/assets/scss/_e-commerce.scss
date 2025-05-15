@@ -2,42 +2,28 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap");
 /* Asegúrate de tener Font Awesome disponible en tu proyecto */
 
-/* Paleta de colores del e-commerce original (la que me pasaste con verdes y dorados) */
+/* Paleta de colores del e-commerce original (verdes y dorados) */
 :root {
-    --primary-color: #38a169;
-    /* Verde principal */
-    --secondary-color: #52a802;
-    /* Dorado/amarillo para acentos */
-    --tertiary-color: #d9534f;
-    /* Rojo suave para acciones como limpiar filtros o badges de oferta */
-    --accent-blue-color: #5dade2;
-    /* Un azul para variedad en badges, si se necesita */
+    --primary-color: #38a169; /* Verde principal */
+    --secondary-color: #52a802; /* Dorado/amarillo para acentos */
+    --tertiary-color: #d9534f; /* Rojo suave para acciones como limpiar filtros o badges de oferta */
+    --accent-blue-color: #5dade2; /* Un azul para variedad en badges, si se necesita */
 
-    --dark-bg: #1a2a25;
-    /* Fondo muy oscuro, casi negro verdoso */
-    --medium-dark-bg: #2c3e39;
-    /* Fondo para tarjetas, un poco más claro */
-    --light-bg-accent: #3a4c46;
-    /* Fondo de input o acento más claro */
+    --dark-bg: #1a2a25; /* Fondo muy oscuro, casi negro verdoso */
+    --medium-dark-bg: #2c3e39; /* Fondo para tarjetas, un poco más claro */
+    --light-bg-accent: #3a4c46; /* Fondo de input o acento más claro */
 
-    --light-text: #e2e8f0;
-    /* Texto claro */
-    --medium-light-text: #bdc3c7;
-    /* Texto un poco menos brillante */
-    --dark-text: #1a202c;
-    /* Texto oscuro para botones claros (ej. sobre --secondary-color) */
+    --light-text: #e2e8f0; /* Texto claro */
+    --medium-light-text: #bdc3c7; /* Texto un poco menos brillante */
+    --dark-text: #1a202c; /* Texto oscuro para botones claros (ej. sobre --secondary-color) */
 
     --border-radius-main: 20px;
     --border-radius-small: 10px;
 
-    /* Sombras adaptadas a la nueva paleta, pueden ser más sutiles si los colores son menos intensos */
     --box-shadow-intense: 0 15px 40px rgba(0, 0, 0, 0.4);
-    --primary-color-trans: rgba(56, 161, 105, 0.25);
-    /* Verde con transparencia */
-    --primary-color-trans-strong: rgba(56, 161, 105, 0.45);
-    /* Verde con más opacidad para glow */
+    --primary-color-trans: rgba(56, 161, 105, 0.25); /* Verde con transparencia */
+    --primary-color-trans-strong: rgba(56, 161, 105, 0.45); /* Verde con más opacidad para glow */
     --box-shadow-hover-intense: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 25px var(--primary-color-trans-strong);
-
 
     --font-main: "Poppins", sans-serif;
     --font-display: "Playfair Display", serif;
@@ -48,10 +34,8 @@
     background-color: var(--dark-bg);
     background-image:
         radial-gradient(circle at 1px 1px, rgba(226, 232, 240, 0.04) 1px, transparent 0),
-        /* Puntos de luz más sutiles */
         radial-gradient(circle at 15px 15px, rgba(226, 232, 240, 0.02) 1px, transparent 0);
     background-size: 40px 40px;
-    /* Patrón ligeramente más espaciado */
     color: var(--light-text);
     min-height: 100vh;
     overflow-x: hidden;
@@ -62,7 +46,6 @@
     text-align: center;
     background: linear-gradient(160deg, var(--medium-dark-bg) 15%, var(--dark-bg) 85%);
     border-bottom: 3px solid var(--primary-color);
-    /* Borde con el nuevo color primario (verde) */
     margin-bottom: 30px;
 }
 
@@ -70,7 +53,6 @@
     font-family: var(--font-display);
     font-size: 4.2em;
     font-weight: 800;
-    /* Ligeramente menos bold que 900 para Poppins */
     color: var(--light-text);
     margin-bottom: 0.1em;
     line-height: 1.1;
@@ -79,7 +61,6 @@
 
 .hero-content .main-title span {
     color: var(--primary-color);
-    /* "Nuestra" en verde */
     display: block;
     font-size: 0.65em;
     font-family: var(--font-main);
@@ -125,7 +106,6 @@
     transform: translateY(-18px) scale(1.04);
     box-shadow: var(--box-shadow-hover-intense);
     border-color: var(--primary-color);
-    /* Borde verde al hacer hover */
 }
 
 .product-card-border-glow {
@@ -141,7 +121,6 @@
     z-index: 0;
     background: radial-gradient(circle at var(--mouse-x) var(--mouse-y),
             var(--primary-color-trans-strong) 0%,
-            /* Glow con el verde transparente */
             transparent 45%);
 }
 
@@ -164,21 +143,17 @@
 .product-card:hover .product-image {
     transform: scale(1.1);
     filter: brightness(1.08) contrast(1.03);
-    /* Efecto más sutil */
 }
 
 .product-badge {
     position: absolute;
     top: 18px;
     left: 18px;
-    /* El color de fondo se define por clase específica más abajo */
     color: var(--dark-text);
-    /* Texto oscuro para badges claros como el amarillo */
     padding: 7px 14px;
     border-radius: var(--border-radius-small);
     font-size: 0.75rem;
     font-weight: 600;
-    /* Ligeramente menos bold */
     text-transform: uppercase;
     letter-spacing: 0.7px;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
@@ -190,20 +165,15 @@
     color: white;
 }
 
-/* Rojo para oferta */
 .product-badge.badge-new {
     background-color: var(--accent-blue-color);
     color: white;
 }
 
-/* Azul para nuevo */
 .product-badge.badge-popular {
     background-color: var(--secondary-color);
     color: var(--dark-text);
 }
-
-/* Amarillo para popular */
-
 
 .product-info {
     padding: 22px 28px 28px;
@@ -220,7 +190,6 @@
     color: var(--medium-light-text);
     margin-bottom: 0.4em;
     font-weight: 400;
-    /* Más ligero */
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
@@ -242,7 +211,6 @@
     font-size: 1.7em;
     font-weight: 700;
     color: var(--secondary-color);
-    /* Precio total en amarillo/dorado */
     margin: 0.15em 0;
     letter-spacing: 0.3px;
 }
@@ -257,37 +225,60 @@
     color: var(--medium-light-text);
 }
 
+/* --- BOTONES UNIFICADOS CON TICKETING --- */
 .btn {
-    padding: 16px 32px;
-    font-size: 1.05em;
+    padding: 12px 28px;
+    font-size: 0.95rem;
     font-weight: 600;
     text-decoration: none;
     border-radius: 50px;
-    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     border: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: auto;
-    align-self: stretch;
-    min-width: 210px;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    line-height: 1.5;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-top: 0;
+    align-self: auto;
+    min-width: unset;
 }
 
+.btn-primary {
+    background-color: var(--primary-color);
+    color: rgb(94, 94, 94);
+}
+
+.btn-primary:hover {
+    background-color: #2f855a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--dark-text);
+}
+
+.btn-secondary:hover {
+    background-color: #d4a00a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón especial para comprar ahora (mantiene verde y animación especial) */
 .btn-buy-now {
     background: var(--primary-color);
-    /* Botón con el verde principal */
     color: white;
-    /* Texto blanco para contraste con verde */
     box-shadow: 0 7px 18px var(--primary-color-trans);
 }
 
 .btn-buy-now:hover {
     background: #2f855a;
-    /* Verde ligeramente más oscuro para hover */
     transform: translateY(-4px) scale(1.06);
     box-shadow: 0 10px 25px var(--primary-color-trans-strong);
 }
@@ -297,10 +288,8 @@
 }
 
 .btn i.fa-shopping-cart {
-    /* Cambiado de shopping-bag a cart */
     font-size: 1.2em;
 }
-
 
 /* Footer */
 .site-footer-ecommerce {
@@ -321,7 +310,6 @@
     font-size: 2rem;
     font-weight: 700;
     color: var(--secondary-color);
-    /* Título del footer en amarillo/dorado */
     margin-bottom: 30px;
 }
 
@@ -334,7 +322,6 @@
 
 .social-icons a:hover {
     color: var(--primary-color);
-    /* Iconos sociales hover en verde */
     transform: scale(1.25) translateY(-4px) rotate(-6deg);
 }
 
@@ -344,7 +331,7 @@
     color: var(--medium-light-text);
 }
 
-/* Media Queries (ajustes menores para la nueva paleta y tamaños) */
+/* Media Queries */
 @media (max-width: 1200px) {
     .products-grid {
         grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));

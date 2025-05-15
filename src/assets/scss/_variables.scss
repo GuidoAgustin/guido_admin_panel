@@ -3,60 +3,67 @@
 
 $custom-theme-colors: () !default;
 $custom-theme-colors: map-merge(
-  (
-    'primary': #34bec2,
-    'primary-text': #fff,
-    'primary-tint': #43d0d4,
-    'primary-shade': #219fa3,
-    'primary-75': #34bec275,
-    'primary-50': #34bec250,
-    'primary-25': #34bec225,
+(
+  'primary': #38a169, // Verde principal
+  'primary-text': #fff,
+  'primary-tint': #43d0d4,
+  'primary-shade': #2f855a,
+  'primary-75': #38a169bf,
+  'primary-50': #38a16980,
+  'primary-25': #38a16940,
 
-    'secondary-tint': #9860ff,
-    'secondary': #813dff,
-    'secondary-text': #fff,
-    'secondary-shade': #673fb1,
-    'secondary-75': #813dff75,
-    'secondary-50': #813dff50,
-    'secondary-25': #813dff25,
+  'secondary-tint': #ffe082,
+  'secondary': #f0b90b, // Dorado/amarillo para acentos
+  'secondary-text': #1a202c,
+  'secondary-shade': #d4a00a,
+  'secondary-75': #f0b90bbf,
+  'secondary-50': #f0b90b80,
+  'secondary-25': #f0b90b40,
 
-    'transparent': transparent,
-    'transparent-text': #697a8d,
+  'tertiary': #d9534f, // Rojo para acciones
+  'tertiary-text': #fff,
 
-    'white': #ffffff,
-    'white-shade': #d8d6d6,
-    'white-text': #010101,
+  'accent-blue': #5dade2, // Azul para badges
+  'accent-blue-text': #fff,
 
-    'light': #fafafa,
-    'light-text': #000,
-    'light-shade': #f3f3f3,
+  'transparent': transparent,
+  'transparent-text': #697a8d,
 
-    'medium-tint': #c2c7cc,
-    'medium': #bbc0c5,
-    'medium-text': #fff,
-    'medium-shade': #5a646e,
+  'white': #ffffff,
+  'white-shade': #d8d6d6,
+  'white-text': #1a202c,
 
-    'dark-tint': #373737,
-    'dark': #646464,
-    'dark-text': #fff,
-    'dark-shade': #3d3d3d,
+  'light': #fafafa,
+  'light-text': #1a202c,
+  'light-shade': #f3f3f3,
 
-    'danger': #e14319,
-    'danger-shade': #be3813,
-    'danger-text': #fff,
+  'medium-tint': #c2c7cc,
+  'medium': #bbc0c5,
+  'medium-text': #fff,
+  'medium-shade': #5a646e,
 
-    'success': #6abb45,
-    'success-shade': #5da53c,
-    'success-text': #fff,
+  'dark-tint': #373737,
+  'dark': #1a2a25, // Fondo muy oscuro
+  'dark-text': #e2e8f0,
+  'dark-shade': #2c3e39, // Fondo para tarjetas
 
-    'info': #7ad7e4,
-    'info-shade': #68bac5,
-    'info-text': #fff,
+  'danger': #e14319,
+  'danger-shade': #be3813,
+  'danger-text': #fff,
 
-    'warning': #ffba3b,
-    'warning-shade': #ebaa33,
-    'warning-text': #fff
-  ),
+  'success': #6abb45,
+  'success-shade': #5da53c,
+  'success-text': #fff,
+
+  'info': #7ad7e4,
+  'info-shade': #68bac5,
+  'info-text': #fff,
+
+  'warning': #ffba3b,
+  'warning-shade': #ebaa33,
+  'warning-text': #fff
+),
+// ...existing code...
   $custom-theme-colors
 );
 
