@@ -4,6 +4,7 @@
   margin: 0;
   padding: 0;
   font-family: var(--font-family);
+  box-sizing: border-box;
 }
 
 html,
@@ -26,18 +27,18 @@ body {
 
   /* Track */
   &-track {
-    background: #ccc;
+    background: var(--color-dark-shade);
   }
 
   /* Handle */
   &-thumb {
-    background: #888;
+    background: var(--color-primary);
     border-radius: 3px;
   }
 
   /* Handle on hover */
   &-thumb:hover {
-    background: #555;
+    background: var(--color-secondary);
   }
 }
 
@@ -51,7 +52,9 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-family: var(--font-family);
 }
 
 .topbar ul,
@@ -71,9 +74,10 @@ a {
   text-decoration: none;
   color: var(--color-primary);
   cursor: pointer;
+  transition: color 0.2s;
 
   &:hover {
-    color: colorLightness('primary', -0.3);
+    color: var(--color-secondary);
   }
 }
 
@@ -87,6 +91,7 @@ a {
 
   .sidebar {
     width: var(--sidebar-closed-width);
+    background: var(--color-dark-shade);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -110,7 +115,7 @@ a {
       display: flex;
       align-items: center;
       padding: 1em;
-      background: white;
+      background: var(--body-bg);
       border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 
       img {
@@ -122,13 +127,14 @@ a {
         flex-grow: 1;
         margin: 0;
         font-size: 1.2em;
+        color: var(--color-primary);
       }
     }
 
     .menu {
       overflow-y: auto;
       overflow-x: hidden;
-      background: white;
+      background: var(--color-dark-shade);
       flex: 1;
 
       >li {
@@ -149,6 +155,8 @@ a {
             border-left: 5px solid var(--color-primary);
             transition: 0.5s ease;
             text-decoration: none;
+            background: var(--color-primary-25);
+            color: var(--color-secondary);
           }
 
           &:disabled,
@@ -228,6 +236,7 @@ a {
     flex: 1;
     z-index: 2;
     padding-left: var(--sidebar-closed-width);
+    background: var(--body-bg);
 
     // Estilos de Topbar dentro de dashboard-layout (originales)
     .topbar {
@@ -235,7 +244,7 @@ a {
       justify-content: flex-end;
       align-items: stretch;
       height: var(--topbar-height);
-      background: white;
+      background: var(--body-bg);
       box-shadow: var(--shadow);
       -moz-box-shadow: var(--shadow);
       -webkit-box-shadow: var(--shadow);
@@ -277,8 +286,9 @@ a {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        background: var(--color-light-shade);
+        background: var(--color-dark-shade);
         font-size: 0.75em;
+        color: var(--color-medium-light);
       }
     }
   }
@@ -324,7 +334,7 @@ a {
   justify-content: space-between; // Espacio entre el handler del menú y los botones
   align-items: center;
   height: var(--topbar-height, 60px); // Usar variable si existe, o un valor por defecto
-  background: white; // Fondo blanco, puedes ajustarlo
+  background: var(--body-bg); // Fondo coherente con el layout
   box-shadow: var(--shadow, 0 2px 4px rgba(0, 0, 0, 0.1)); // Sombra consistente
   padding: 0 1.5em; // Padding horizontal
   z-index: 10; // Asegurar que esté por encima de otros elementos
