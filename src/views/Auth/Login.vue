@@ -44,10 +44,16 @@ export default {
   },
   methods: {
     signIn() {
-      this.$store.dispatch('login', this.form).then(() => {
-        this.$router.push('/home')
-      })
-    },
+    this.$store.dispatch('login', this.form).then(() => {
+      const redirectPath = localStorage.getItem('redirectAfterLogin')
+      if (redirectPath) {
+        localStorage.removeItem('redirectAfterLogin')
+        this.$router.push(redirectPath)
+      } else {
+        this.$router.push('/home') // o la ruta por defecto que prefieras
+      }
+    })
+  },
     goToRegister() {
       this.$router.push({ name: 'register' })
     }

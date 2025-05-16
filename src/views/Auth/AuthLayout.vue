@@ -15,13 +15,13 @@
 
 <script>
 export default {
-  beforeMount() {
-    this.$store.dispatch('setCredentials')
+  mounted() {
     const isLoggedIn = this.$store.getters.isLoggedIn
-
     if (isLoggedIn) {
       this.$router.push('/dashboard')
+    } else {
+      this.$router.push('/login')
     }
-  }
+}
 }
 </script>
