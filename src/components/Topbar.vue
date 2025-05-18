@@ -36,14 +36,12 @@ export default {
         sb.classList.add('sidebar-open')
     },
     async handleLogoutOrLogin() {
-      if (this.$store.getters.isLoggedIn) {
-        await this.$store.dispatch('logout', { redirect: false })
-        // No redirigir, así permanece en la misma página
-      } else {
-        // Guarda la ruta actual antes de ir al login
-        localStorage.setItem('redirectAfterLogin', this.$route.fullPath)
-        this.$router.push({ name: 'login' })
-      }
+  if (this.$store.getters.isLoggedIn) {
+    await this.$store.dispatch('logout', { redirect: false })
+    // El usuario se desloguea y permanece en la página actual
+  } else {
+    this.$router.push({ name: 'login' })
+  }
     }
   }
 }
