@@ -7,7 +7,7 @@ export default {
     loading: false,
     error: null,
 
-    // Nuevas propiedades para los tipos de entrada:
+    // Para el modal de compra
     tipos: [],
     loadingTipos: false,
     errorTipos: null
@@ -22,8 +22,6 @@ export default {
     SET_ERROR(state, error) {
       state.error = error
     },
-
-    // Mutations para tipos de entrada
     SET_TIPOS(state, tipos) {
       state.tipos = tipos
     },
@@ -35,7 +33,7 @@ export default {
     }
   },
   actions: {
-    // Listado de eventos
+    // Listar eventos
     async fetchTickets({ commit }) {
       commit('SET_LOADING', true)
       commit('SET_ERROR', null)
@@ -51,12 +49,37 @@ export default {
       }
     },
 
-    // Nuevas actions para tipos de entrada de un evento
+    // Crear evento: idéntico a auth.updateProfile
+    async createEvento({ rootGetters }, form) {
+      try {
+        const token = rootGetters['auth/token']
+        return await this.$clients.api.post('eventos', form, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      } catch (err) {
+        console.error('Error al crear evento:', err)
+        throw err
+      }
+    },
+
+    // Crear tipo de entrada
+    async createTipo({ rootGetters }, form) {
+      try {
+        const token = rootGetters['auth/token']
+        return await this.$clients.api.post('tipos_entradas', form, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      } catch (err) {
+        console.error('Error al crear tipo de entrada:', err)
+        throw err
+      }
+    },
+
+    // Listar tipos de entrada de un evento
     async fetchTipos({ commit }, evento_id) {
       commit('SET_LOADING_TIPOS', true)
       commit('SET_ERROR_TIPOS', null)
       try {
-        // asume backend expone GET /eventos/:id/tipos
         const { data } = await this.$clients.api.get(`eventos/${evento_id}/tipos`)
         commit('SET_TIPOS', data.data)
       } catch (err) {
@@ -69,12 +92,12 @@ export default {
     }
   },
   getters: {
-    tickets:    state => state.tickets,
-    loading:    state => state.loading,
-    error:      state => state.error,
+    tickets:      state => state.tickets,
+    loading:      state => state.loading,
+    error:        state => state.error,
 
-    tipos:       state => state.tipos,
-    loadingTipos:state => state.loadingTipos,
-    errorTipos:  state => state.errorTipos
+    tipos:        state => state.tipos,
+    loadingTipos: state => state.loadingTipos,
+    errorTipos:   state => state.errorTipos
   }
 }

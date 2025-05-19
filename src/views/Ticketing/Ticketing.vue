@@ -2,12 +2,17 @@
   <div class="ticket-page-container">
     <Topbar />
 
-    <header class="page-header container">
-      <h1>Nuestros Próximos Eventos y Entradas</h1>
-      <p>
-        Explora nuestra selección de eventos y asegura tu lugar. ¡Vive
-        experiencias inolvidables!
-      </p>
+    <header class="page-header container d-flex align-items-center justify-content-between">
+      <div>
+        <h1>Nuestros Próximos Eventos y Entradas</h1>
+        <p>
+          Explora nuestra selección de eventos y asegura tu lugar. ¡Vive
+          experiencias inolvidables!
+        </p>
+      </div>
+      <button class="btn btn-success" @click="showCreate = true">
+        + Crear Evento
+      </button>
     </header>
 
     <div class="ticket-layout container">
@@ -82,15 +87,13 @@
       </main>
     </div>
 
-    <!-- Modals -->
-    <Modals
-      :showBuyModal="showBuyModal"
-      :showRegisterModal="showRegisterModal"
-      :ticketSeleccionado="ticketSeleccionado"
-      @closeBuyModal="showBuyModal = false"
-      @closeRegisterModal="showRegisterModal = false"
-      @goToRegister="goToRegister"
-    />
+    <!-- Modals de compra y registro -->
+    <Modals :showBuyModal="showBuyModal" :showRegisterModal="showRegisterModal" :ticketSeleccionado="ticketSeleccionado"
+      @closeBuyModal="showBuyModal = false" @closeRegisterModal="showRegisterModal = false"
+      @goToRegister="goToRegister" />
+
+    <!-- Modal de creación de evento -->
+    <ModalForm :visible="showCreate" @update:visible="showCreate = $event" />
 
     <footer class="site-footer">
       <button class="btn btn-back" @click="$router.back()" style="margin: 0 0 10px 16px;">
@@ -117,15 +120,17 @@
 import { mapGetters, mapActions } from 'vuex'
 import Topbar from '@/components/Topbar.vue'
 import Modals from './Modals.vue'
+import ModalForm from './ModalForm.vue'
 
 export default {
   name: 'TicketPage',
-  components: { Topbar, Modals },
+  components: { Topbar, Modals, ModalForm },
   data() {
     return {
       showBuyModal: false,
       showRegisterModal: false,
-      ticketSeleccionado: null
+      ticketSeleccionado: null,
+      showCreate: false
     }
   },
   computed: {
