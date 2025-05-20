@@ -134,13 +134,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('eventos', ['tickets', 'loading', 'error'])
+    ...mapGetters(['tickets', 'loading', 'error'])
   },
   mounted() {
     this.fetchTickets()
   },
   methods: {
-    ...mapActions('eventos', ['fetchTickets']),
+    ...mapActions(['fetchTickets']),
     formatDate(dateString) {
       if (!dateString) return '—'
       const options = {

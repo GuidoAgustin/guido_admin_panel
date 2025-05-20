@@ -1,6 +1,5 @@
 import $router from '../router/index'
 
-
 export default {
   state: () => ({
     token: null,
@@ -32,9 +31,9 @@ export default {
     login({ commit }, form) {
       commit('SHOW_LOADER')
 
-    //   commit('SET_TOKEN', 'test')
-    //   commit('SET_USER', 'test')
-    //   commit('HIDE_LOADER')
+      //   commit('SET_TOKEN', 'test')
+      //   commit('SET_USER', 'test')
+      //   commit('HIDE_LOADER')
 
       return new Promise((resolve) => {
         this.$clients.api
@@ -219,6 +218,6 @@ export default {
     },
     user(state) {
       return state.user
-    },
+    }
   }
 }

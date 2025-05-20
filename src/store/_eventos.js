@@ -1,7 +1,6 @@
 // frontend/src/store/_eventos.js
 
 export default {
-  namespaced: true,
   state: () => ({
     tickets: [],
     loading: false,
@@ -30,6 +29,13 @@ export default {
     },
     SET_ERROR_TIPOS(state, error) {
       state.errorTipos = error
+    },
+    // Para mostrar/ocultar loader en acciones de creación
+    SHOW_LOADER(state) {
+      state.loading = true
+    },
+    HIDE_LOADER(state) {
+      state.loading = false
     }
   },
   actions: {
@@ -49,30 +55,58 @@ export default {
       }
     },
 
-    // Crear evento: idéntico a auth.updateProfile
-    async createEvento({ rootGetters }, form) {
-      try {
-        const token = rootGetters['auth/token']
-        return await this.$clients.api.post('eventos', form, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      } catch (err) {
-        console.error('Error al crear evento:', err)
-        throw err
-      }
+    // Crear evento con formato de updateProfile
+    createEvento({ commit, getters }, form) {
+      commit('SHOW_LOADER')
+      return new Promise((resolve, reject) => {
+        this.$clients.api
+          .post(
+            'eventos',
+            form,
+            {
+              headers: {
+                Authorization: `Bearer ${getters.token}`
+              }
+            }
+          )
+          .then(({ data }) => {
+            resolve(data)
+          })
+          .catch(err => {
+            this.$errorHandler(err)
+            reject(err)
+          })
+          .finally(() => {
+            commit('HIDE_LOADER')
+          })
+      })
     },
 
-    // Crear tipo de entrada
-    async createTipo({ rootGetters }, form) {
-      try {
-        const token = rootGetters['auth/token']
-        return await this.$clients.api.post('tipos_entradas', form, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      } catch (err) {
-        console.error('Error al crear tipo de entrada:', err)
-        throw err
-      }
+    // Crear tipo de entrada con formato de updateProfile
+    createTipo({ commit, getters }, form) {
+      commit('SHOW_LOADER')
+      return new Promise((resolve, reject) => {
+        this.$clients.api
+          .post(
+            'tipos_entradas',
+            form,
+            {
+              headers: {
+                Authorization: `Bearer ${getters.token}`
+              }
+            }
+          )
+          .then(({ data }) => {
+            resolve(data)
+          })
+          .catch(err => {
+            this.$errorHandler(err)
+            reject(err)
+          })
+          .finally(() => {
+            commit('HIDE_LOADER')
+          })
+      })
     },
 
     // Listar tipos de entrada de un evento
@@ -92,12 +126,12 @@ export default {
     }
   },
   getters: {
-    tickets:      state => state.tickets,
-    loading:      state => state.loading,
-    error:        state => state.error,
+    tickets: (state) => state.tickets,
+    loading: (state) => state.loading,
+    error: (state) => state.error,
 
-    tipos:        state => state.tipos,
-    loadingTipos: state => state.loadingTipos,
-    errorTipos:   state => state.errorTipos
+    tipos: (state) => state.tipos,
+    loadingTipos: (state) => state.loadingTipos,
+    errorTipos: (state) => state.errorTipos
   }
 }

@@ -116,7 +116,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('eventos', [
+    ...mapGetters([
       'tipos',
       'loadingTipos',
       'errorTipos'
@@ -148,7 +148,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('eventos', ['fetchTipos']),
+    ...mapActions(['fetchTipos']),
     onClose() {
       this.$emit('closeBuyModal')
     },

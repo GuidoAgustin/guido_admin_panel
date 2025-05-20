@@ -16,12 +16,13 @@
 <script>
 export default {
   mounted() {
-    const isLoggedIn = this.$store.getters.isLoggedIn
-    if (isLoggedIn) {
-      this.$router.push('/dashboard')
-    } else {
-      this.$router.push('/login')
-    }
-}
+   const isLoggedIn = this.$store.getters.isLoggedIn
+   // Si está logueado, lo mando al dashboard; si no, no hago nada
+   if (isLoggedIn) {
+     this.$router.push({ name: 'dashboard' })
+   }
+   // IMPORTANTE: no redirigir al login aquí,
+   // así el <router-view> podrá renderizar también 'register', 'forgotPassword', etc.
+ }
 }
 </script>
