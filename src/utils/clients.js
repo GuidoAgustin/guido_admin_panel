@@ -58,32 +58,59 @@ class ApiClient {
   }
 
   async _verifyToken() {
-    const token = this.store.getters.token
-    const refresh_token = this.store.getters.refresh_token
-
-    if (!token || !refresh_token) return
-
-    const tokenExp = JSON.parse(atob(token.split('.')[1])).exp
-    const refreshTokenExp = JSON.parse(atob(refresh_token.split('.')[1])).exp
-    const now = Math.floor(Date.now() / 1000)
-
-    // If token is about to expire and refresh token is valid
-    // We use 15seconds because JWT is expiring
-    // the token 10seconds before real expiration date
-    if (tokenExp - now <= 15 && refreshTokenExp > now) {
-      const {
-        data: { data: newTokens }
-      } = await axios.post(`${this.baseUrl}refresh_token`, {
-        refresh_token
-      })
-
-      this.store.commit('SET_TOKEN', newTokens.token)
-      this.store.commit('SET_REFRESH_TOKEN', newTokens.refresh_token)
-
-      return newTokens.token
+    const token = this.store.getters.token;
+    const refreshToken = this.store.getters.refresh_token; // Cambiado a refreshToken para claridad
+  
+    if (!token || !refreshToken) {
+      return token; // O podrías lanzar un error o forzar logout si es crítico
     }
-
-    return token
+  
+    try {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      const refreshTokenData = JSON.parse(atob(refreshToken.split('.')[1]));
+      const tokenExp = tokenData.exp;
+      const refreshTokenExp = refreshTokenData.exp;
+      const now = Math.floor(Date.now() / 1000);
+  
+      const shouldRefreshToken = tokenExp - now <= 15; // Ajusta este umbral si es necesario
+  
+      if (shouldRefreshToken && refreshTokenExp > now) {
+        try {
+          const response = await axios.post(`${this.baseUrl}refresh_token`, {
+            refresh_token: refreshToken // Nombre de propiedad según espere tu backend
+          });
+          const newTokens = response.data.data; // Asegúrate que esta es la estructura de tu respuesta de refresh
+  
+          if (!newTokens || !newTokens.token) {
+              console.error('[AUTH] _verifyToken: Respuesta de refresh_token no contiene nuevos tokens válidos.', response.data);
+              throw new Error('Respuesta de refresh_token inválida');
+          }
+  
+          this.store.commit('SET_TOKEN', newTokens.token);
+          if (newTokens.refresh_token) { // Si el backend devuelve un nuevo refresh token
+            this.store.commit('SET_REFRESH_TOKEN', newTokens.refresh_token);
+          }
+          return newTokens.token; // Retorna el NUEVO token de acceso
+        } catch (refreshError) {
+          console.error('[AUTH] _verifyToken: ¡FALLÓ EL INTENTO DE REFRESCAR EL TOKEN!');
+          if (refreshError.response) {
+            console.error(`[AUTH] Status: ${refreshError.response.status}, Data:`, refreshError.response.data);
+          } else {
+            console.error('[AUTH] Error:', refreshError.message);
+          }
+          // Importante: decide qué hacer. Re-lanzar es una opción para que la llamada original falle claramente.
+          // O podrías forzar un logout aquí: this.store.dispatch('logout');
+          throw refreshError;
+        }
+      }
+      return token; // Retorna el token original (o el que ya estaba en store)
+    } catch (e) {
+      console.error('[AUTH] _verifyToken: Error decodificando tokens o error inesperado:', e);
+      // Podrías estar intentando decodificar un token inválido o nulo.
+      // Si los tokens son inválidos, quizás deberías limpiar el estado y forzar logout.
+      // this.store.dispatch('logout');
+      throw e; // Relanza para que la petición original falle.
+    }
   }
 
   async get(url, data, download = false) {
