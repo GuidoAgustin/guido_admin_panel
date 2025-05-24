@@ -527,3 +527,132 @@
         margin: 0 10px;
     }
 }
+
+/* Estilos para el visor de imagen agrandada */
+.image-enlarger-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    /* Asegúrate que esté por encima de otros elementos, ajusta si es necesario */
+    cursor: pointer;
+    /* Para indicar que se puede cerrar haciendo clic en el overlay */
+}
+
+.enlarged-image {
+    max-width: 90vw;
+    /* Usar vw/vh para que sea relativo al viewport */
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    object-fit: contain;
+    /* Asegura que toda la imagen sea visible sin recortar */
+}
+
+/* Opcional: para que la imagen dentro de la card tenga cursor pointer y un feedback visual */
+.ticket-image-container img {
+    /* cursor: pointer; ya está inline, pero puedes ponerlo aquí también */
+    transition: opacity 0.2s ease-in-out;
+    /* Transición suave para el hover */
+}
+
+.ticket-image-container img:hover {
+    opacity: 0.85;
+    /* Un pequeño efecto visual al pasar el mouse */ }
+/* Para que el posicionamiento absoluto del menú de acciones funcione correctamente */
+.ticket-card {
+    position: relative;
+}
+
+.ticket-actions-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.ticket-action-toggler {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    /* Para el hover que estaba en onmouseover/out, puedes añadir :hover aquí si lo deseas */
+}
+
+.ticket-action-toggler:hover {
+    background-color: rgba(230, 230, 230, 0.9);
+    /* Ejemplo de hover */
+}
+
+
+.ticket-actions-menu-panel {
+    position: absolute;
+    top: 40px;
+    /* Ajusta según el tamaño de tu botón toggler */
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 11;
+    min-width: 160px;
+    padding: 8px;
+}
+
+.ticket-actions-menu-item {
+    display: flex !important;
+    /* !important para asegurar que sobreescribe display:block de btn-block si es necesario */
+    align-items: center !important;
+    /* Las clases de Bootstrap (btn, btn-sm, btn-block, rounded-pill, btn-outline-*) */
+    /* se encargarán del resto de la apariencia base. */
+    /* Los estilos específicos de color los da btn-outline-primary y btn-outline-danger. */
+}
+
+.ticket-actions-menu-item-edit {
+    margin-bottom: 6px;
+    /* Espacio entre el botón de editar y el de borrar */
+}
+
+.ticket-actions-menu-item i {
+    /* Estilo para los íconos dentro de los botones del menú */
+    margin-right: 8px;
+}
+
+/* Estilos para el visor de imagen agrandada (si no vienen de _ticketing.scss) */
+.image-enlarger-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    cursor: pointer;
+}
+
+.enlarged-image {
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    object-fit: contain;
+}
+
+.ticket-image-container img:hover {
+    /* Mantengo este por si lo tenías */
+    opacity: 0.85; }
