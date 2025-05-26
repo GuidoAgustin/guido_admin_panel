@@ -60,19 +60,15 @@ export default {
       commit('SHOW_LOADER')
       return new Promise((resolve, reject) => {
         this.$clients.api
-          .post(
-            'eventos',
-            form,
-            {
-              headers: {
-                Authorization: `Bearer ${getters.token}`
-              }
+          .post('eventos', form, {
+            headers: {
+              Authorization: `Bearer ${getters.token}`
             }
-          )
+          })
           .then(({ data }) => {
             resolve(data)
           })
-          .catch(err => {
+          .catch((err) => {
             this.$errorHandler(err)
             reject(err)
           })
@@ -87,19 +83,15 @@ export default {
       commit('SHOW_LOADER')
       return new Promise((resolve, reject) => {
         this.$clients.api
-          .post(
-            'tipos_entradas',
-            form,
-            {
-              headers: {
-                Authorization: `Bearer ${getters.token}`
-              }
+          .post('tipos_entradas', form, {
+            headers: {
+              Authorization: `Bearer ${getters.token}`
             }
-          )
+          })
           .then(({ data }) => {
             resolve(data)
           })
-          .catch(err => {
+          .catch((err) => {
             this.$errorHandler(err)
             reject(err)
           })
@@ -122,6 +114,56 @@ export default {
         commit('SET_TIPOS', [])
       } finally {
         commit('SET_LOADING_TIPOS', false)
+      }
+    },
+
+    // ACCIÓN NUEVA PARA BORRAR EVENTO
+    async deleteEventoAction({ commit, getters }, eventoId) {
+      commit('SHOW_LOADER')
+      commit('SET_ERROR', null)
+      try {
+        await this.$clients.api.delete(`eventos/${eventoId}`, {
+          headers: {
+            Authorization: `Bearer ${getters.token}` // Asegúrate que el token se obtiene correctamente
+          }
+        })
+        return Promise.resolve('Evento borrado exitosamente.')
+      } catch (err) {
+        // Extraer mensaje de error de la respuesta del backend si está disponible
+        const errorMessage =
+          err.response?.data?.message || err.message || 'Error al borrar el evento.'
+        commit('SET_ERROR', errorMessage)
+        // Asumiendo que tienes un manejador global de errores que puede mostrar mensajes
+        if (this.$errorHandler) {
+          this.$errorHandler(err)
+        }
+        return Promise.reject(new Error(errorMessage)) // Rechazar con el mensaje de error
+      } finally {
+        commit('HIDE_LOADER')
+      }
+    },
+    // ACCIÓN NUEVA PARA BORRAR TIPO DE ENTRADA
+    async deleteTipoEntradaAction({ commit, getters }, tipoEntradaId) {
+      // Considera usar un estado de carga/error específico para tipos si es necesario
+      commit('SHOW_LOADER'); // O por ejemplo commit('SET_LOADING_TIPOS', true);
+      commit('SET_ERROR_TIPOS', null);
+      try {
+        // La ruta en backend/app/routes/tipos_entradas.router.js es /tipos_entradas/:tipos_entrada_id
+        await this.$clients.api.delete(`tipos_entradas/${tipoEntradaId}`, {
+          headers: {
+            Authorization: `Bearer ${getters.token}`
+          }
+        });
+        return Promise.resolve('Tipo de entrada borrado exitosamente.');
+      } catch (err) {
+        const errorMessage = err.response?.data?.message || err.message || 'Error al borrar el tipo de entrada.';
+        commit('SET_ERROR_TIPOS', errorMessage);
+        if (this.$errorHandler) {
+            this.$errorHandler(err);
+        }
+        return Promise.reject(new Error(errorMessage));
+      } finally {
+        commit('HIDE_LOADER'); // O por ejemplo commit('SET_LOADING_TIPOS', false);
       }
     }
   },
