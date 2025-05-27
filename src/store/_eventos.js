@@ -145,25 +145,103 @@ export default {
     // ACCIÓN NUEVA PARA BORRAR TIPO DE ENTRADA
     async deleteTipoEntradaAction({ commit, getters }, tipoEntradaId) {
       // Considera usar un estado de carga/error específico para tipos si es necesario
-      commit('SHOW_LOADER'); // O por ejemplo commit('SET_LOADING_TIPOS', true);
-      commit('SET_ERROR_TIPOS', null);
+      commit('SHOW_LOADER') // O por ejemplo commit('SET_LOADING_TIPOS', true);
+      commit('SET_ERROR_TIPOS', null)
       try {
         // La ruta en backend/app/routes/tipos_entradas.router.js es /tipos_entradas/:tipos_entrada_id
         await this.$clients.api.delete(`tipos_entradas/${tipoEntradaId}`, {
           headers: {
             Authorization: `Bearer ${getters.token}`
           }
-        });
-        return Promise.resolve('Tipo de entrada borrado exitosamente.');
+        })
+        return Promise.resolve('Tipo de entrada borrado exitosamente.')
       } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || 'Error al borrar el tipo de entrada.';
-        commit('SET_ERROR_TIPOS', errorMessage);
+        const errorMessage =
+          err.response?.data?.message || err.message || 'Error al borrar el tipo de entrada.'
+        commit('SET_ERROR_TIPOS', errorMessage)
         if (this.$errorHandler) {
-            this.$errorHandler(err);
+          this.$errorHandler(err)
         }
-        return Promise.reject(new Error(errorMessage));
+        return Promise.reject(new Error(errorMessage))
       } finally {
-        commit('HIDE_LOADER'); // O por ejemplo commit('SET_LOADING_TIPOS', false);
+        commit('HIDE_LOADER') // O por ejemplo commit('SET_LOADING_TIPOS', false);
+      }
+    },
+
+    async updateEventoAction({ commit, getters }, { eventoId, eventoData }) {
+      // eventoData se espera que sea un objeto FormData si incluye un archivo,
+      // o un objeto plano si no (aunque el backend podría esperar FormData siempre si usa imageMiddleware).
+      // El ModalForm.vue deberá preparar eventoData como FormData si hay una imagen.
+      commit('SHOW_LOADER') // Usar un loader general o uno específico para "guardando evento"
+      commit('SET_ERROR', null)
+      try {
+        // La API espera un PUT a /eventos/:evento_id
+        // this.$clients.api debería estar configurado para manejar FormData si es necesario
+        const { data } = await this.$clients.api.put(`eventos/${eventoId}`, eventoData, {
+          headers: {
+            Authorization: `Bearer ${getters.token}` // Asumiendo que tienes un getter 'token'
+            // 'Content-Type': 'multipart/form-data' // Axios lo maneja automáticamente con FormData
+          }
+        })
+
+        // Opcional: Actualizar el evento en el estado local 'tickets'
+        // Esto puede ser complejo si la estructura es profunda.
+        // commit('UPDATE_EVENTO_IN_LIST', data.data); // Necesitarías una mutación para esto
+
+        // Por lo general, es más fácil que el componente que llama a esta acción
+        // luego recargue la lista de tickets o el detalle del evento.
+        // El ModalForm emitirá 'eventSaved' que ya dispara 'fetchTickets' en Ticketing.vue
+
+        return Promise.resolve(data.data) // Devuelve el evento actualizado
+      } catch (err) {
+        const errorMessage =
+          err.response?.data?.message || err.message || 'Error al actualizar el evento.'
+        commit('SET_ERROR', errorMessage)
+        if (this.$errorHandler) {
+          this.$errorHandler(err)
+        }
+        return Promise.reject(new Error(errorMessage))
+      } finally {
+        commit('HIDE_LOADER')
+      }
+    },
+
+    async updateTipoEntradaAction({ commit, getters }, tipoEntradaData) {
+      // tipoEntradaData es un objeto JS que incluye id_tipo_entrada y los campos a actualizar.
+      commit('SET_LOADING_TIPOS', true) // Usar loader/error específico para tipos
+      commit('SET_ERROR_TIPOS', null)
+      try {
+        const tipoId = tipoEntradaData.id_tipo_entrada
+        if (!tipoId) {
+          throw new Error('El ID del tipo de entrada es necesario para actualizar.')
+        }
+
+        // La API espera un PUT a /tipos_entradas/:tipos_entrada_id
+        // El payload para PUT debería ser solo los campos a actualizar,
+        // pero tu backend controller para tipos_entradas toma todos los campos del body.
+        const payload = { ...tipoEntradaData }
+        delete payload.id_tipo_entrada // No enviar el ID en el cuerpo del payload si la API lo toma de la URL
+
+        const { data } = await this.$clients.api.put(`tipos_entradas/${tipoId}`, payload, {
+          headers: {
+            Authorization: `Bearer ${getters.token}`
+          }
+        })
+
+        // Opcional: Actualizar el tipo de entrada en el estado local 'tipos' o dentro de un evento en 'tickets'
+        // commit('UPDATE_TIPO_ENTRADA', data.data); // Necesitarías una mutación para esto
+
+        return Promise.resolve(data.data) // Devuelve el tipo de entrada actualizado
+      } catch (err) {
+        const errorMessage =
+          err.response?.data?.message || err.message || 'Error al actualizar el tipo de entrada.'
+        commit('SET_ERROR_TIPOS', errorMessage)
+        if (this.$errorHandler) {
+          this.$errorHandler(err)
+        }
+        return Promise.reject(new Error(errorMessage))
+      } finally {
+        commit('SET_LOADING_TIPOS', false)
       }
     }
   },

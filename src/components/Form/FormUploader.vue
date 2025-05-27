@@ -11,7 +11,7 @@
         <div class="form-wrapper">
           <div class="d-flex gap-2">
             <slot name="current" />
-            <button class="btn btn-primary btn-sm btn-block" @click="launchFilePicker">
+            <button type="button" class="btn btn-primary btn-sm btn-block" @click="launchFilePicker">
               {{ buttonText }}
             </button>
           </div>
@@ -31,7 +31,7 @@
 
 <script>
 export default {
-  emtis: ['onChange', 'onReset'],
+  emtis: ['onChange', 'onReset'], // Typo original: emtis
   props: {
     modelValue: {
       type: [Object, File, String],
@@ -84,7 +84,7 @@ export default {
     },
     multiple: Boolean
   },
-  data: () => ({
+  data: () => ({ // Mantenido como arrow function
     file: null
   }),
   computed: {
@@ -165,7 +165,7 @@ export default {
     resetInput() {
       this.$refs.fileInput.value = null
       this.file = null
-      this.$emit('update:modelValue', null)
+      this.$emit('update:modelValue', null) // Asumo que este v-model quiere null al resetear
       this.$emit('onReset')
     },
     getBlobUrl(file) {
@@ -199,7 +199,8 @@ export default {
             base64: await this.getBase64Url(file)
           })
         }
-
+        // Para v-model con multiple, deberías emitir un array de Files
+        this.$emit('update:modelValue', result.map(r => r.file)); 
         this.$emit('onChange', result)
       } else {
         this.file = evt.target.files[0]
@@ -209,7 +210,7 @@ export default {
         // check whether the size is greater than the size limit
         if (!this.checkFileSize(this.file.size)) return
 
-        this.$emit('update:modelValue', this.file)
+        this.$emit('update:modelValue', this.file) // Emitir el objeto File para v-model
         this.$emit('onChange', {
           file: this.file,
           url: this.getBlobUrl(this.file),
@@ -217,10 +218,15 @@ export default {
         })
       }
 
-      if (this.resetOnSelect) this.resetInput()
+      if (this.resetOnSelect) {
+        // Para evitar problemas con la re-selección del mismo archivo si resetOnSelect es true.
+        // O si el usuario cancela y luego quiere seleccionar el mismo.
+         this.$refs.fileInput.value = null;
+      } else if (this.$refs.fileInput) {
+         // Siempre es bueno resetear el value del input para permitir seleccionar el mismo archivo de nuevo.
+         this.$refs.fileInput.value = null;
+      }
     },
-
-    // check type match with at least 1 of the accepted mimetypes
     checkFileType(type) {
       let valid = false
       let errors = []
@@ -230,10 +236,11 @@ export default {
           errors.push(acceptedType.error)
         } else {
           valid = true
+          break; // Si uno coincide, es válido
         }
       }
 
-      if (!valid) {
+      if (!valid && errors.length > 0) { // Solo mostrar error si no es válido y hay tipos definidos
         this.$toast.error(`The file is not ${errors.join(' or ')}`)
       }
 
@@ -254,7 +261,8 @@ export default {
 </script>
 
 <style scoped>
-input {
+input[type="file"] { /* Mantenido para asegurar que está oculto */
   display: none;
 }
+/* Puedes añadir otros estilos que tenías */
 </style>

@@ -228,7 +228,6 @@ export default {
     },
 
     handleEditEvent(ticket) {
-      console.log('Editar evento:', ticket)
       this.eventoParaEditar = { ...ticket }
       this.showCreateOrEditModal = true
       this.activeActionMenu = null
