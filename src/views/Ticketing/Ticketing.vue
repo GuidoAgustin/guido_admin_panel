@@ -162,139 +162,154 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import Topbar from '@/components/Topbar.vue'
-import Modals from './Modals.vue'
-import ModalForm from './ModalForm.vue'
+import { mapGetters, mapActions } from 'vuex';
+import Topbar from '@/components/Topbar.vue';
+import Modals from './Modals.vue'; // Ruta al componente de Modales (compra, registro)
+import ModalForm from './ModalForm.vue'; // Ruta al componente del formulario (crear/editar evento)
 
 export default {
   name: 'TicketPage',
   components: { Topbar, Modals, ModalForm },
   data() {
     return {
+      // Estados para controlar la visibilidad de los modales
       showBuyModal: false,
       showRegisterModal: false,
-      ticketSeleccionado: null,
       showCreateOrEditModal: false,
-      selectedImageUrl: null,
-      eventoParaEditar: null,
-      activeActionMenu: null
-    }
+      
+      // Datos para los modales y otras interacciones UI
+      ticketSeleccionado: null,    // Evento seleccionado para comprar o ver detalles
+      eventoParaEditar: null,     // Evento seleccionado para editar
+      selectedImageUrl: null,     // URL de la imagen para agrandar
+      activeActionMenu: null,     // ID del evento cuyo menú de acciones está activo
+    };
   },
   computed: {
-    ...mapGetters(['tickets', 'loading', 'error'])
+    // Mapeo de getters de Vuex para acceder al estado de los tickets/eventos
+    ...mapGetters(['tickets', 'loading', 'error']),
   },
   mounted() {
-    this.fetchTickets()
-    document.addEventListener('click', this.handleClickOutsideActionMenu)
+    this.fetchTickets(); // Cargar eventos al montar el componente
+    // Listener para cerrar el menú de acciones si se hace clic fuera
+    document.addEventListener('click', this.handleClickOutsideActionMenu);
   },
   beforeUnmount() {
-    document.removeEventListener('click', this.handleClickOutsideActionMenu)
+    // Limpiar el listener al desmontar el componente
+    document.removeEventListener('click', this.handleClickOutsideActionMenu);
   },
   methods: {
+    // Mapeo de acciones de Vuex
     ...mapActions(['fetchTickets', 'deleteEventoAction']),
 
+    // Abrir modal para crear un nuevo evento
     openCreateModal() {
-      this.eventoParaEditar = null
-      this.activeActionMenu = null
-      this.showCreateOrEditModal = true
+      this.eventoParaEditar = null; // Asegurar que no hay datos de edición
+      this.activeActionMenu = null; // Cerrar menú de acciones si está abierto
+      this.showCreateOrEditModal = true;
     },
 
+    // Alternar visibilidad del menú de acciones para un ticket/evento
     toggleActionMenu(ticketId) {
       if (this.activeActionMenu === ticketId) {
-        this.activeActionMenu = null
+        this.activeActionMenu = null;
       } else {
-        this.activeActionMenu = ticketId
+        this.activeActionMenu = ticketId;
       }
     },
 
+    // Cerrar menú de acciones si se hace clic fuera de él
     handleClickOutsideActionMenu(event) {
       if (this.activeActionMenu === null) {
-        return
+        return;
       }
-      const clickedElement = event.target
+      const clickedElement = event.target;
       const clickedOnAnActionButtonToggler = clickedElement.closest(
         'button[aria-label="Acciones del evento"]'
-      )
-      // Usamos una clase para el panel del menú para un selector más robusto
+      );
       const clickedInsideActionMenuContent = clickedElement.closest('.ticket-actions-menu-panel');
 
       if (clickedOnAnActionButtonToggler) {
-        return
+        return; // No cerrar si se hizo clic en el mismo botón que lo abre/cierra
       }
       if (!clickedInsideActionMenuContent) {
-        this.activeActionMenu = null
+        this.activeActionMenu = null; // Cerrar si el clic fue fuera del contenido del menú
       }
     },
 
+    // Preparar y abrir modal para editar un evento existente
     handleEditEvent(ticket) {
-      this.eventoParaEditar = { ...ticket }
-      this.showCreateOrEditModal = true
-      this.activeActionMenu = null
+      this.eventoParaEditar = { ...ticket }; // Clonar el objeto para evitar mutaciones directas
+      this.showCreateOrEditModal = true;
+      this.activeActionMenu = null;
     },
 
+    // Manejar la eliminación de un evento
     async handleDeleteEvent(ticket) {
-      console.log('Borrar evento:', ticket)
-      this.activeActionMenu = null
+      this.activeActionMenu = null;
       if (
         window.confirm(`¿Estás seguro de que quieres borrar el evento "${ticket.nombre_evento}"?`)
       ) {
         try {
-          await this.deleteEventoAction(ticket.evento_id)
-          if (this.$toast) this.$toast.success('Evento borrado exitosamente.')
-          this.fetchTickets()
+          await this.deleteEventoAction(ticket.evento_id);
+          if (this.$toast) this.$toast.success('Evento borrado exitosamente.');
+          this.fetchTickets(); // Recargar la lista de eventos
         } catch (err) {
-          console.error('Error al borrar evento:', err)
-          if (this.$toast) this.$toast.error(err.message || 'Error al borrar el evento.')
+          if (this.$toast) this.$toast.error(err.message || 'Error al borrar el evento.');
         }
       }
     },
 
+    // Manejar el evento cuando un evento se guarda (creado o editado)
     handleEventSaved() {
-      this.fetchTickets()
-      this.showCreateOrEditModal = false
+      this.fetchTickets(); // Recargar la lista
+      this.showCreateOrEditModal = false; // Cerrar el modal de formulario
     },
 
+    // Formatear fecha para visualización
     formatDate(dateString) {
-      if (!dateString) return '—'
+      if (!dateString) return '—';
       const options = {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
-      }
-      return new Date(dateString).toLocaleDateString('es-ES', options)
+        hour12: false,
+      };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
     },
 
+    // Iniciar proceso de compra de ticket
     buyTicket(ticket) {
-      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user')
+      // Verificar si el usuario está logueado
+      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user'); // Ajusta según tu sistema de auth
       if (!isLoggedIn) {
-        this.showRegisterModal = true
-        return
+        this.showRegisterModal = true; // Mostrar modal para registrarse/loguearse
+        return;
       }
-      this.ticketSeleccionado = ticket
-      this.showBuyModal = true
+      this.ticketSeleccionado = ticket; // Guardar el evento para el cual se compra
+      this.showBuyModal = true;         // Mostrar el modal de compra
     },
 
+    // Redirigir a la página de login/registro
     goToRegister() {
-      this.showRegisterModal = false
-      this.$router.push({ name: 'login' })
+      this.showRegisterModal = false;
+      this.$router.push({ name: 'login' }); // Asume que tienes una ruta llamada 'login'
     },
 
+    // Mostrar imagen del evento agrandada
     showEnlargedImage(imageUrl) {
-      this.activeActionMenu = null
-      this.selectedImageUrl = imageUrl
+      this.activeActionMenu = null;
+      this.selectedImageUrl = imageUrl;
     },
 
+    // Cerrar imagen agrandada
     closeEnlargedImage() {
-      this.selectedImageUrl = null
+      this.selectedImageUrl = null;
     }
   }
-}
+};
 </script>
-
 <style>
 @import '@/assets/scss/_ticketing.scss';
 </style>
