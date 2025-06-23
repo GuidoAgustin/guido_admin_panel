@@ -47,7 +47,7 @@ export default {
         commit('SET_LOADING', false)
       }
     },
-    createEvento({ commit, getters }, form) {
+    createEvento({ commit, getters, dispatch }, form) {
       commit('SHOW_LOADER')
       return new Promise((resolve, reject) => {
         this.$clients.api
@@ -57,6 +57,7 @@ export default {
             }
           })
           .then(({ data }) => {
+            dispatch('fetchTickets') // <-- Agregado: refresca eventos tras crear
             resolve(data)
           })
           .catch((err) => {
@@ -102,7 +103,7 @@ export default {
         commit('SET_LOADING_TIPOS', false)
       }
     },
-    async deleteEventoAction({ commit, getters }, eventoId) {
+    async deleteEventoAction({ commit, getters, dispatch }, eventoId) {
       commit('SHOW_LOADER')
       commit('SET_ERROR', null)
       try {
@@ -111,6 +112,7 @@ export default {
             Authorization: `Bearer ${getters.token}`
           }
         })
+        await dispatch('fetchTickets') // <-- Agregado: refresca eventos tras borrar
         return Promise.resolve('Evento borrado exitosamente.')
       } catch (err) {
         const errorMessage =
@@ -142,7 +144,7 @@ export default {
         commit('SET_LOADING_TIPOS', false)
       }
     },
-    async updateEventoAction({ commit, getters }, { eventoId, eventoData }) {
+    async updateEventoAction({ commit, getters, dispatch }, { eventoId, eventoData }) {
       commit('SHOW_LOADER')
       commit('SET_ERROR', null)
       try {
@@ -151,6 +153,7 @@ export default {
             Authorization: `Bearer ${getters.token}`
           }
         })
+        await dispatch('fetchTickets') // <-- Agregado: refresca eventos tras editar
         return Promise.resolve(data.data)
       } catch (err) {
         const errorMessage =
@@ -189,7 +192,7 @@ export default {
         commit('SET_LOADING_TIPOS', false)
       }
     },
-    async iniciarCompraAction({ commit, getters }, payloadDeCompra) {
+    async iniciarCompraAction({ commit, getters, dispatch }, payloadDeCompra) {
       commit('SHOW_LOADER')
       commit('SET_ERROR', null)
       try {
@@ -198,6 +201,7 @@ export default {
             Authorization: `Bearer ${getters.token}`
           }
         })
+        await dispatch('fetchTickets') // <-- Agregado: refresca eventos tras compra
         return Promise.resolve(data.data)
       } catch (err) {
         const errorMessage =
