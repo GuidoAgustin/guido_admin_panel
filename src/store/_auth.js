@@ -218,6 +218,10 @@ export default {
     },
     user(state) {
       return state.user
+    },
+    isAdmin(state) {
+      // El usuario es admin si su rol es exactamente 'admin'
+      return state.user && state.user.rol === 'admin'
     }
   }
 }

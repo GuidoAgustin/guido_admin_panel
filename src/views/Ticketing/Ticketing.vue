@@ -9,7 +9,7 @@
           Explora nuestra selección de eventos y asegura tu lugar. ¡Vive experiencias inolvidables!
         </p>
       </div>
-      <button class="btn btn-success" @click="openCreateModal">+ Crear Evento</button>
+      <button class="btn btn-success" @click="openCreateModal" v-if="isAdmin">+ Crear Evento</button>
     </header>
 
     <div class="ticket-layout container">
@@ -35,7 +35,7 @@
             v-for="ticket in tickets"
             :key="ticket.evento_id"
             >
-            <div class="ticket-actions-wrapper">
+            <div class="ticket-actions-wrapper" v-if="isAdmin">
               <button
                 @click.stop="toggleActionMenu(ticket.evento_id)"
                 class="btn btn-sm btn-light ticket-action-toggler"
@@ -186,7 +186,7 @@ export default {
   },
   computed: {
     // Mapeo de getters de Vuex para acceder al estado de los tickets/eventos
-    ...mapGetters(['tickets', 'loading', 'error']),
+    ...mapGetters(['tickets', 'loading', 'error', 'isAdmin']),
   },
   mounted() {
     this.fetchTickets(); // Cargar eventos al montar el componente
