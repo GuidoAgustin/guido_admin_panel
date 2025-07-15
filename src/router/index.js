@@ -1,12 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   // 1) Home pública: Accesible en "/" y "/home"
   {
-    path: '/', // La ruta principal
-    name: 'home', // Un nombre descriptivo para la ruta
+    path: '/',
+    name: 'home',
     component: () => import('@/views/PrincipalPage/Home.vue'),
-    alias: '/home' // Permite acceder a este componente también desde /home
+    alias: '/home'
   },
 
   // 2) Rutas públicas de E-Commerce y Ticketing
@@ -22,10 +22,9 @@ const routes = [
   },
 
   // 3) Rutas de autenticación (login, forgot/reset password, activación)
-  // Estas rutas son públicas y no requieren autenticación inicial
   {
-    path: '/', // Mantener bajo root para rutas como /login
-    component: () => import('@/views/Auth/AuthLayout.vue'), // Layout para las páginas de autenticación
+    path: '/',
+    component: () => import('@/views/Auth/AuthLayout.vue'),
     children: [
       {
         path: 'login',
@@ -55,12 +54,37 @@ const routes = [
     ]
   },
 
-  // // 4) Rutas protegidas bajo DashboardLayout (requieren autenticación)
-  // {
-  //   path: '/', // Mantener bajo root, las rutas hijas tendrán paths como /dashboard, /forms, etc.
-  //   component: () => import('@/views/Dashboard/DashboardLayout.vue'), // Layout para las páginas protegidas
-  //   children: [
-  //     {
+  // 4) Rutas del Admin Panel bajo DashboardLayout
+  {
+    path: '/',
+    component: () => import('@/views/Dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: 'adminpanel',
+        name: 'admin-dashboard',
+        component: () => import('@/views/Ticketing/AdminPanel/DashboardSection.vue')
+      },
+      {
+        path: 'adminpanel/events',
+        name: 'admin-events',
+        component: () => import('@/views/Ticketing/AdminPanel/EventsSection.vue')
+      },
+      {
+        path: 'adminpanel/sales',
+        name: 'admin-sales',
+        component: () => import('@/views/Ticketing/AdminPanel/SalesSection.vue')
+      },
+      {
+        path: 'adminpanel/users',
+        name: 'admin-users',
+        component: () => import('@/views/Ticketing/AdminPanel/UsersSection.vue')
+      },
+      {
+        path: 'adminpanel/reports',
+        name: 'admin-reports',
+        component: () => import('@/views/Ticketing/AdminPanel/ReportsSection.vue')
+      },
+      // ...aquí puedes agregar más rutas hijas bajo DashboardLayout...{
   //       path: 'dashboard',
   //       name: 'dashboard',
   //       component: () => import('@/views/Dashboard/Dashboard.vue')
@@ -93,10 +117,13 @@ const routes = [
   //     // E-Commerce y ticketing se movieron a rutas públicas, por lo que se eliminan de aquí
   //   ]
   // },
-];
+      ]
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-});
-export default router;
+})
+
+export default router

@@ -1,50 +1,27 @@
 export default [
   {
-    icon: 'fa-solid fa-book',
-    title: 'Vistas',
-    children: [
-      // {
-      //   title: 'Dashboard',
-      //   to: '/dashboard'
-      // },
-      // {
-      //   title: 'Login',
-      //   to: '/login'
-      // },
-      // {
-      //   title: 'Forms',
-      //   to: '/forms'
-      // },
-      // {
-      //   title: 'Tables',
-      //   to: '/tables'
-      // },
-      // {
-      //   title: 'Modals',
-      //   to: '/modals'
-      // },
-      // {
-      //   title: 'Tabs',
-      //   to: '/tabs'
-      // },
-      {
-        title: 'E-Commerce',
-        to: '/E-Commerce'
-      },
-      {
-        title: 'Home',
-        to: '/home'
-      },
-      {
-        title: 'Ticketing',
-        to: '/ticketing'
-      }
-    ]
+    icon: 'fa-solid fa-chart-bar',      // 📊
+    title: 'Dashboard',
+    to: '/adminpanel'
   },
   {
-    icon: 'fa-solid fa-gear',
-    title: 'Opciones',
-    to: '/opciones',
-    children: null
+    icon: 'fa-solid fa-ticket-alt',     // 🎫
+    title: 'Eventos',
+    to: '/adminpanel/events'
+  },
+  {
+    icon: 'fa-solid fa-dollar-sign',    // 💰
+    title: 'Ventas',
+    to: '/adminpanel/sales'
+  },
+  {
+    title: 'Usuarios',
+    to: '/adminpanel/users',
+    icon: 'fa-solid fa-users',          // 👥
+  },
+  {
+    icon: 'fa-solid fa-chart-line',     // 📈
+    title: 'Reportes',
+    to: '/adminpanel/reports'
   }
 ]

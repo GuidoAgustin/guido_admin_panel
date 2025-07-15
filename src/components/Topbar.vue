@@ -7,6 +7,9 @@
       </span>!
     </div>
     <ul class="topbar-buttons">
+      <li v-if="$store.getters.isAdmin" @click="goToAdminPanel" title="Panel de administración">
+        <i class="fa-solid fa-tools"></i>
+      </li>
       <li @click="handleLogoutOrLogin">
         <i class="fa-solid fa-power-off"></i>
       </li>
@@ -36,12 +39,15 @@ export default {
         sb.classList.add('sidebar-open')
     },
     async handleLogoutOrLogin() {
-  if (this.$store.getters.isLoggedIn) {
-    await this.$store.dispatch('logout', { redirect: false })
-    // El usuario se desloguea y permanece en la página actual
-  } else {
-    this.$router.push({ name: 'login' })
-  }
+      if (this.$store.getters.isLoggedIn) {
+        await this.$store.dispatch('logout', { redirect: false })
+        // El usuario se desloguea y permanece en la página actual
+      } else {
+        this.$router.push({ name: 'login' })
+      }
+    },
+    goToAdminPanel() {
+      this.$router.push({ path: '/adminpanel' }) // Asegúrate de tener esta ruta definida
     }
   }
 }
