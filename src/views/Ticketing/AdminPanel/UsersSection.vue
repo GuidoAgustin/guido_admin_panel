@@ -42,8 +42,8 @@ export default {
         }
     },
     computed: {
-      ...mapState('adminTicketing', ['users']),
-      ...mapGetters('adminTicketing', ['formatNumber']),
+      ...mapState(['users']),
+      ...mapGetters(['formatNumber']),
 
       filteredUsers() {
           if (!this.userSearch) return this.users;

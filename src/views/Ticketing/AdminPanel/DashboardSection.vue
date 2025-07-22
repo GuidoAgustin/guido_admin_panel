@@ -69,15 +69,18 @@ import { mapState, mapGetters } from 'vuex';
 export default {
   name: 'DashboardSection',
   computed: {
-    // Mapea los datos del state del módulo 'admin' a propiedades locales
-    ...mapState('adminTicketing', ['stats', 'recentActivities']),
-    // Mapea la función para formatear números desde los getters
-    ...mapGetters('adminTicketing', ['formatNumber'])
+    // CORREGIDO: Le decimos a mapState la ruta exacta para encontrar los datos
+    // dentro del objeto 'eventos' del state principal.
+    ...mapState({
+      stats: state => state.eventos.stats,
+      recentActivities: state => state.eventos.recentActivities
+    }),
+
+    // Los getters de un módulo no-namespaced SÍ son globales,
+    // por lo que esta línea está bien como está.
+    ...mapGetters(['formatNumber'])
   },
-  mounted() {
-    // Aquí puedes inicializar el gráfico de Chart.js usando this.$refs.salesChart
-    console.log("Componente de Dashboard montado y leyendo desde Vuex.");
-  }
+  // Ya no necesitamos llamar a ninguna acción aquí por ahora.
 }
 </script>
 

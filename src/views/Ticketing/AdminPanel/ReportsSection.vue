@@ -46,11 +46,16 @@
 import { mapState, mapGetters } from 'vuex';
 
 export default {
-    name: 'ReportsSection',
-    computed: {
-      ...mapState('adminTicketing', ['reports']),
-      ...mapGetters('adminTicketing', ['formatNumber'])
-    }
+  name: 'ReportsSection',
+  computed: {
+    // CORREGIDO: Le decimos a mapState la ruta exacta a state.eventos.reports
+    ...mapState({
+      reports: state => state.eventos.reports
+    }),
+
+    // mapGetters está bien porque los getters no-namespaced son globales.
+    ...mapGetters(['formatNumber'])
+  }
 }
 </script>
 

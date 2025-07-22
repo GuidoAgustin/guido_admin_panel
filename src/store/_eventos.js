@@ -1,12 +1,34 @@
 export default {
-  state: () => ({
-    tickets: [],
-    loading: false,
-    error: null,
-    tipos: [],
-    loadingTipos: false,
-    errorTipos: null
-  }),
+state: () => ({
+  // Tu estado original
+  tickets: [],
+  loading: false,
+  error: null,
+  tipos: [],
+  loadingTipos: false,
+  errorTipos: null,
+
+  // 👇 EL ESTADO QUE FALTA PARA EL DASHBOARD 👇
+  stats: {
+    totalTickets: 0,
+    ticketsGrowth: 0,
+    totalRevenue: 0,
+    revenueGrowth: 0,
+    activeEvents: 0,
+    upcomingEvents: 0,
+    totalUsers: 0,
+    newUsers: 0
+  },
+  reports: {
+  monthlyRevenue: 0,
+  averageSale: 0,
+  topEvent: 'N/A',
+  completedEvents: 0,
+  averageOccupancy: 0,
+  cancellations: 0
+},
+  recentActivities: []
+}),
   mutations: {
     SET_TICKETS(state, tickets) {
       state.tickets = tickets
@@ -214,7 +236,7 @@ export default {
       } finally {
         commit('HIDE_LOADER')
       }
-    }
+    },
   },
   getters: {
     tickets: (state) => state.tickets,
@@ -222,6 +244,10 @@ export default {
     error: (state) => state.error,
     tipos: (state) => state.tipos,
     loadingTipos: (state) => state.loadingTipos,
-    errorTipos: (state) => state.errorTipos
+    errorTipos: (state) => state.errorTipos,
+    formatNumber: () => (num) => {
+    if (typeof num !== 'number') return num;
+    return num.toLocaleString('es-AR');
+  }
   }
 }

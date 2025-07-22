@@ -51,8 +51,8 @@ data() {
   }
 },
 computed: {
-  ...mapState('adminTicketing', ['sales']),
-  ...mapGetters('adminTicketing', ['formatNumber']),
+  ...mapState(['sales']),
+  ...mapGetters(['formatNumber']),
   
   filteredSales() {
     // Por ahora, solo devolvemos todas las ventas.
