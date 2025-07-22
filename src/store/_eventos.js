@@ -53,7 +53,16 @@ state: () => ({
     },
     HIDE_LOADER(state) {
       state.loading = false
-    }
+    },
+      SET_USERS(state, users) {
+    state.users = users;
+  },
+  SET_LOADING_USERS(state, loading) {
+    state.loadingUsers = loading;
+  },
+  SET_ERROR_USERS(state, error) {
+    state.errorUsers = error;
+  },
   },
   actions: {
     async fetchTickets({ commit }) {
@@ -235,6 +244,25 @@ state: () => ({
         return Promise.reject(new Error(errorMessage))
       } finally {
         commit('HIDE_LOADER')
+      }
+    },
+
+      async fetchUsers({ commit, getters }) { // <-- Añadimos getters para el token
+      commit('SET_LOADING_USERS', true);
+      commit('SET_ERROR_USERS', null);
+      try {
+        // Ahora hacemos la llamada real a la API
+        const { data } = await this.$clients.api.get('users', {
+          headers: {
+            Authorization: `Bearer ${getters.token}` // Usamos el token del getter global
+          }
+        });
+        commit('SET_USERS', data.data);
+      } catch (err) {
+        commit('SET_ERROR_USERS', 'Error al cargar usuarios');
+        commit('SET_USERS', []);
+      } finally {
+        commit('SET_LOADING_USERS', false);
       }
     },
   },
