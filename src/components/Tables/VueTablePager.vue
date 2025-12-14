@@ -86,11 +86,17 @@ export default {
     lastPage(oldVal, newVal) {
       this.doPagesList()
     },
+    // Esto hace que reaccione si cambia sin recargar
     actualPage(val) {
       this.current_page = val
+      this.doPagesList()
     }
   },
   mounted() {
+    // 👇 ESTO ES LO NUEVO: Si recibimos una página del padre al iniciar, la usamos.
+    if (this.actualPage) {
+      this.current_page = parseInt(this.actualPage)
+    }
     this.doPagesList()
   },
   methods: {

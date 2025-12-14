@@ -189,12 +189,13 @@
     </table>
 
     <VueTablePager
-      :from="values.from"
-      :to="values.to"
-      :total="values.total"
-      :last-page="values.last_page"
-      @changing_page="pageChanged"
-    />
+  :from="values.from"
+  :to="values.to"
+  :total="values.total"
+  :last-page="values.last_page"
+  :actual-page="values.current_page"  
+  @changing_page="pageChanged"
+/>
   </div>
 </template>
 

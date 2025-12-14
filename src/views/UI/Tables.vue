@@ -1,7 +1,13 @@
 <template>
   <Widget>
     <template #title>Vue Tables</template>
+
+    <div v-if="loading" class="text-center p-4">
+      <i class="fa fa-spinner fa-spin mr-2"></i> Cargando...
+    </div>
+
     <vue-table
+      v-show="!loading"
       v-if="vTable.headers"
       :values="vTable.values"
       :headers="vTable.headers"
@@ -18,11 +24,16 @@
 <script>
 import Widget from '@/components/Widget.vue'
 import axios from 'axios'
+
 export default {
   components: {
     Widget
   },
   data: () => ({
+    // Agregamos esto para controlar el flujo
+    loading: false,
+    lastParams: null,
+
     vTable: {
       filters: [
         {
