@@ -7,6 +7,7 @@ state: () => ({
   tipos: [],
   loadingTipos: false,
   errorTipos: null,
+  totalUsers: 0,
 
   // 👇 EL ESTADO QUE FALTA PARA EL DASHBOARD 👇
   stats: {
@@ -63,6 +64,9 @@ state: () => ({
   SET_ERROR_USERS(state, error) {
     state.errorUsers = error;
   },
+  SET_TOTAL_USERS(state, total) {
+      state.totalUsers = total;
+    },
   },
   actions: {
     async fetchTickets({ commit }) {
@@ -247,24 +251,38 @@ state: () => ({
       }
     },
 
-      async fetchUsers({ commit, getters }) { // <-- Añadimos getters para el token
-      commit('SET_LOADING_USERS', true);
-      commit('SET_ERROR_USERS', null);
-      try {
-        // Ahora hacemos la llamada real a la API
-        const { data } = await this.$clients.api.get('users', {
-          headers: {
-            Authorization: `Bearer ${getters.token}` // Usamos el token del getter global
-          }
-        });
-        commit('SET_USERS', data.data);
-      } catch (err) {
-        commit('SET_ERROR_USERS', 'Error al cargar usuarios');
-        commit('SET_USERS', []);
-      } finally {
-        commit('SET_LOADING_USERS', false);
+      async fetchUsers({ commit, getters }, params = {}) {
+  commit('SET_LOADING_USERS', true);
+  commit('SET_ERROR_USERS', null);
+  try {
+    const queryParams = {};
+    
+    // --- Paginación y Búsqueda (Ya estaban) ---
+    if (params.page) queryParams.page = params.page;
+    if (params.per_page) queryParams.per_page = params.per_page;
+    if (params.search && params.search !== null) queryParams.search = params.search;
+
+    // --- 👇 AGREGAR ESTO: Ordenamiento ---
+    if (params.sort_by) queryParams.sort_by = params.sort_by;
+    if (params.sort_dir) queryParams.sort_dir = params.sort_dir;
+
+    const { data } = await this.$clients.api.get('users', {
+      params: queryParams, // Axios ahora enviará ?sort_by=email&sort_dir=asc
+      headers: {
+        Authorization: `Bearer ${getters.token}`
       }
-    },
+    });
+
+    commit('SET_USERS', data.data.data);
+    commit('SET_TOTAL_USERS', data.data.total);
+  } catch (err) {
+    commit('SET_ERROR_USERS', 'Error al cargar usuarios');
+    commit('SET_USERS', []);
+    commit('SET_TOTAL_USERS', 0);
+  } finally {
+    commit('SET_LOADING_USERS', false);
+  }
+},
   },
   getters: {
     tickets: (state) => state.tickets,

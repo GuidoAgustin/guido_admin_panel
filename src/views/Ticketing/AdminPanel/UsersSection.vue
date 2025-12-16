@@ -1,95 +1,163 @@
 <template>
-  <div class="users-section">
-    <div class="section-header">
-      <h2>Gestión de Usuarios</h2>
-      <input type="text" v-model="userSearch" placeholder="Buscar por nombre o email..." class="search-input">
+  <Widget>
+    <template #title>Gestión de Usuarios</template>
+
+    <div v-if="loadingUsers" class="text-center p-4">
+      <i class="fa fa-spinner fa-spin mr-2"></i> Cargando usuarios...
     </div>
 
-    <div v-if="loadingUsers" class="loading-state">Cargando usuarios...</div>
-    <div v-else-if="errorUsers" class="error-state">{{ errorUsers }}</div>
-
-    <div v-else-if="filteredUsers.length > 0" class="users-grid">
-      <div v-for="user in filteredUsers" :key="user.user_id" class="user-card">
-        <div class="user-avatar-large">{{ user.first_name.charAt(0).toUpperCase() }}</div>
-        <div class="user-info">
-          <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-          <p>{{ user.email }}</p>
-          <span class="user-role">{{ user.rol }}</span>
-        </div>
-        <div class="user-stats">
-          <div class="stat">
-            <!-- Estas propiedades son de ejemplo, deberás añadirlas a tu modelo de usuario si las necesitas -->
-            <span class="stat-value">{{ user.ticketsPurchased || 0 }}</span>
-            <span class="stat-label">Entradas</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">${{ formatNumber(user.totalSpent || 0) }}</span>
-            <span class="stat-label">Gastado</span>
-          </div>
-        </div>
-        <div class="user-actions">
-          <button class="btn-view">Ver</button>
-          <button class="btn-edit">Editar</button>
-        </div>
-      </div>
+    <div v-if="errorUsers" class="text-center text-danger p-4">
+      {{ errorUsers }}
     </div>
 
-    <div v-else class="no-results-state">No se encontraron usuarios.</div>
-  </div>
+    <vue-table
+      v-show="!loadingUsers && !errorUsers"
+      :values="tableValues"
+      :total="totalUsers"
+      :per-page="perPage"
+      :last-page="tableValues.last_page"
+      :api-mode="true"
+      :headers="vTable.headers"
+      :actions="vTable.actions"
+      :options="vTable.options"
+      :filters="vTable.filters"
+      @changed="getData"
+      @onView="onViewUser"
+      @onEdit="onEditUser"
+      ref="vtable"
+    />
+  </Widget>
 </template>
 
 <script>
+import Widget from '@/components/Widget.vue'
 import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'UsersSection',
-  data() {
-    return {
-      userSearch: ''
-    }
+  components: {
+    Widget
   },
+  data: () => ({
+    lastParams: null,
+    currentPage: 1,
+    perPage: 15,
+
+    vTable: {
+      filters: [], // Agregar filtros aquí si es necesario en el futuro
+      headers: [
+        {
+          title: 'first_name',
+          mask: 'Nombre',
+          sortable: true
+        },
+        {
+          title: 'last_name',
+          mask: 'Apellido',
+          sortable: true
+        },
+        {
+          title: 'email',
+          mask: 'Email',
+          sortable: true
+        },
+        {
+          title: 'rol',
+          mask: 'Rol',
+          sortable: true
+        },
+        {
+          title: 'totalSpent',
+          mask: 'Gastado ($)',
+          sortable: true
+        }
+      ],
+      actions: [
+        {
+          title: 'Ver Detalle',
+          callback: 'onView'
+        },
+        {
+          title: 'Editar Usuario',
+          callback: 'onEdit'
+        }
+      ],
+      options: {
+        perPage: 15,
+      }
+    }
+  }),
   computed: {
-    // Corregimos la ruta del mapState
     ...mapState({
       users: state => state.eventos.users,
       loadingUsers: state => state.eventos.loadingUsers,
-      errorUsers: state => state.eventos.errorUsers
+      errorUsers: state => state.eventos.errorUsers,
+      totalUsers: state => state.eventos.totalUsers
     }),
-    // Los getters globales funcionan bien
     ...mapGetters(['formatNumber']),
 
-    filteredUsers() {
-      if (!this.userSearch) {
-        return this.users;
+    tableValues() {
+      const perPage = this.perPage;
+      const total = this.totalUsers || 0;
+      const lastPage = Math.ceil(total / perPage);
+
+      if (!Array.isArray(this.users)) {
+        return {
+          total: 0,
+          per_page: perPage,
+          current_page: this.currentPage,
+          last_page: 1,
+          from: 0,
+          to: 0,
+          data: []
+        };
       }
-      const searchTerm = this.userSearch.toLowerCase();
-      // Ajustamos a los nombres de campo reales (first_name, last_name)
-      return this.users.filter(user =>
-        `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm) ||
-        user.email.toLowerCase().includes(searchTerm)
-      );
+
+      return {
+        total,
+        per_page: perPage,
+        current_page: this.currentPage,
+        last_page: lastPage,
+        from: (this.currentPage - 1) * perPage + 1,
+        to: Math.min(this.currentPage * perPage, total),
+        data: this.users.map(user => ({
+          ...user,
+          totalSpent: `$${this.formatNumber(user.totalSpent || 0)}`
+        }))
+      }
     }
   },
   created() {
-    this.fetchUsers();
+    this.fetchUsers({ page: 1, per_page: this.perPage });
   },
   methods: {
-    ...mapActions(['fetchUsers'])
+    ...mapActions(['fetchUsers']),
+
+    getData(params) {
+      // Prevención de llamadas duplicadas
+      const paramsString = JSON.stringify(params);
+      if (this.lastParams === paramsString) return;
+
+      this.lastParams = paramsString;
+      
+      // Actualizamos estado local
+      this.currentPage = params.page || 1;
+      this.perPage = params.per_page || 15;
+
+      this.fetchUsers(params);
+    },
+
+    onViewUser(item) {
+      console.log('Ver usuario:', item);
+      // Implementar redirección o modal aquí
+    },
+    onEditUser(item) {
+      console.log('Editar usuario:', item);
+      // Implementar lógica de edición aquí
+    }
   }
 }
 </script>
 
-<style scoped lang="scss">
-@import '@/assets/scss/_adminPanel.scss';
-
-/* Estilos adicionales para estados de carga/error */
-.loading-state, .error-state, .no-results-state {
-  text-align: center;
-  padding: 40px;
-  font-size: 1.2rem;
-  color: #a0a0a0;
-}
-.error-state {
-  color: #f44336;
-}
+<style scoped>
 </style>
