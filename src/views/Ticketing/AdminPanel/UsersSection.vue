@@ -22,9 +22,17 @@
       :options="vTable.options"
       :filters="vTable.filters"
       @changed="getData"
-      @onView="onViewUser"
+      @onDelete="onDeleteUser"
       @onEdit="onEditUser"
       ref="vtable"
+    />
+
+    <UserModal
+      v-if="showModal"
+      :user="selectedUser"
+      :mode="modalMode"
+      @close="showModal = false"
+      @saved="onUserActionComplete"
     />
   </Widget>
 </template>
@@ -32,13 +40,20 @@
 <script>
 import Widget from '@/components/Widget.vue'
 import { mapState, mapGetters, mapActions } from 'vuex';
+import UserModal from './UserModal.vue'
 
 export default {
   name: 'UsersSection',
   components: {
-    Widget
+    Widget,
+    UserModal
   },
   data: () => ({
+    // Control del Modal
+    showModal: false,
+    selectedUser: {},
+    modalMode: 'edit', // 'edit' o 'delete'
+
     lastParams: null,
     currentPage: 1,
     perPage: 15,
@@ -74,8 +89,8 @@ export default {
       ],
       actions: [
         {
-          title: 'Ver Detalle',
-          callback: 'onView'
+          title: 'Eliminar Usuario',
+          callback: 'onDelete'
         },
         {
           title: 'Editar Usuario',
@@ -147,13 +162,20 @@ export default {
       this.fetchUsers(params);
     },
 
-    onViewUser(item) {
-      console.log('Ver usuario:', item);
-      // Implementar redirección o modal aquí
-    },
     onEditUser(item) {
-      console.log('Editar usuario:', item);
-      // Implementar lógica de edición aquí
+      this.selectedUser = item;
+      this.modalMode = 'edit';
+      this.showModal = true;
+    },
+
+    onDeleteUser(item) {
+      this.selectedUser = item;
+      this.modalMode = 'delete';
+      this.showModal = true;
+    },
+    onUserActionComplete() {
+      // Recargamos los datos para ver cambios
+      this.fetchUsers({ page: this.currentPage, per_page: this.perPage });
     }
   }
 }

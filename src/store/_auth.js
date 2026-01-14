@@ -204,7 +204,44 @@ export default {
             commit('HIDE_LOADER')
           })
       })
-    }
+    },
+    // Acción para EDITAR usuario
+    async updateUserAction({ commit, getters }, userData) {
+      commit('SHOW_LOADER'); // Reutilizamos tu mutation existente
+      try {
+        // Asumimos que el ID viene en user_id o id
+        const id = userData.user_id || userData.id;
+        
+        // Hacemos la llamada PUT al backend
+        await this.$clients.api.put(`users/${id}`, userData, {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        });
+        
+        return Promise.resolve();
+      } catch (err) {
+        // Manejo de error genérico
+        if (this.$errorHandler) this.$errorHandler(err);
+        return Promise.reject(err);
+      } finally {
+        commit('HIDE_LOADER');
+      }
+    },
+
+    // Acción para BORRAR usuario
+    async deleteUserAction({ commit, getters }, userId) {
+      commit('SHOW_LOADER');
+      try {
+        await this.$clients.api.delete(`users/${userId}`, {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        });
+        return Promise.resolve();
+      } catch (err) {
+        if (this.$errorHandler) this.$errorHandler(err);
+        return Promise.reject(err);
+      } finally {
+        commit('HIDE_LOADER');
+      }
+    },
   },
   getters: {
     isLoggedIn(state) {
