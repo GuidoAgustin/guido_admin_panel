@@ -27,6 +27,11 @@ export default {
       inactivityTimeout: 30 * 60 * 1000
     }
   },
+  // 👇 ACÁ AGREGAMOS EL CÓDIGO PARA QUE NO TE DESLOGUEE EL F5 👇
+  created() {
+    this.$store.dispatch('setCredentials');
+  },
+  // 👆 -------------------------------------------------------- 👆
   mounted() {
     this.inactivityTracker = createInactivityTracker({
       inactivityTimeout: this.inactivityTimeout,
