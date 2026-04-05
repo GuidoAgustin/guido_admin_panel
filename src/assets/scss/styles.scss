@@ -1,5 +1,7 @@
+/* =======================================================
+   2. LIBRERÍAS Y COMPONENTES SCSS (BOOTSTRAP PRIMERO)
+   ======================================================= */
 @import './bootstrap-4.6.1/bootstrap';
-@import './fontawesome-6.1.1/css/all.min.css';
 @import './functions';
 @import './variables';
 @import './main';
@@ -16,3 +18,5 @@
 @import './html_editor';
 @import './lists';
 @import './accordion';
+@import './ticketing';
+@import'./e-commerce';
