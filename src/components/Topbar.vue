@@ -1,12 +1,15 @@
 <template>
   <div class="topbar">
     <div class="welcome-message">
-      Bienvenido
+      Bienvenid@
       <span v-if="$store.getters.isLoggedIn && $store.getters.user">
         {{ $store.getters.user.first_name }}!
       </span>!
     </div>
     <ul class="topbar-buttons">
+      <li v-if="$store.getters.isLoggedIn" @click="goToCart" title="Mis Compras">
+        <i class="fa-solid fa-cart-shopping"></i> 
+      </li>
       <li v-if="$store.getters.isAdmin" @click="goToAdminPanel" title="Panel de administración">
         <i class="fa-solid fa-tools"></i>
       </li>
@@ -48,6 +51,9 @@ export default {
     },
     goToAdminPanel() {
       this.$router.push({ path: '/adminpanel' }) // Asegúrate de tener esta ruta definida
+    },
+    goToCart() {
+      this.$router.push({ path: '/mi-carrito' }) 
     }
   }
 }

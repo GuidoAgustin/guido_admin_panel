@@ -20,6 +20,13 @@ const routes = [
     name: 'ticketing',
     component: () => import('@/views/Ticketing/Ticketing.vue')
   },
+  //Carrito (Usa el diseño normal, pero pide login)
+  {
+    path: '/mi-carrito',
+    name: 'mi-carrito',
+    component: () => import('@/views/Carrito/MiCarrito.vue'),
+    meta: { requiresAuth: true } // 🔒 ACÁ ESTÁ EL CANDADO
+  },
 
   // 3) Rutas de autenticación (login, forgot/reset password, activación)
   {
