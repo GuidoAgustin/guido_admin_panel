@@ -41,22 +41,36 @@
       </div>
       
       <div v-if="tabActual === 'ticketing'" class="animate__animated animate__fadeIn">
+        
         <div class="mb-5">
-          <h4 class="text-warning border-bottom pb-2 mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i> Reservas Pendientes</h4>
-          <div v-if="entradasEnCarrito.length === 0" class="text-white small">No tenés entradas pendientes de pago.</div>
+          <h4 class="text-warning border-bottom pb-2 mb-3"><i class="fa-solid fa-cart-shopping me-2"></i> Mi Carrito de Entradas</h4>
+          <div v-if="carritoLocalEntradas.length === 0" class="text-white small">Tu carrito está vacío.</div>
           
           <div class="row">
-            <div v-for="entrada in entradasEnCarrito" :key="entrada.id" class="col-md-6 mb-3">
+            <div v-for="entrada in carritoLocalEntradas" :key="entrada.id_local" class="col-md-6 mb-3">
               <div class="card shadow-sm border-0 ticket-card pendiente bg-dark text-white">
                 <div class="card-body">
                   <div class="d-flex justify-content-between mb-2">
                     <h6 class="card-title mb-0 fw-bold">{{ entrada.evento }}</h6>
-                    <span class="badge bg-warning text-dark">Pendiente</span>
+                    <button class="btn btn-sm text-danger border-0 bg-transparent" @click="eliminarDelCarritoLocal(entrada.id_local)">
+                      <i class="fa-solid fa-trash fa-lg"></i>
+                    </button>
                   </div>
                   <p class="mb-1 small"><i class="fa-regular fa-calendar me-2"></i>{{ entrada.fecha }}</p>
-                  <div class="d-flex justify-content-between align-items-center mt-3">
-                    <h6 class="mb-0 fw-bold text-success">${{ entrada.total }}</h6>
-                    <button @click="iniciarPago(entrada, 'entrada')" class="btn btn-success btn-sm rounded-pill px-3">Pagar <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                  
+                  <div class="small text-light mb-2 mt-3">
+                    <div v-for="item in entrada.items" :key="item.id_tipo_entrada" class="mb-1">
+                      <i class="fa-solid fa-ticket fa-xs me-1 text-warning"></i> 
+                      <strong>{{ item.cantidad }}x</strong> {{ item.nombre_tipo_original }} 
+                      <span class="text-muted ms-1">(${{ item.precio_unitario }} c/u)</span>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3 border-secondary">
+                    <h6 class="mb-0 fw-bold text-success">Total: ${{ entrada.total }}</h6>
+                    <button @click="iniciarPagoDesdeCarritoLocal(entrada)" class="btn btn-success btn-sm rounded-pill px-4 fw-bold">
+                      Comprar <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -188,7 +202,8 @@
         </div>
       </div>
 
-    </div> </div>
+    </div> 
+  </div>
 </template>
 
 <script>
@@ -204,7 +219,9 @@ export default {
       filtroAnio: 'ultimos_6_meses',
       cargando: false, 
 
-      // Acá SOLO dejamos el historial y los eventos/pedidos ya pagados:
+      // VARIABLE NUEVA PARA EL CARRITO FALSO
+      carritoLocalEntradas: [],
+
       entradasProximas: [],
       entradasPasadas: [],
       productosActivos: [],
@@ -212,29 +229,49 @@ export default {
     };
   },
   computed: {
-    // Nos traemos las variables pendientes directamente desde el store (_carrito.js)
     ...mapGetters(["entradasEnCarrito", "productosEnCarrito"]),
   },
-  mounted() {
-    this.cargarPantalla();
+  async mounted() {
+    await this.cargarPantalla();
+  
+    // Detectar si venimos de un pago exitoso
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('pago') === 'exito' && urlParams.get('orden_id')) {
+      await this.finalizarProcesoDePago(urlParams.get('orden_id'));
+    }
   },
   methods: {
-    // 1. FUNCIÓN PARA TRAER LOS DATOS REALES DE MYSQL
+
+    async finalizarProcesoDePago(orden_id) {
+      this.$store.commit('SHOW_LOADER');
+      try {
+        await this.$clients.api.post('mercadopago/confirmar-pago', { orden_id });
+        if(this.$toast) this.$toast.success("¡Pago confirmado!");
+        this.$router.replace({ query: {} });
+        await this.cargarPantalla();
+      } catch (e) {
+        if(this.$toast) this.$toast.error("Error al confirmar el pago");
+      } finally {
+        this.$store.commit('HIDE_LOADER');
+      }
+    },
+
+    // 1. CARGAMOS LA PANTALLA Y LA MEMORIA LOCAL
     async cargarPantalla() {
       this.cargando = true;
       try {
-        // En vez de usar Axios acá, le decimos a Vuex que busque TODO
         const misDatos = await this.$store.dispatch('obtenerCarritoPendiente');
         
-        // Guardamos localmente el historial que nos devolvió Vuex
         this.entradasProximas = misDatos.entradasProximas || [];
         this.entradasPasadas = misDatos.entradasPasadas || [];
         this.productosActivos = misDatos.productosActivos || [];
         this.productosPasados = misDatos.productosPasados || [];
 
+        // Cargamos el carrito visual desde localStorage
+        this.carritoLocalEntradas = JSON.parse(localStorage.getItem('carrito_entradas')) || [];
+
       } catch (error) {
         console.error("Error al cargar la pantalla:", error);
-        // Si no tenés $errorHandler definido, usamos console.error o alert
         if (this.$errorHandler) {
           this.$errorHandler(error);
         } else {
@@ -245,25 +282,72 @@ export default {
       }
     },
 
-    // 2. FUNCIÓN PARA CONECTAR MERCADO PAGO
+    // 2. FUNCIÓN PARA BORRAR DEL CARRITO SIN COMPRAR
+    eliminarDelCarritoLocal(id_local) {
+      let carrito = JSON.parse(localStorage.getItem('carrito_entradas')) || [];
+      carrito = carrito.filter(item => item.id_local !== id_local);
+      localStorage.setItem('carrito_entradas', JSON.stringify(carrito));
+      this.carritoLocalEntradas = carrito; // Actualizamos la vista
+      if(this.$toast) this.$toast.success("Entrada eliminada del carrito");
+    },
+
+    // 3. LA MAGIA: CONVIERTE EL CARRITO VISUAL EN UNA COMPRA REAL
+    async iniciarPagoDesdeCarritoLocal(entrada) {
+      this.$store.commit('SHOW_LOADER'); 
+      try {
+        // A) Disparamos la acción de Vuex para crear la orden (acá sí se descuenta el stock)
+        const payloadCompra = {
+          items: entrada.items.map(item => ({
+            id_tipo_entrada: item.id_tipo_entrada,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario
+          }))
+        };
+        const ordenCreada = await this.$store.dispatch('iniciarCompraAction', payloadCompra);
+
+        // B) Pedimos el link seguro a Mercado Pago
+        const payloadMP = { 
+          orden_id: ordenCreada.id_orden, 
+          titulo_display: entrada.evento 
+        };
+        const respuestaMP = await this.$store.dispatch('pagarOrden', payloadMP);
+        
+        // C) Borramos la entrada del carrito local porque ya es una orden real
+        this.eliminarDelCarritoLocal(entrada.id_local);
+
+        // D) ¡Viajamos a la pasarela de pago!
+        if (respuestaMP && respuestaMP.sandbox_init_point) {
+          window.location.href = respuestaMP.sandbox_init_point;
+        } else {
+          throw new Error("No se obtuvo el link de Mercado Pago");
+        }
+
+      } catch (error) {
+        console.error("Error al procesar compra desde el carrito:", error);
+        if (this.$toast) this.$toast.error(error.message || "Hubo un problema al iniciar el pago.");
+      } finally {
+        this.$store.commit('HIDE_LOADER');
+      }
+    },
+
+    // Función vieja para los productos (ecommerce) que dejaste igual
     async iniciarPago(item, tipo) {
       this.$store.commit('SHOW_LOADER'); 
       try {
-        console.log(`Iniciando pago para ${tipo} con ID:`, item.id);
-        
-        // Acá llamaremos al backend real de Mercado Pago más adelante
-        // const response = await this.$clients.api.post('/mercadopago/crear-preferencia', { item_id: item.id, tipo: tipo });
-        // window.location.href = response.data.init_point; 
-
-        // Simulación temporal
-        setTimeout(() => {
-          this.$store.commit('HIDE_LOADER');
-          this.$toast.info("¡Acá te llevaríamos a Mercado Pago!");
-        }, 1500);
-
+        const payload = { 
+          orden_id: item.id, 
+          titulo_display: tipo === 'entrada' ? item.evento : item.nombre 
+        };
+        const respuestaMP = await this.$store.dispatch('pagarOrden', payload);
+        window.location.href = respuestaMP.sandbox_init_point;
       } catch (error) {
+        if (this.$errorHandler) {
+          this.$errorHandler(error);
+        } else {
+          alert("Hubo un problema al iniciar el pago.");
+        }
+      } finally {
         this.$store.commit('HIDE_LOADER');
-        this.$errorHandler(error);
       }
     }
   }
@@ -271,11 +355,10 @@ export default {
 </script>
 
 <style scoped>
-/* Agregamos esto para forzar el fondo verde en el contenedor principal */
 .ticket-page-container {
-  background-color: #1a332a !important; /* Reemplazá por el color exacto que usás en tu app */
-  color: #ffffff; /* Asegura que el texto general sea blanco */
-  min-height: 100vh; /* Que ocupe toda la pantalla hacia abajo */
+  background-color: #1a332a !important; 
+  color: #ffffff; 
+  min-height: 100vh; 
 }
 
 .pt-5 { padding-top: 4rem !important; }

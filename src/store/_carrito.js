@@ -16,32 +16,41 @@ export default {
     }
   },
   actions: {
-    // Definimos la función de forma clásica para no perder el 'this'
+    // La que ya teníamos...
     async obtenerCarritoPendiente({ commit, getters }) {
       try {
-        // Usamos tu cliente oficial de Axios (igual que en eventos)
         const { data } = await this.$clients.api.get('carrito/mis-compras', {
-          headers: {
-            Authorization: `Bearer ${getters.token}` // Asumiendo que tenés un getter 'token' en auth
-          }
+          headers: { Authorization: `Bearer ${getters.token}` }
         });
-
-        // Extraemos la información que armó el Backend
         const misDatos = data.data;
-
-        // Guardamos en el Store solo lo que está pendiente de pago
         commit('SET_CARRITO_ENTRADAS', misDatos.entradasPendientes || []);
         commit('SET_CARRITO_PRODUCTOS', misDatos.productosPendientes || []);
-
-        // Devolvemos todos los datos para que el componente armé el historial
         return misDatos;
-
       } catch (error) {
         console.error("Error al obtener carrito:", error);
         throw error;
       }
+    },
+
+    // 👇 AGREGAMOS ESTA NUEVA ACCIÓN PARA EL BOTÓN DE PAGO 👇
+    async pagarOrden({ getters }, payloadDePago) {
+      try {
+        // Acá SÍ funciona this.$clients porque estamos adentro de Vuex
+        const { data } = await this.$clients.api.post('mercadopago/crear-preferencia', payloadDePago, {
+          headers: {
+            Authorization: `Bearer ${getters.token}`
+          }
+        });
+        
+        // Devolvemos la info que manda Mercado Pago (el init_point)
+        return data.data;
+      } catch (error) {
+        console.error("Error al conectar con Mercado Pago:", error);
+        throw error;
+      }
     }
   },
+  
   getters: {
     cantidadTotalCarrito(state) {
       return state.entradasPendientes.length + state.productosPendientes.length;

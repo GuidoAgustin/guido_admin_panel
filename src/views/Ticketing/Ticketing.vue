@@ -9,7 +9,6 @@
           Explora nuestra selección de eventos y asegura tu lugar. ¡Vive experiencias inolvidables!
         </p>
       </div>
-      <button class="btn btn-success" @click="openCreateModal" v-if="isAdmin">+ Crear Evento</button>
     </header>
 
     <div class="ticket-layout container">
@@ -35,34 +34,6 @@
             v-for="ticket in tickets"
             :key="ticket.evento_id"
             >
-            <div class="ticket-actions-wrapper" v-if="isAdmin">
-              <button
-                @click.stop="toggleActionMenu(ticket.evento_id)"
-                class="btn btn-sm btn-light ticket-action-toggler"
-                aria-label="Acciones del evento"
-              >
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-              <div
-                v-if="activeActionMenu === ticket.evento_id"
-                class="ticket-actions-menu-panel"
-                @click.stop
-              >
-                <button
-                  @click="handleEditEvent(ticket)"
-                  class="btn btn-sm btn-block text-left btn-outline-primary rounded-pill ticket-actions-menu-item ticket-actions-menu-item-edit"
-                >
-                  <i class="fas fa-edit"></i>Editar
-                </button>
-
-                <button
-                  @click="handleDeleteEvent(ticket)"
-                  class="btn btn-sm btn-block text-left btn-outline-danger rounded-pill ticket-actions-menu-item"
-                >
-                  <i class="fas fa-trash"></i>Borrar
-                </button>
-              </div>
-            </div>
             <div class="ticket-image-container">
               <img
                 :src="ticket.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Evento'"
@@ -104,17 +75,30 @@
             </div>
 
             <div class="ticket-purchase-section">
-              <p class="ticket-price" v-if="ticket.precio_minimo !== undefined">
+              <p class="ticket-price mb-2" v-if="ticket.precio_minimo !== undefined">
                 Desde
                 <span> ${{ Number(ticket.precio_minimo).toFixed(2) }} </span>
               </p>
-              <button
-                class="btn btn-primary"
-                @click="buyTicket(ticket)"
-                :disabled="ticket.estado_evento !== 'disponible'"
-              >
-                <i class="fas fa-ticket-alt"></i> Comprar Entrada
-              </button>
+              
+              <div class="d-flex gap-2 w-100">
+                <button
+                  class="btn btn-outline-success flex-fill"
+                  @click="prepararCompra(ticket, 'carrito')"
+                  :disabled="ticket.estado_evento !== 'disponible'"
+                  title="Guardar asiento para pagar después"
+                >
+                  <i class="fas fa-cart-plus"></i> Al Carrito
+                </button>
+                <button
+                  class="btn btn-primary flex-fill"
+                  @click="prepararCompra(ticket, 'comprar_ahora')"
+                  :disabled="ticket.estado_evento !== 'disponible'"
+                  title="Reservar e ir a Mercado Pago"
+                >
+                  <i class="fas fa-bolt"></i> Comprar
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -125,16 +109,10 @@
       :showBuyModal="showBuyModal"
       :showRegisterModal="showRegisterModal"
       :ticketSeleccionado="ticketSeleccionado"
+      :tipoAccion="tipoDeAccion" 
       @closeBuyModal="showBuyModal = false"
       @closeRegisterModal="showRegisterModal = false"
       @goToRegister="goToRegister"
-    />
-
-    <ModalForm
-      :visible="showCreateOrEditModal"
-      :eventoToEdit="eventoParaEditar"
-      @update:visible="showCreateOrEditModal = $event"
-      @eventSaved="handleEventSaved"
     />
 
     <div v-if="selectedImageUrl" class="image-enlarger-overlay" @click="closeEnlargedImage">
@@ -164,108 +142,29 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import Topbar from '@/components/Topbar.vue';
-import Modals from './Modals.vue'; // Ruta al componente de Modales (compra, registro)
-import ModalForm from './ModalForm.vue'; // Ruta al componente del formulario (crear/editar evento)
+import Modals from './Modals.vue'; 
 
 export default {
   name: 'TicketPage',
-  components: { Topbar, Modals, ModalForm },
+  components: { Topbar, Modals },
   data() {
     return {
-      // Estados para controlar la visibilidad de los modales
       showBuyModal: false,
       showRegisterModal: false,
-      showCreateOrEditModal: false,
-      
-      // Datos para los modales y otras interacciones UI
-      ticketSeleccionado: null,    // Evento seleccionado para comprar o ver detalles
-      eventoParaEditar: null,     // Evento seleccionado para editar
-      selectedImageUrl: null,     // URL de la imagen para agrandar
-      activeActionMenu: null,     // ID del evento cuyo menú de acciones está activo
+      ticketSeleccionado: null,     
+      selectedImageUrl: null,    
+      tipoDeAccion: 'carrito' // Novedad: Guardamos qué botón eligió el usuario
     };
   },
   computed: {
-    // Mapeo de getters de Vuex para acceder al estado de los tickets/eventos
-    ...mapGetters(['tickets', 'loading', 'error', 'isAdmin']),
+    ...mapGetters(['tickets', 'loading', 'error']),
   },
   mounted() {
-    this.fetchTickets(); // Cargar eventos al montar el componente
-    // Listener para cerrar el menú de acciones si se hace clic fuera
-    document.addEventListener('click', this.handleClickOutsideActionMenu);
-  },
-  beforeUnmount() {
-    // Limpiar el listener al desmontar el componente
-    document.removeEventListener('click', this.handleClickOutsideActionMenu);
+    this.fetchTickets();
   },
   methods: {
-    // Mapeo de acciones de Vuex
-    ...mapActions(['fetchTickets', 'deleteEventoAction']),
+    ...mapActions(['fetchTickets']),
 
-    // Abrir modal para crear un nuevo evento
-    openCreateModal() {
-      this.eventoParaEditar = null; // Asegurar que no hay datos de edición
-      this.activeActionMenu = null; // Cerrar menú de acciones si está abierto
-      this.showCreateOrEditModal = true;
-    },
-
-    // Alternar visibilidad del menú de acciones para un ticket/evento
-    toggleActionMenu(ticketId) {
-      if (this.activeActionMenu === ticketId) {
-        this.activeActionMenu = null;
-      } else {
-        this.activeActionMenu = ticketId;
-      }
-    },
-
-    // Cerrar menú de acciones si se hace clic fuera de él
-    handleClickOutsideActionMenu(event) {
-      if (this.activeActionMenu === null) {
-        return;
-      }
-      const clickedElement = event.target;
-      const clickedOnAnActionButtonToggler = clickedElement.closest(
-        'button[aria-label="Acciones del evento"]'
-      );
-      const clickedInsideActionMenuContent = clickedElement.closest('.ticket-actions-menu-panel');
-
-      if (clickedOnAnActionButtonToggler) {
-        return; // No cerrar si se hizo clic en el mismo botón que lo abre/cierra
-      }
-      if (!clickedInsideActionMenuContent) {
-        this.activeActionMenu = null; // Cerrar si el clic fue fuera del contenido del menú
-      }
-    },
-
-    // Preparar y abrir modal para editar un evento existente
-    handleEditEvent(ticket) {
-      this.eventoParaEditar = { ...ticket }; // Clonar el objeto para evitar mutaciones directas
-      this.showCreateOrEditModal = true;
-      this.activeActionMenu = null;
-    },
-
-    // Manejar la eliminación de un evento
-    async handleDeleteEvent(ticket) {
-      this.activeActionMenu = null;
-      if (
-        window.confirm(`¿Estás seguro de que quieres borrar el evento "${ticket.nombre_evento}"?`)
-      ) {
-        try {
-          await this.deleteEventoAction(ticket.evento_id);
-          if (this.$toast) this.$toast.success('Evento borrado exitosamente.');
-          this.fetchTickets(); // Recargar la lista de eventos
-        } catch (err) {
-          if (this.$toast) this.$toast.error(err.message || 'Error al borrar el evento.');
-        }
-      }
-    },
-
-    // Manejar el evento cuando un evento se guarda (creado o editado)
-    handleEventSaved() {
-      this.fetchTickets(); // Recargar la lista
-      this.showCreateOrEditModal = false; // Cerrar el modal de formulario
-    },
-
-    // Formatear fecha para visualización
     formatDate(dateString) {
       if (!dateString) return '—';
       const options = {
@@ -279,37 +178,34 @@ export default {
       return new Date(dateString).toLocaleDateString('es-ES', options);
     },
 
-    // Iniciar proceso de compra de ticket
-    buyTicket(ticket) {
-      // Verificar si el usuario está logueado
-      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user'); // Ajusta según tu sistema de auth
+    // FUNCIÓN NUEVA: Atrapa el clic de ambos botones y abre el modal avisándole qué hacer
+    prepararCompra(ticket, accion) {
+      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user');
       if (!isLoggedIn) {
-        this.showRegisterModal = true; // Mostrar modal para registrarse/loguearse
+        this.showRegisterModal = true; 
         return;
       }
-      this.ticketSeleccionado = ticket; // Guardar el evento para el cual se compra
-      this.showBuyModal = true;         // Mostrar el modal de compra
+      this.ticketSeleccionado = ticket; 
+      this.tipoDeAccion = accion; // 'carrito' o 'comprar_ahora'
+      this.showBuyModal = true;        
     },
 
-    // Redirigir a la página de login/registro
     goToRegister() {
       this.showRegisterModal = false;
-      this.$router.push({ name: 'login' }); // Asume que tienes una ruta llamada 'login'
+      this.$router.push({ name: 'login' }); 
     },
 
-    // Mostrar imagen del evento agrandada
     showEnlargedImage(imageUrl) {
-      this.activeActionMenu = null;
       this.selectedImageUrl = imageUrl;
     },
 
-    // Cerrar imagen agrandada
     closeEnlargedImage() {
       this.selectedImageUrl = null;
     }
   }
 };
 </script>
+
 <style>
 @import '@/assets/scss/_ticketing.scss';
 </style>
