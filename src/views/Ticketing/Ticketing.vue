@@ -119,23 +119,7 @@
       <img :src="selectedImageUrl" alt="Imagen agrandada del evento" class="enlarged-image" />
     </div>
 
-    <footer class="site-footer">
-      <button class="btn btn-back" @click="$router.back()" style="margin: 0 0 10px 16px">
-        <i class="fas fa-arrow-left"></i> Ir para atrás
-      </button>
-      <div class="container">
-        <h4>Contáctanos</h4>
-        <div class="social-icons">
-          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        </div>
-        <p class="copyright">
-          &copy; {{ new Date().getFullYear() }} Tu Nombre de Empresa. Todos los derechos reservados.
-        </p>
-      </div>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 
@@ -143,10 +127,11 @@
 import { mapGetters, mapActions } from 'vuex';
 import Topbar from '@/components/Topbar.vue';
 import Modals from './Modals.vue'; 
+import SiteFooter from '@/components/SiteFooter.vue';
 
 export default {
   name: 'TicketPage',
-  components: { Topbar, Modals },
+  components: { Topbar, Modals, SiteFooter },
   data() {
     return {
       showBuyModal: false,

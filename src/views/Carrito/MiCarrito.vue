@@ -93,7 +93,10 @@
                   <p class="mb-1 small"><i class="fa-regular fa-calendar me-2"></i>{{ entrada.fecha }}</p>
                   <p class="mb-1 small"><i class="fa-solid fa-qrcode me-2"></i>Código: <strong>{{ entrada.codigo }}</strong></p>
                   <div class="text-end mt-2">
-                    <button class="btn btn-outline-success btn-sm rounded-pill px-3"><i class="fa-solid fa-eye me-1"></i> Ver Entrada</button>
+                    <!-- Le agregamos el @click y le cambiamos el ícono/texto para que quede más pro -->
+<button @click="descargarTicket(entrada.codigo)" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm">
+  <i class="fa-solid fa-file-pdf me-2"></i> Descargar Ticket
+</button>
                   </div>
                 </div>
               </div>
@@ -201,18 +204,19 @@
           </button>
         </div>
       </div>
-
     </div> 
+    <SiteFooter />
   </div>
 </template>
 
 <script>
+import SiteFooter from '@/components/SiteFooter.vue';
 import Topbar from '@/components/Topbar.vue';
 import { mapGetters } from 'vuex';
 
 export default {
   name: 'MiCarrito',
-  components: { Topbar },
+  components: { Topbar, SiteFooter },
   data() {
     return {
       tabActual: 'ticketing', 
@@ -348,6 +352,32 @@ export default {
         }
       } finally {
         this.$store.commit('HIDE_LOADER');
+      }
+    },
+
+   // 4. NUEVO: DESCARGAR EL PDF (Arquitectura Limpia 🧼✨)
+    async descargarTicket(codigo_unico) {
+      this.$store.commit('SHOW_LOADER'); 
+      try {
+        // A. Le pedimos a Vuex que haga el trabajo sucio y nos traiga el archivo
+        const blob = await this.$store.dispatch('descargarTicketAction', codigo_unico);
+        
+        // B. Lógica exclusiva de la vista (El truco del navegador)
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Ticket-${codigo_unico}.pdf`); 
+        
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+
+        if(this.$toast) this.$toast.success("¡Ticket descargado con éxito! 🎟️");
+      } catch (error) {
+        // El error ya viene atajado desde el Store
+        if(this.$toast) this.$toast.error("Uy, no pudimos descargar el ticket. Intentá de nuevo.");
+      } finally {
+        this.$store.commit('HIDE_LOADER'); 
       }
     }
   }

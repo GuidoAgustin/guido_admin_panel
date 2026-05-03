@@ -69,35 +69,21 @@
   </template>
 </VueModal>
     
-    <footer class="site-footer-ecommerce">
-      <button class="btn btn-back" @click="$router.back()" style="margin: 16px 0 10px 16px;">
-        <i class="fas fa-arrow-left"></i> Ir para atrás
-      </button>
-      <div class="container">
-        <h4>Síguenos en Redes</h4>
-        <div class="social-icons">
-          <a href="#" target="_blank" aria-label="Facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" target="_blank" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="#" target="_blank" aria-label="Twitter" title="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" target="_blank" aria-label="Pinterest" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
-        </div>
-        <p class="copyright">
-          &copy; {{ new Date().getFullYear() }} TuTienda Favorita. Todos los derechos reservados.
-        </p>
-      </div>
-    </footer>
+  <SiteFooter />
   </div>
 </template>
 
 <script>
 import Topbar from '@/components/Topbar.vue'
 import VueModal from '@/components/Modal/VueModal.vue'
+import SiteFooter from '@/components/SiteFooter.vue';
 
 export default {
   name: 'EcommerceProductsPageFinalTheme',
   components: {
     Topbar,
-    VueModal
+    VueModal,
+    SiteFooter
   },
   data() {
     return {
