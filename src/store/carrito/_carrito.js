@@ -16,18 +16,43 @@ export default {
     }
   },
   actions: {
-    // La que ya teníamos...
-    async obtenerCarritoPendiente({ commit, getters }) {
+    // 🎟️ Acción para Pestaña Entradas
+    async obtenerEntradasActivasAction({ commit, getters }) {
       try {
-        const { data } = await this.$clients.api.get('carrito/mis-compras', {
+        const { data } = await this.$clients.api.get('carrito/entradas-activas', {
           headers: { Authorization: `Bearer ${getters.token}` }
         });
-        const misDatos = data.data;
-        commit('SET_CARRITO_ENTRADAS', misDatos.entradasPendientes || []);
-        commit('SET_CARRITO_PRODUCTOS', misDatos.productosPendientes || []);
-        return misDatos;
+        commit('SET_CARRITO_ENTRADAS', data.data.entradasPendientes || []);
+        return data.data; // Devuelve entradasPendientes y entradasProximas
       } catch (error) {
-        console.error("Error al obtener carrito:", error);
+        console.error("Error obteniendo entradas:", error);
+        throw error;
+      }
+    },
+
+    // 🛍️ Acción para Pestaña Tienda
+    async obtenerTiendaActivaAction({ commit, getters }) {
+      try {
+        const { data } = await this.$clients.api.get('carrito/tienda-activa', {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        });
+        commit('SET_CARRITO_PRODUCTOS', data.data.productosPendientes || []);
+        return data.data; // Devuelve productosPendientes y productosActivos
+      } catch (error) {
+        console.error("Error obteniendo tienda:", error);
+        throw error;
+      }
+    },
+
+    // 📜 Acción para Pestaña Historial
+    async obtenerHistorialAction({ getters }) {
+      try {
+        const { data } = await this.$clients.api.get('carrito/historial', {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        });
+        return data.data; // Devuelve entradasPasadas y productosPasados
+      } catch (error) {
+        console.error("Error obteniendo historial:", error);
         throw error;
       }
     },
