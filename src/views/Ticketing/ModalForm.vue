@@ -1,24 +1,21 @@
-// frontend/src/views/Ticketing/ModalForm.vue
 <template>
   <VueModal v-if="visible" size="md" position="center" @close="close">
     <template #title>{{ modalTitle }}</template>
 
     <template #body>
       <form @submit.prevent="submit">
-        <h5>Datos del Evento</h5>
+        <h5 class="mb-3 text-primary border-bottom pb-2">Datos del Evento</h5>
 
-        <div class="form-group">
-          <label>Nombre del Evento</label>
-          <input
-            v-model="form.nombre_evento"
-            type="text"
-            class="form-control"
-            placeholder="Ej: Festival de Música"
-            required
+        <div class="mb-3">
+          <FormText 
+            v-model="form.nombre_evento" 
+            label="Nombre del Evento" 
+            placeholder="Ej: Festival de Música" 
+            required 
           />
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
           <label>Descripción</label>
           <textarea
             v-model="form.descripcion"
@@ -29,8 +26,23 @@
           ></textarea>
         </div>
 
-        <div class="form-row">
+
+        <div class="form-group mb-3 bg-light p-3 border rounded">
+          <label class="font-weight-bold text-success">
+            <i class="fas fa-clock mr-1"></i> Programar Apertura de Ventas (Opcional)
+          </label>
+          <input
+            v-model="form.fecha_inicio_venta"
+            type="datetime-local"
+            class="form-control"
+          />
+          <small class="form-text text-muted">
+            Si el evento nace en estado "Próximamente", pasará solo a "Disponible" en esta fecha exacta.
+          </small>
+        </div>
+        <div class="form-row mb-3">
           <div class="form-group col">
+            <label>Fecha y Hora Inicio Evento</label>
             <label>Fecha y Hora Inicio</label>
             <input
               v-model="form.fecha_hora_inicio"
@@ -45,78 +57,80 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group col">
-            <label>Lugar (Nombre)</label>
-            <input
-              v-model="form.lugar_nombre"
-              type="text"
-              class="form-control"
-              placeholder="Ej: Parque Central"
-              required
+        <div class="form-row mb-3">
+          <div class="col">
+            <FormText 
+              v-model="form.lugar_nombre" 
+              label="Lugar (Nombre)" 
+              placeholder="Ej: Parque Central" 
+              required 
             />
           </div>
-          <div class="form-group col">
-            <label>Lugar (Dirección)</label>
-            <input
-              v-model="form.lugar_direccion"
-              type="text"
-              class="form-control"
-              placeholder="Ej: Avenida Siempre Viva 123"
-              required
+          <div class="col">
+            <FormText 
+              v-model="form.lugar_direccion" 
+              label="Lugar (Dirección)" 
+              placeholder="Ej: Avenida Siempre Viva 123" 
+              required 
             />
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group col">
-            <label>Categoría</label>
-            <input
-              v-model="form.categoria"
-              type="text"
-              class="form-control"
-              placeholder="Ej: Concierto"
-              required
+        <div class="form-row mb-3">
+          <div class="col">
+            <FormText 
+              v-model="form.categoria" 
+              label="Categoría" 
+              placeholder="Ej: Concierto" 
+              required 
             />
           </div>
-          <div class="form-group col">
-            <label>Estado</label>
-            <select v-model="form.estado_evento" class="form-control" required>
-              <option value="proximamente">Próximamente</option>
-              <option value="disponible">Disponible</option>
-              <option value="agotado">Agotado</option>
-              <option value="pasado">Pasado</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
+          <div class="col">
+            <FormSelect 
+              v-model="form.estado_evento" 
+              label="Estado" 
+              :options="estadoOptions" 
+              required 
+            />
           </div>
         </div>
 
-        <div class="form-group">
-        <label>Imagen del Evento</label>
-        <div v-if="isEditing && currentImageUrl" class="mb-2">
-          <img
-            :src="currentImageUrl"
-            alt="Imagen actual"
-            style="max-width: 200px; max-height: 200px; display: block"
+        <div class="form-group mt-3 p-3 border rounded bg-light shadow-sm">
+          <FormSwitch 
+            v-model="form.vender_durante_evento" 
+            label="Permitir venta de entradas con el evento en curso" 
           />
-          <small>Imagen actual. Selecciona una nueva para reemplazarla.</small>
+          <small class="form-text text-muted mt-2 d-block">
+            <i class="fas fa-fire text-danger mr-1"></i> Si se activa, el público podrá seguir comprando entradas incluso si ya pasó la "Fecha de Inicio", hasta que llegue la <b>Fecha y Hora Fin</b> del evento.
+          </small>
         </div>
-        <div @click.stop> 
-          <FormUploader
-            v-model="imageFile"
-            label="Seleccionar nueva imagen"
-            :maxSizeMB="10"
-            :imageType="true"
-          />
+
+        <div class="form-group mt-3">
+          <label class="font-weight-bold">Imagen del Evento</label>
+          <div v-if="isEditing && currentImageUrl" class="mb-3 p-2 border rounded text-center">
+            <img
+              :src="currentImageUrl"
+              alt="Imagen actual"
+              style="max-width: 100%; max-height: 180px; border-radius: 8px; object-fit: cover;"
+            />
+            <small class="d-block mt-2 text-muted">Imagen actual. Selecciona una nueva para reemplazarla.</small>
+          </div>
+          <div @click.stop> 
+            <FormUploader
+              v-model="imageFile"
+              label="Seleccionar nueva imagen"
+              :maxSizeMB="10"
+              :imageType="true"
+            />
+          </div>
         </div>
-      </div>
 
 
-        <h5 class="mt-4">Tipos de Entrada</h5>
+        <h5 class="mt-5 text-primary border-bottom pb-2">Tipos de Entrada</h5>
         <div v-if="loadingTipos" class="text-center my-3">
-          <i class="fas fa-spinner fa-spin"></i> Cargando tipos...
+          <i class="fas fa-spinner fa-spin text-primary"></i> Cargando tipos...
         </div>
-        <div v-if="errorTipos" class="alert alert-danger">
+        <div v-if="errorTipos" class="alert alert-danger shadow-sm">
           {{ errorTipos }}
         </div>
 
@@ -125,59 +139,49 @@
           :key="tipo.id_tipo_entrada || `new-${idx}`"
           class="border rounded p-3 mb-3 bg-light shadow-sm"
         >
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <strong
-              >Tipo #{{ idx + 1 }}
-              <span v-if="tipo.id_tipo_entrada" class="badge badge-info ml-1"
-                >ID: {{ tipo.id_tipo_entrada }}</span
-              ></strong
-            >
-            <button
-              type="button"
-              class="btn btn-sm btn-danger"
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <strong class="text-dark">Tipo #{{ idx + 1 }}
+              <span v-if="tipo.id_tipo_entrada" class="badge badge-info ml-1">ID: {{ tipo.id_tipo_entrada }}</span>
+            </strong>
+            <FormButton
+              theme="danger"
+              small
               @click="handleRemoveTipo(idx)"
               :disabled="loadingTipos"
             >
               <i class="fas fa-trash"></i> Eliminar
-            </button>
+            </FormButton>
           </div>
 
-          <div class="form-group">
-            <label>Nombre Tipo</label>
-            <input
-              v-model="tipo.nombre_tipo"
-              type="text"
-              class="form-control"
-              placeholder="Ej: Vip"
-              required
+          <div class="mb-3">
+            <FormText 
+              v-model="tipo.nombre_tipo" 
+              label="Nombre Tipo" 
+              placeholder="Ej: Vip" 
+              required 
             />
           </div>
 
-          <div class="form-row">
-            <div class="form-group col">
-              <label>Precio</label>
-              <input
-                v-model.number="tipo.precio"
-                type="number"
-                step="0.01"
-                class="form-control"
-                placeholder="Ej: 15000.00"
-                required
+          <div class="form-row mb-3">
+            <div class="col">
+              <FormNumber 
+                v-model.number="tipo.precio" 
+                label="Precio" 
+                placeholder="Ej: 15000.00" 
+                required 
               />
             </div>
-            <div class="form-group col">
-              <label>Cantidad Total</label>
-              <input
-                v-model.number="tipo.cantidad_total"
-                type="number"
-                class="form-control"
-                placeholder="Ej: 100"
-                required
+            <div class="col">
+              <FormNumber 
+                v-model.number="tipo.cantidad_total" 
+                label="Cantidad Total" 
+                placeholder="Ej: 100" 
+                required 
               />
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group mb-0">
             <label>Descripción Adicional</label>
             <textarea
               v-model="tipo.descripcion_adicional"
@@ -188,31 +192,37 @@
           </div>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-outline-primary mb-3"
+        <FormButton
+          outlined
+          theme="primary"
+          class="mb-3 w-100 mt-2"
           @click="addTipo"
           :disabled="loadingTipos"
         >
           <i class="fas fa-plus"></i> Agregar Tipo de Entrada
-        </button>
+        </FormButton>
       </form>
     </template>
 
     <template #footer>
-      <button class="btn btn-secondary mr-2" type="button" @click="close">Cancelar</button>
-      <button class="btn btn-primary" type="button" @click="submit" :disabled="loading">
-        <i class="fas fa-spinner fa-spin" v-if="loading"></i>
+      <FormButton theme="secondary" class="mr-2" @click="close">Cancelar</FormButton>
+      <FormButton theme="primary" @click="submit" :disabled="loading">
+        <i class="fas fa-spinner fa-spin mr-1" v-if="loading"></i>
         {{ submitButtonText }}
-      </button>
+      </FormButton>
     </template>
   </VueModal>
 </template>
 
 <script>
-
 import VueModal from '@/components/Modal/VueModal.vue';
 import FormUploader from '@/components/Form/FormUploader.vue';
+// IMPORTAMOS TODOS TUS COMPONENTES HERMOSOS
+import FormText from '@/components/Form/FormText.vue';
+import FormSelect from '@/components/Form/FormSelect.vue';
+import FormNumber from '@/components/Form/FormNumber.vue';
+import FormButton from '@/components/Form/FormButton.vue';
+import FormSwitch from '@/components/Form/FormSwitch.vue';
 import { mapActions, mapGetters } from 'vuex';
 
 const initialEventFormState = () => ({
@@ -220,10 +230,12 @@ const initialEventFormState = () => ({
   descripcion: '',
   fecha_hora_inicio: '',
   fecha_hora_fin: '',
+  fecha_inicio_venta: '',
   lugar_nombre: '',
   lugar_direccion: '',
   categoria: '',
   estado_evento: 'proximamente',
+  vender_durante_evento: false,
   evento_id: null
 });
 
@@ -238,7 +250,16 @@ const initialTicketTypeState = () => ({
 
 export default {
   name: 'ModalFormEvento',
-  components: { VueModal, FormUploader },
+  // DECLARAMOS LOS COMPONENTES ACÁ
+  components: { 
+    VueModal, 
+    FormUploader, 
+    FormText, 
+    FormSelect, 
+    FormNumber, 
+    FormButton, 
+    FormSwitch 
+  },
   props: {
     visible: Boolean,
     eventoToEdit: {
@@ -252,7 +273,15 @@ export default {
       imageFile: null,
       currentImageUrl: null,
       tipos: [initialTicketTypeState()],
-      initialTiposState: []
+      initialTiposState: [],
+      // OPCIONES PARA TU COMPONENTE FORM SELECT
+      estadoOptions: [
+        { value: 'proximamente', name: 'Próximamente', label: 'Próximamente', text: 'Próximamente' },
+        { value: 'disponible', name: 'Disponible', label: 'Disponible', text: 'Disponible' },
+        { value: 'agotado', name: 'Agotado', label: 'Agotado', text: 'Agotado' },
+        { value: 'pasado', name: 'Pasado', label: 'Pasado', text: 'Pasado' },
+        { value: 'cancelado', name: 'Cancelado', label: 'Cancelado', text: 'Cancelado' }
+      ]
     };
   },
   computed: {
@@ -287,17 +316,18 @@ export default {
     ]),
 
     initializeModalData() {
-      // console.log('[ModalForm] InitializeModalData. Editing?', this.isEditing, 'EventoToEdit:', JSON.parse(JSON.stringify(this.eventoToEdit)));
       if (this.isEditing && this.eventoToEdit) {
         this.form = {
           nombre_evento: this.eventoToEdit.nombre_evento || '',
           descripcion: this.eventoToEdit.descripcion || '',
           fecha_hora_inicio: this.formatDateForInput(this.eventoToEdit.fecha_hora_inicio),
           fecha_hora_fin: this.formatDateForInput(this.eventoToEdit.fecha_hora_fin),
+          fecha_inicio_venta: this.formatDateForInput(this.eventoToEdit.fecha_inicio_venta),
           lugar_nombre: this.eventoToEdit.lugar_nombre || '',
           lugar_direccion: this.eventoToEdit.lugar_direccion || '',
           categoria: this.eventoToEdit.categoria || '',
           estado_evento: this.eventoToEdit.estado_evento || 'proximamente',
+          vender_durante_evento: this.eventoToEdit.vender_durante_evento === true || this.eventoToEdit.vender_durante_evento === 'true',
           evento_id: this.eventoToEdit.evento_id
         };
         this.currentImageUrl = this.eventoToEdit.imagen_url;
@@ -305,7 +335,7 @@ export default {
 
         if (this.eventoToEdit.tipos_entrada && this.eventoToEdit.tipos_entrada.length > 0) {
           this.tipos = JSON.parse(
-            JSON.stringify( // Asegurar copia profunda
+            JSON.stringify(
               this.eventoToEdit.tipos_entrada.map((t) => ({
                 id_tipo_entrada: t.id_tipo_entrada,
                 nombre_tipo: t.nombre_tipo,
@@ -316,12 +346,10 @@ export default {
               }))
             )
           );
-          this.initialTiposState = JSON.parse(JSON.stringify(this.tipos)); // Copia profunda para comparación
-          // console.log('[ModalForm] Tipos inicializados desde eventoToEdit:', this.tipos, this.initialTiposState);
+          this.initialTiposState = JSON.parse(JSON.stringify(this.tipos)); 
         } else {
           this.tipos = [initialTicketTypeState()];
           this.initialTiposState = JSON.parse(JSON.stringify(this.tipos));
-          // console.log('[ModalForm] No hay tipos en eventoToEdit, inicializando con uno vacío:', this.tipos);
         }
       } else {
         this.resetFormAndState();
@@ -329,7 +357,6 @@ export default {
     },
 
     resetFormAndState() {
-      // console.log('[ModalForm] ResetFormAndState');
       this.form = initialEventFormState();
       this.imageFile = null;
       this.currentImageUrl = null;
@@ -388,7 +415,6 @@ export default {
           }
         }
       } else {
-        // Lógica para remover localmente (sin cambios)
         if (this.tipos.length > 1) {
           this.tipos.splice(index, 1);
         } else if (
@@ -408,14 +434,12 @@ export default {
 
     hasTipoChanged(tipoActual) {
       if (!tipoActual.id_tipo_entrada) {
-        // console.log(`[hasTipoChanged] Tipo ID ${tipoActual.id_tipo_entrada || 'Nuevo'} es nuevo, SÍ cambió.`);
         return true;
       }
       const tipoInicial = this.initialTiposState.find(
         (t) => t.id_tipo_entrada === tipoActual.id_tipo_entrada
       );
       if (!tipoInicial) {
-        // console.warn(`[hasTipoChanged] No se encontró estado inicial para tipo ID ${tipoActual.id_tipo_entrada}, se asume que SÍ cambió.`);
         return true;
       }
 
@@ -425,7 +449,6 @@ export default {
         parseInt(tipoActual.cantidad_total, 10) !== parseInt(tipoInicial.cantidad_total, 10) ||
         tipoActual.descripcion_adicional !== tipoInicial.descripcion_adicional
       );
-      // console.log(`[hasTipoChanged] Tipo ID ${tipoActual.id_tipo_entrada}: ¿Cambió?: ${changed}`, { actual: JSON.parse(JSON.stringify(tipoActual)), inicial: JSON.parse(JSON.stringify(tipoInicial)) });
       return changed;
     },
 
@@ -448,8 +471,6 @@ export default {
         }
       }
 
-      // console.log('[ModalForm] Submit. Editing?', this.isEditing);
-
       if (this.isEditing) {
         try {
           const eventoFormData = new FormData();
@@ -460,39 +481,31 @@ export default {
           }
           if (this.imageFile) {
             eventoFormData.append('imagen', this.imageFile);
-            // console.log('[ModalForm] Nueva imagen añadida al FormData para actualizar.');
-          } else {
-            // console.log('[ModalForm] No se seleccionó nueva imagen para actualizar.');
           }
 
-          // console.log('[ModalForm] Llamando a updateEventoAction con ID:', this.form.evento_id);
           await this.updateEventoAction({
             eventoId: this.form.evento_id,
             eventoData: eventoFormData
           });
-          // console.log('[ModalForm] updateEventoAction completado.');
 
-          const promisesTipos = this.tipos.map(async (tipo) => { // Quitado 'index' si no se usa dentro del map
+          const promisesTipos = this.tipos.map(async (tipo) => {
             const tipoPayload = {
               nombre_tipo: tipo.nombre_tipo,
               precio: tipo.precio,
               cantidad_total: tipo.cantidad_total,
               descripcion_adicional: tipo.descripcion_adicional,
-              cantidad_disponible: tipo.cantidad_disponible, // TEMPORALMENTE ENVIANDO ESTO
+              cantidad_disponible: tipo.cantidad_disponible,
             };
 
             if (tipo.id_tipo_entrada) {
               const cambioDetectado = this.hasTipoChanged(tipo);
-              // console.log(`[ModalForm] Procesando tipo existente (ID: ${tipo.id_tipo_entrada}): ¿Cambió? ${cambioDetectado}`);
               if (cambioDetectado) {
-                // console.log('[ModalForm] Actualizando tipo existente ID:', tipo.id_tipo_entrada, 'con payload:', JSON.parse(JSON.stringify(tipoPayload)));
                 return this.updateTipoEntradaAction({
                   id_tipo_entrada: tipo.id_tipo_entrada,
                   ...tipoPayload
                 });
               }
             } else {
-              // console.log('[ModalForm] Creando nuevo tipo con payload:', JSON.parse(JSON.stringify(tipoPayload)));
               return this.createTipo({
                 ...tipoPayload,
                 id_evento: this.form.evento_id,
@@ -501,20 +514,16 @@ export default {
             return Promise.resolve();
           });
 
-          // console.log('[ModalForm] Esperando promesas de tipos...');
           await Promise.all(promisesTipos);
-          // console.log('[ModalForm] Promesas de tipos completadas.');
 
           this.$toast.success('Evento y sus tipos de entrada actualizados correctamente!');
           this.$emit('eventSaved');
           this.close();
         } catch (err) {
-          // console.error('[ModalForm] Error al actualizar evento o tipos:', err.response || err);
           const errMsg = err.response?.data?.message || err.message || 'Error desconocido al actualizar.';
           this.$toast.error(`Error: ${errMsg}`);
         }
       } else {
-        // Lógica de Creación
         try {
           const formData = new FormData();
           Object.entries(this.form).forEach(([key, value]) => {
@@ -548,7 +557,6 @@ export default {
           this.$emit('eventSaved');
           this.close();
         } catch (err) {
-          // console.error('[ModalForm] Error en submit (creación):', err.response || err);
           const errMsg = err.response?.data?.message || err.message || 'Error desconocido al crear el evento.';
           this.$toast.error(`Error al crear evento: ${errMsg}`);
         }

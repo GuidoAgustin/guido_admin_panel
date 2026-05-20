@@ -70,6 +70,7 @@
                 <p>
                   <i class="fas fa-info-circle"></i>
                   Estado: <strong>{{ ticket.estado_evento }}</strong>
+                  <span v-if="estaEnCurso(ticket)" class="badge bg-warning text-dark ms-2"><i class="fas fa-fire"></i> ¡Venta de Último Minuto!</span>
                 </p>
               </div>
             </div>
@@ -84,7 +85,7 @@
                 <button
                   class="btn btn-outline-success flex-fill"
                   @click="prepararCompra(ticket, 'carrito')"
-                  :disabled="ticket.estado_evento !== 'disponible'"
+                  :disabled="!puedeComprar(ticket)"
                   title="Guardar asiento para pagar después"
                 >
                   <i class="fas fa-cart-plus"></i> Al Carrito
@@ -92,7 +93,7 @@
                 <button
                   class="btn btn-primary flex-fill"
                   @click="prepararCompra(ticket, 'comprar_ahora')"
-                  :disabled="ticket.estado_evento !== 'disponible'"
+                  :disabled="!puedeComprar(ticket)"
                   title="Reservar e ir a Mercado Pago"
                 >
                   <i class="fas fa-bolt"></i> Comprar
@@ -149,6 +150,32 @@ export default {
   },
   methods: {
     ...mapActions(['fetchTickets']),
+
+    puedeComprar(ticket) {
+      // Regla 1: Si está disponible normal, pasa directo
+      if (ticket.estado_evento === 'disponible') return true;
+      
+      // Regla 2: Si no está disponible pero no está cancelado/agotado, evaluamos el beneficio
+      if (ticket.vender_durante_evento && ticket.estado_evento !== 'cancelado' && ticket.estado_evento !== 'agotado') {
+        if (ticket.fecha_hora_fin) {
+          const ahora = new Date();
+          const fin = new Date(ticket.fecha_hora_fin);
+          // Si el evento no terminó, ¡le dejamos comprar!
+          if (ahora <= fin) return true;
+        }
+      }
+      return false;
+    },
+
+    estaEnCurso(ticket) {
+      // Solo para mostrar el cartelito naranja de "último minuto"
+      if (!ticket.vender_durante_evento || ticket.estado_evento === 'cancelado' || ticket.estado_evento === 'agotado') return false;
+      const ahora = new Date();
+      const inicio = new Date(ticket.fecha_hora_inicio);
+      const fin = ticket.fecha_hora_fin ? new Date(ticket.fecha_hora_fin) : null;
+      
+      return ahora >= inicio && fin && ahora <= fin;
+    },
 
     formatDate(dateString) {
       if (!dateString) return '—';
