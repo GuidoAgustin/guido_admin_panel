@@ -94,7 +94,7 @@
               <strong class="fs-5">${{ formatNumber(reports.averageSale) }}</strong>
             </div>
             <div class="d-flex justify-content-between align-items-center pb-2">
-              <span class="text-muted">Mejor evento:</span>
+              <span class="text-muted">Evento que mas recaudo:</span>
               <div class="d-flex align-items-center gap-2">
                 <strong class="fs-5 text-end">
                   {{ reports.topEvent }}
