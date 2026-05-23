@@ -16,99 +16,155 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import Widget from '@/components/Widget.vue';
-// Asumo que <vue-table> ya está registrada globalmente como en UsersSection, 
-// si no, acordate de importarla!
 
 export default {
   name: 'SalesSection',
   components: { Widget },
   data() {
     return {
-      // 🛠️ EL MANUAL DE INSTRUCCIONES DE LA TABLA
       vTable: {
         headers: [
-          // Magia 1: Le ponemos pre: '#' para que agregue el numeral automático
           { title: 'id', mask: 'ID', sortable: true, pre: '#' },
           { title: 'eventName', mask: 'Evento', sortable: true },
           { title: 'customerName', mask: 'Cliente', sortable: true },
           { title: 'quantity', mask: 'Cantidad', sortable: true },
-          // Magia 2: pre: '$' para el dinero
           { title: 'total', mask: 'Total', sortable: true, pre: '$' },
           { title: 'date', mask: 'Fecha', sortable: true },
-          // Magia 3: Usamos un callback para escupir HTML (los badges de colores)
           { title: 'status', mask: 'Estado', sortable: true, htmlFormat: true, callback: this.formatStatus }
         ],
         options: {
-          searchable: true, // ¡Buscador automático activado!
+          searchable: true,
         },
         filters: [
-          // Magia 4: ¡El filtro que tenías arriba ahora vive adentro de la tabla!
           {
-            title: 'Filtrar por Período',
-            column: 'periodo', 
+            title: 'Filtrar por Estado',
+            column: 'status',
             type: 'select',
+            // 👇 ¡EL PASAPORTE TRIPLE! Tiene lo que pide el Select y lo que pide el Filtro.
             options: [
-              { id: 'all', label: 'Todos los eventos' },
-              { id: 'today', label: 'Hoy' },
-              { id: 'week', label: 'Esta semana' },
-              { id: 'month', label: 'Este mes' }
+              { id: 'all', label: 'Todos los estados', value: 'all' },
+              { id: 'pagado', label: 'Pagado', value: 'pagado' },
+              { id: 'pendiente', label: 'Pendiente', value: 'pendiente' },
+              { id: 'cancelado', label: 'Cancelado', value: 'cancelado' }
             ]
           }
         ]
       },
-      lastParams: null,
       currentPage: 1,
       perPage: 15,
+      currentParams: {} // Guardamos los parámetros que emite @changed
     }
   },
   computed: {
-    ...mapState(['sales']), // Traemos tus ventas falsas por ahora
+    ...mapState({
+      ventas: state => state.ventas?.ventas || [],
+      cargando: state => state.ventas?.cargandoVentas || false
+    }),
     
-    // 🧠 Simulamos el objeto de paginación de Laravel para que VueTable sea feliz
-    tableValues() {
-      const total = this.sales ? this.sales.length : 0;
-      
-      // Si this.sales no es un array todavía, devolvemos el esqueleto vacío
-      if (!Array.isArray(this.sales)) {
-        return { total: 0, per_page: this.perPage, current_page: 1, data: [] };
+    // 🧠 CEREBRO MEJORADO: Mastica los filtros y los ordenamientos de forma exacta
+    ventasFiltradas() {
+      let resultado = [...this.ventas];
+
+      // 1. Buscador Global
+      if (this.currentParams.search) {
+        const query = this.currentParams.search.toLowerCase();
+        resultado = resultado.filter(v => 
+          (v.eventName && v.eventName.toLowerCase().includes(query)) ||
+          (v.customerName && v.customerName.toLowerCase().includes(query)) ||
+          String(v.id).includes(query)
+        );
       }
+
+      // 2. Filtro Exacto por Estado
+      const statusFilter = this.currentParams.status;
+      if (statusFilter && statusFilter !== 'all') {
+        resultado = resultado.filter(v => 
+          v.status && v.status.toLowerCase() === statusFilter.toLowerCase()
+        );
+      }
+
+      // 3. Ordenamiento Inteligente (ASC / DESC)
+      if (this.currentParams.sort_by && this.currentParams.sort_dir) {
+        const sortBy = this.currentParams.sort_by;
+        const sortDir = this.currentParams.sort_dir === 'desc' ? -1 : 1;
+
+        resultado.sort((a, b) => {
+          let valA = a[sortBy];
+          let valB = b[sortBy];
+
+          // 👇 CORRECCIÓN CLAVE: Si es un número (precio, cantidad o id), los casteamos a Number
+          if (['total', 'quantity', 'id'].includes(sortBy)) {
+            valA = Number(valA);
+            valB = Number(valB);
+          } else if (sortBy === 'date') {
+            // Si es la fecha (DD/MM/YYYY), la damos vuelta para poder ordenarla bien (YYYYMMDD)
+            valA = valA ? valA.split('/').reverse().join('') : '';
+            valB = valB ? valB.split('/').reverse().join('') : '';
+          } else {
+            // Si es texto (Cliente, Evento), pasamos a minúsculas
+            valA = String(valA || '').toLowerCase();
+            valB = String(valB || '').toLowerCase();
+          }
+
+          if (valA < valB) return -1 * sortDir;
+          if (valA > valB) return 1 * sortDir;
+          return 0;
+        });
+      }
+
+      return resultado;
+    },
+
+    // 📦 EMPAQUETADOR DE LARAVEL: Le da a la tabla la info exactamente como la pide
+    tableValues() {
+      const total = this.ventasFiltradas.length;
+      
+      if (total === 0) {
+        return { total: 0, per_page: this.perPage, current_page: 1, last_page: 1, from: 0, to: 0, data: [] };
+      }
+
+      const start = (this.currentPage - 1) * this.perPage;
+      const end = start + this.perPage;
+      const dataPaginada = this.ventasFiltradas.slice(start, end);
 
       return {
         total: total,
         per_page: this.perPage,
         current_page: this.currentPage,
         last_page: Math.ceil(total / this.perPage) || 1,
-        from: 1,
-        to: total,
-        data: this.sales // Acá le inyectamos los datos reales
+        from: start + 1,
+        to: end > total ? total : end,
+        data: dataPaginada
       }
     }
   },
   methods: {
-    // 📡 VueTable nos avisa cuando alguien busca, pagina o filtra
+    ...mapActions('ventas', ['fetchVentasAction']),
+
+    // La tabla emite 'changed' y nosotros atajamos todo acá
     getData(params) {
+      this.currentParams = params || {};
       this.currentPage = params.page || 1;
       this.perPage = params.per_page || 15;
-
-      // Acá en el futuro harías: this.$store.dispatch('fetchSales', params);
-      console.log("🚀 VueTable pidió datos al backend con estos params:", params);
     },
 
-    // 🎨 Esta función convierte la palabra "completado" en un globito de color HTML
     formatStatus(val) {
       if (!val) return '-';
       
       const estado = val.toLowerCase();
       let color = 'secondary';
       
-      if (estado.includes('complet')) color = 'success';
+      if (estado.includes('pagad') || estado.includes('complet')) color = 'success';
       if (estado.includes('pendient')) color = 'warning';
-      if (estado.includes('cancel')) color = 'danger';
+      if (estado.includes('cancel') || estado.includes('fall')) color = 'danger';
 
-      return `<span class="badge bg-${color}">${val}</span>`;
+      return `<span class="badge bg-${color} text-white">${val.toUpperCase()}</span>`;
     }
+  },
+  mounted() {
+    this.fetchVentasAction();
   }
 }
 </script>
