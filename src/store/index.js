@@ -5,6 +5,7 @@ import eventos from './ticketing/_eventos'
 import carrito from './carrito/_carrito'
 import adminReportes from './adminTicketing/_reportes'
 import ventas from './adminTicketing/_ventas'
+import usuariosAdmin from './adminTicketing/_usuarios'
 
 export default createStore({
   modules: {
@@ -13,6 +14,7 @@ export default createStore({
     eventos,
     carrito,
     adminReportes,
-    ventas
+    ventas,
+    usuariosAdmin
   }
 })
