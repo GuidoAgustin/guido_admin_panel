@@ -4,10 +4,8 @@
 
     <header class="page-header container d-flex align-items-center justify-content-between">
       <div>
-        <h1>Nuestros Próximos Eventos y Entradas</h1>
-        <p>
-          Explora nuestra selección de eventos y asegura tu lugar. ¡Vive experiencias inolvidables!
-        </p>
+        <h1>Nuestros Próximos Eventos</h1>
+        <p>Explora nuestra selección de eventos y asegura tu lugar. ¡Vive experiencias inolvidables!</p>
       </div>
     </header>
 
@@ -33,17 +31,13 @@
             class="ticket-card"
             v-for="ticket in tickets"
             :key="ticket.evento_id"
-            >
+          >
             <div class="ticket-image-container">
               <img
                 :src="ticket.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Evento'"
                 :alt="ticket.nombre_evento"
-                @click="
-                  showEnlargedImage(
-                    ticket.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Evento'
-                  )
-                "
-                style="cursor: pointer"
+                @click="showEnlargedImage(ticket.imagen_url || 'https://placehold.co/600x400/EEE/31343C?text=Evento')"
+                style="cursor: pointer; object-fit: cover; height: 200px; width: 100%;"
                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/EEE/31343C?text=Error+Img'"
               />
               <span class="ticket-category-badge" v-if="ticket.categoria">
@@ -69,37 +63,28 @@
                 </p>
                 <p>
                   <i class="fas fa-info-circle"></i>
-                  Estado: <strong>{{ ticket.estado_evento }}</strong>
-                  <span v-if="estaEnCurso(ticket)" class="badge bg-warning text-dark ms-2"><i class="fas fa-fire"></i> ¡Venta de Último Minuto!</span>
+                  Estado: <strong>{{ ticket.estado_evento.toUpperCase() }}</strong>
+                  <span v-if="estaEnCurso(ticket)" class="badge bg-warning text-dark ms-2"><i class="fas fa-fire"></i> Último Minuto</span>
                 </p>
               </div>
             </div>
 
             <div class="ticket-purchase-section">
-              <p class="ticket-price mb-2" v-if="ticket.precio_minimo !== undefined">
-                Desde
-                <span> ${{ Number(ticket.precio_minimo).toFixed(2) }} </span>
-              </p>
-              
-              <div class="d-flex gap-2 w-100">
-                <button
-                  class="btn btn-outline-success flex-fill"
-                  @click="prepararCompra(ticket, 'carrito')"
-                  :disabled="!puedeComprar(ticket)"
-                  title="Guardar asiento para pagar después"
-                >
-                  <i class="fas fa-cart-plus"></i> Al Carrito
-                </button>
-                <button
-                  class="btn btn-primary flex-fill"
-                  @click="prepararCompra(ticket, 'comprar_ahora')"
-                  :disabled="!puedeComprar(ticket)"
-                  title="Reservar e ir a Mercado Pago"
-                >
-                  <i class="fas fa-bolt"></i> Comprar
-                </button>
+              <!-- CONTENEDOR DEL PRECIO LIMPIO -->
+              <div v-if="ticket.precio_minimo !== undefined" class="price-container">
+                <span class="price-label">DESDE</span>
+                <span class="price-amount">${{ formatPrice(ticket.precio_minimo) }}</span>
               </div>
-
+              <div v-else></div>
+              
+              <!-- BOTÓN -->
+              <button
+                class="btn btn-primary fw-bold shadow-sm"
+                @click="prepararCompra(ticket)"
+                :disabled="!puedeComprar(ticket)"
+              >
+                <i class="fas fa-ticket-alt me-2"></i> Conseguir Entradas
+              </button>
             </div>
           </div>
         </div>
@@ -110,7 +95,6 @@
       :showBuyModal="showBuyModal"
       :showRegisterModal="showRegisterModal"
       :ticketSeleccionado="ticketSeleccionado"
-      :tipoAccion="tipoDeAccion" 
       @closeBuyModal="showBuyModal = false"
       @closeRegisterModal="showRegisterModal = false"
       @goToRegister="goToRegister"
@@ -138,8 +122,7 @@ export default {
       showBuyModal: false,
       showRegisterModal: false,
       ticketSeleccionado: null,     
-      selectedImageUrl: null,    
-      tipoDeAccion: 'carrito' // Novedad: Guardamos qué botón eligió el usuario
+      selectedImageUrl: null
     };
   },
   computed: {
@@ -152,15 +135,11 @@ export default {
     ...mapActions(['fetchTickets']),
 
     puedeComprar(ticket) {
-      // Regla 1: Si está disponible normal, pasa directo
       if (ticket.estado_evento === 'disponible') return true;
-      
-      // Regla 2: Si no está disponible pero no está cancelado/agotado, evaluamos el beneficio
       if (ticket.vender_durante_evento && ticket.estado_evento !== 'cancelado' && ticket.estado_evento !== 'agotado') {
         if (ticket.fecha_hora_fin) {
           const ahora = new Date();
           const fin = new Date(ticket.fecha_hora_fin);
-          // Si el evento no terminó, ¡le dejamos comprar!
           if (ahora <= fin) return true;
         }
       }
@@ -168,37 +147,40 @@ export default {
     },
 
     estaEnCurso(ticket) {
-      // Solo para mostrar el cartelito naranja de "último minuto"
       if (!ticket.vender_durante_evento || ticket.estado_evento === 'cancelado' || ticket.estado_evento === 'agotado') return false;
       const ahora = new Date();
       const inicio = new Date(ticket.fecha_hora_inicio);
       const fin = ticket.fecha_hora_fin ? new Date(ticket.fecha_hora_fin) : null;
-      
       return ahora >= inicio && fin && ahora <= fin;
     },
 
+    // ✨ UX: Formateamos el precio para que no tenga decimales si no los necesita y use puntos
+    formatPrice(price) {
+      if (!price) return '0';
+      return Math.round(price).toLocaleString('es-AR');
+    },
+
+    // ✨ UX: Fechas legibles (ej: "25 de mayo de 2026, 20:00")
     formatDate(dateString) {
       if (!dateString) return '—';
       const options = {
         year: 'numeric',
-        month: 'short',
+        month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
       };
-      return new Date(dateString).toLocaleDateString('es-ES', options);
+      return new Date(dateString).toLocaleDateString('es-AR', options);
     },
 
-    // FUNCIÓN NUEVA: Atrapa el clic de ambos botones y abre el modal avisándole qué hacer
-    prepararCompra(ticket, accion) {
-      const isLoggedIn = !!localStorage.getItem('token') || !!localStorage.getItem('user');
+    prepararCompra(ticket) {
+      const isLoggedIn = this.$store.getters.isLoggedIn;
       if (!isLoggedIn) {
         this.showRegisterModal = true; 
         return;
       }
       this.ticketSeleccionado = ticket; 
-      this.tipoDeAccion = accion; // 'carrito' o 'comprar_ahora'
       this.showBuyModal = true;        
     },
 
@@ -210,7 +192,6 @@ export default {
     showEnlargedImage(imageUrl) {
       this.selectedImageUrl = imageUrl;
     },
-
     closeEnlargedImage() {
       this.selectedImageUrl = null;
     }
@@ -219,5 +200,6 @@ export default {
 </script>
 
 <style>
+/* Importamos el archivo base original sin tocarlo */
 @import '@/assets/scss/_ticketing.scss';
 </style>

@@ -5,144 +5,98 @@
       size="md"
       position="center"
       @close="onClose"
-      :prevent-close-on-esc="showConfirmPurchaseModal"
-      :prevent-close-on-overlay-click="showConfirmPurchaseModal"
     >
       <template #title>
-        {{ tipoAccion === 'carrito' ? 'Agregar al Carrito:' : 'Comprar Entradas para:' }} {{ ticketSeleccionado?.nombre_evento }}
+        Adquirir Entradas: {{ ticketSeleccionado?.nombre_evento }}
       </template>
+      
       <template #body>
-        <div v-if="loadingTipos" class="text-center my-3">
-          <i class="fas fa-spinner fa-spin fa-2x"></i>
-          <p class="mt-2">Cargando tipos de entrada...</p>
+        <div v-if="loadingTipos" class="text-center my-4">
+          <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+          <p class="mt-2 text-muted">Buscando disponibilidad...</p>
         </div>
+        
         <div v-else-if="errorTipos" class="alert alert-danger">
           {{ errorTipos }}
         </div>
+        
         <div v-else-if="!tiposPorEvento || tiposPorEvento.length === 0" class="alert alert-info">
-          No hay tipos de entrada disponibles para este evento en este momento.
+          No hay entradas disponibles para este evento en este momento.
         </div>
+        
         <div v-else>
-          <p>Selecciona la cantidad para cada tipo de entrada que desees adquirir:</p>
+          <p class="text-muted mb-4">Selecciona la cantidad de entradas que deseas adquirir:</p>
 
           <div
             v-for="tipo in tiposPorEvento"
             :key="tipo.id_tipo_entrada"
-            class="mb-3 p-3 border rounded shadow-sm"
+            class="mb-3 p-3 border rounded shadow-sm bg-light"
           >
             <div class="d-flex justify-content-between align-items-center">
               <div class="flex-grow-1">
-                <h5>{{ tipo.nombre_tipo }}</h5>
-                <p class="mb-1">
-                  Precio: <strong>${{ Number(tipo.precio).toFixed(2) }}</strong>
+                <h5 class="mb-1 text-dark">{{ tipo.nombre_tipo }}</h5>
+                <p class="mb-1 fs-5 text-success fw-bold">
+                  ${{ formatPrice(tipo.precio) }}
                 </p>
-                <p class="mb-1 text-muted">
-                  <small>Disponibles: {{ tipo.cantidad_disponible }}</small>
+                <p class="mb-1 text-muted small">
+                  Disponibles: {{ tipo.cantidad_disponible }}
                 </p>
               </div>
-              <div class="d-flex align-items-center" style="min-width: 120px">
+              
+              <div class="d-flex align-items-center bg-white border rounded p-1" style="min-width: 120px">
                 <button
                   type="button"
-                  class="btn btn-outline-secondary btn-sm"
+                  class="btn btn-light btn-sm border-0"
                   @click="decrementQuantity(tipo)"
-                  :disabled="
-                    (selectedQuantities[tipo.id_tipo_entrada] || 0) === 0 || purchaseLoading
-                  "
-                  aria-label="Disminuir cantidad"
+                  :disabled="(selectedQuantities[tipo.id_tipo_entrada] || 0) === 0 || purchaseLoading"
                 >
                   <i class="fas fa-minus"></i>
                 </button>
-                <span
-                  class="mx-2 px-2 border rounded"
-                  style="
-                    min-width: 40px;
-                    text-align: center;
-                    display: inline-block;
-                    padding-top: 0.25rem;
-                    padding-bottom: 0.25rem;
-                  "
-                >
+                <span class="mx-2 fw-bold" style="min-width: 30px; text-align: center;">
                   {{ selectedQuantities[tipo.id_tipo_entrada] || 0 }}
                 </span>
                 <button
                   type="button"
-                  class="btn btn-outline-secondary btn-sm"
+                  class="btn btn-light btn-sm border-0"
                   @click="incrementQuantity(tipo)"
-                  :disabled="
-                    (selectedQuantities[tipo.id_tipo_entrada] || 0) >= tipo.cantidad_disponible ||
-                    tipo.cantidad_disponible === 0 ||
-                    purchaseLoading
-                  "
-                  aria-label="Aumentar cantidad"
+                  :disabled="(selectedQuantities[tipo.id_tipo_entrada] || 0) >= tipo.cantidad_disponible || tipo.cantidad_disponible === 0 || purchaseLoading"
                 >
                   <i class="fas fa-plus"></i>
                 </button>
               </div>
             </div>
-            <div v-if="tipo.descripcion_adicional" class="mt-2 pt-2 border-top">
-              <small><strong>Info adicional:</strong> {{ tipo.descripcion_adicional }}</small>
+            <div v-if="tipo.descripcion_adicional" class="mt-2 pt-2 border-top text-muted small">
+              <i class="fas fa-info-circle me-1"></i> {{ tipo.descripcion_adicional }}
             </div>
           </div>
 
-          <div v-if="totalPriceFromSelection > 0" class="mt-4 pt-3 border-top text-right">
-            <h4>Total a Pagar: ${{ totalPriceFromSelection.toFixed(2) }}</h4>
-          </div>
-          <div
-            v-if="isSelectionEmptyForModal && !purchaseLoading && tiposPorEvento.length > 0"
-            class="mt-3 alert alert-warning text-center"
-          >
-            Por favor, selecciona la cantidad de al menos un tipo de entrada.
+          <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+            <h5 class="text-muted mb-0">Total a Pagar</h5>
+            <h3 class="text-success fw-bold mb-0">${{ formatPrice(totalPriceFromSelection) }}</h3>
           </div>
         </div>
       </template>
 
       <template #footer>
-        <button class="btn btn-secondary" @click="onClose">Cancelar</button>
+        <button class="btn btn-outline-secondary me-auto" @click="onClose" :disabled="purchaseLoading">
+          Cancelar
+        </button>
+        
         <button
-          class="btn btn-primary"
+          class="btn btn-outline-success me-2"
           :disabled="isSelectionEmptyForModal || purchaseLoading"
-          @click="openConfirmationModal"
+          @click="proceedWithAction('carrito')"
         >
-          <i class="fas fa-spinner fa-spin" v-if="purchaseLoading"></i>
-          {{ purchaseLoading ? 'Procesando...' : 'Confirmar' }}
+          <i class="fas fa-cart-plus me-1"></i> Al Carrito
         </button>
-      </template>
-    </VueModal>
-
-    <VueModal
-      v-if="showConfirmPurchaseModal"
-      size="md"
-      position="center"
-      @close="cancelPurchaseConfirmation"
-    >
-      <template #title>Confirmar tu Elección</template>
-      <template #body>
-        <p>Estás a punto de procesar las siguientes entradas:</p>
-        <ul class=" pl-3">
-          <li v-for="item in itemsToConfirm" :key="item.id_tipo_entrada">
-            <strong>{{ item.cantidad }}x</strong> {{ item.nombre_tipo_original }}
-            <em>(${{ Number(item.precio_unitario).toFixed(2) }} c/u)</em>
-          </li>
-        </ul>
-        <hr />
-        <h5 class="text-right ">Total Final: ${{ totalConfirmationPrice.toFixed(2) }}</h5>
-      </template>
-      <template #footer>
+        
         <button
-          class="btn btn-secondary"
-          @click="cancelPurchaseConfirmation"
-          :disabled="purchaseLoading"
+          class="btn btn-primary px-4 fw-bold"
+          :disabled="isSelectionEmptyForModal || purchaseLoading"
+          @click="proceedWithAction('comprar_ahora')"
         >
-         Modificar
-        </button>
-        <button
-          class="btn btn-success"
-          @click="proceedWithFinalPurchase"
-          :disabled="purchaseLoading"
-        >
-          <i class="fas fa-spinner fa-spin" v-if="purchaseLoading"></i>
-          <span v-else-if="tipoAccion === 'carrito'">Sí, Agregar al Carrito</span>
-          <span v-else>Sí, Pagar en Mercado Pago</span>
+          <i class="fas fa-spinner fa-spin me-1" v-if="purchaseLoading"></i>
+          <span v-else><i class="fas fa-credit-card me-1"></i> Ir a Pagar</span>
         </button>
       </template>
     </VueModal>
@@ -150,7 +104,7 @@
     <VueModal v-if="showRegisterModal" size="md" position="center" @close="closeRegisterModal">
       <template #title>Registro requerido</template>
       <template #body>
-        <p>Debes estar logueado para adquirir entradas. ¿Deseas ingresar?</p>
+        <p>Debes estar logueado para adquirir entradas. ¿Deseas ingresar a tu cuenta?</p>
       </template>
       <template #footer>
         <button class="btn btn-secondary" @click="closeRegisterModal">Cancelar</button>
@@ -171,23 +125,18 @@ export default {
     showBuyModal: Boolean,
     showRegisterModal: Boolean,
     ticketSeleccionado: Object,
-    tipoAccion: String // RECIBIMOS LA NUEVA PROP DESDE TICKETING.VUE
   },
   data() {
     return {
       selectedQuantities: {},
       purchaseLoading: false,
-      showConfirmPurchaseModal: false, 
-      itemsToConfirm: [] 
     }
   },
   computed: {
     ...mapGetters(['tipos', 'loadingTipos', 'errorTipos']),
     tiposPorEvento() {
       if (!this.ticketSeleccionado) return []
-      return this.tipos.filter(
-        t => t.id_evento === this.ticketSeleccionado.evento_id
-      )
+      return this.tipos.filter(t => t.id_evento === this.ticketSeleccionado.evento_id)
     },
     totalPriceFromSelection() {
       let total = 0
@@ -204,12 +153,6 @@ export default {
     isSelectionEmptyForModal() {
       if (!this.tiposPorEvento || this.tiposPorEvento.length === 0) return true
       return Object.values(this.selectedQuantities).every((qty) => !qty || qty === 0)
-    },
-    totalConfirmationPrice() {
-      return this.itemsToConfirm.reduce(
-        (acc, item) => acc + item.cantidad * item.precio_unitario,
-        0
-      )
     }
   },
   watch: {
@@ -218,32 +161,29 @@ export default {
         this.fetchTipos(this.ticketSeleccionado.evento_id)
         this.selectedQuantities = {}
         this.purchaseLoading = false
-        this.showConfirmPurchaseModal = false 
-        this.itemsToConfirm = []
       }
     }
   },
   methods: {
-    // AGREGAMOS pagarOrden A LAS ACCIONES IMPORTADAS
     ...mapActions(['fetchTipos', 'iniciarCompraAction', 'pagarOrden']),
     
+    formatPrice(price) {
+      if (!price) return '0';
+      return Math.round(price).toLocaleString('es-AR');
+    },
+
     onClose() {
       this.$emit('closeBuyModal')
-      this.showConfirmPurchaseModal = false 
-      this.itemsToConfirm = []
     },
+
     incrementQuantity(tipo) {
       const currentQty = this.selectedQuantities[tipo.id_tipo_entrada] || 0
       if (currentQty < tipo.cantidad_disponible) {
         this.selectedQuantities[tipo.id_tipo_entrada] = currentQty + 1
         this.selectedQuantities = { ...this.selectedQuantities } 
-      } else {
-        if (this.$toast)
-          this.$toast.info(
-            `Máximo ${tipo.cantidad_disponible} entradas disponibles para ${tipo.nombre_tipo}.`
-          )
       }
     },
+
     decrementQuantity(tipo) {
       const currentQty = this.selectedQuantities[tipo.id_tipo_entrada] || 0
       if (currentQty > 0) {
@@ -254,83 +194,61 @@ export default {
         this.selectedQuantities = { ...this.selectedQuantities } 
       }
     },
-    openConfirmationModal() {
-      this.itemsToConfirm = [] 
-      if (this.tiposPorEvento && this.tiposPorEvento.length > 0) {
-        this.tiposPorEvento.forEach((tipo) => {
-          const cantidad = this.selectedQuantities[tipo.id_tipo_entrada] || 0
-          if (cantidad > 0) {
-            if (cantidad > tipo.cantidad_disponible) {
-              if (this.$toast)
-                this.$toast.error(
-                  `No hay suficientes entradas (${tipo.cantidad_disponible}) disponibles para ${tipo.nombre_tipo}. Has seleccionado ${cantidad}.`
-                )
-              this.itemsToConfirm = [] 
-              return 
-            }
-            this.itemsToConfirm.push({
-              id_tipo_entrada: tipo.id_tipo_entrada,
-              nombre_tipo_original: tipo.nombre_tipo, 
-              cantidad: cantidad,
-              precio_unitario: parseFloat(tipo.precio)
-            })
-          }
-        })
-      }
 
-      if (this.itemsToConfirm.length === 0) {
-        if (this.$toast)
-          this.$toast.info('Por favor, selecciona la cantidad de al menos un tipo de entrada.')
-        return
-      }
-      this.showConfirmPurchaseModal = true 
-    },
-    cancelPurchaseConfirmation() {
-      this.showConfirmPurchaseModal = false
-      this.itemsToConfirm = [] 
+    // ✨ NUEVA FUNCIÓN: Arma la lista de items leyendo el State directamente
+    buildItemsPayload() {
+      const items = [];
+      this.tiposPorEvento.forEach((tipo) => {
+        const cantidad = this.selectedQuantities[tipo.id_tipo_entrada] || 0
+        if (cantidad > 0) {
+          items.push({
+            id_tipo_entrada: tipo.id_tipo_entrada,
+            nombre_tipo_original: tipo.nombre_tipo, 
+            cantidad: cantidad,
+            precio_unitario: parseFloat(tipo.precio)
+          });
+        }
+      });
+      return items;
     },
 
-    // LA FUNCIÓN ESTRELLA QUE DECIDE A DÓNDE VAMOS
-    async proceedWithFinalPurchase() {
-      if (this.itemsToConfirm.length === 0) {
-        if (this.$toast) this.$toast.error('No hay ítems para confirmar.')
-        this.showConfirmPurchaseModal = false
-        return
-      }
+    // ✨ LA FUNCIÓN MAESTRA QUE EJECUTA LA COMPRA O GUARDA EN CARRITO
+    async proceedWithAction(accion) {
+      const itemsToConfirm = this.buildItemsPayload();
 
-      this.purchaseLoading = true
+      if (itemsToConfirm.length === 0) return;
 
-      // 🛒 CASO 1: ELIGIÓ "AL CARRITO" (SOLO VISUAL, NO TOCA STOCK)
-      if (this.tipoAccion === 'carrito') {
+      this.purchaseLoading = true;
+
+      // 🛒 ACCIÓN: AL CARRITO LOCAL
+      if (accion === 'carrito') {
         try {
           const carritoLocal = JSON.parse(localStorage.getItem('carrito_entradas')) || [];
-          
-          // Armamos un paquete visual para guardar en su navegador
           const nuevaEntradaLocal = {
-            id_local: Date.now(), // Un ID temporal
+            id_local: Date.now(),
             evento_id: this.ticketSeleccionado.evento_id,
             evento: this.ticketSeleccionado.nombre_evento,
             fecha: this.ticketSeleccionado.fecha_hora_inicio,
-            items: this.itemsToConfirm,
-            total: this.totalConfirmationPrice
+            items: itemsToConfirm,
+            total: this.totalPriceFromSelection
           };
           
           carritoLocal.push(nuevaEntradaLocal);
           localStorage.setItem('carrito_entradas', JSON.stringify(carritoLocal));
           
-          if (this.$toast) this.$toast.success('¡Entradas guardadas en tu carrito para más tarde!');
-          this.onClose(); // Cerramos el modal
+          if (this.$toast) this.$toast.success('¡Entradas guardadas en tu carrito!');
+          this.onClose();
         } catch(e) {
           console.error("Error al guardar en carrito local", e);
         } finally {
           this.purchaseLoading = false;
         }
-        return; // ¡CORTAMOS ACÁ! No llama a iniciarCompraAction ni descuenta stock de tu DB
+        return;
       }
 
-      // ⚡ CASO 2: ELIGIÓ "COMPRAR AHORA" (CREA LA ORDEN, DESCUENTA STOCK Y VA A MP)
+      // ⚡ ACCIÓN: PAGAR AHORA
       const payload = {
-        items: this.itemsToConfirm.map((item) => ({
+        items: itemsToConfirm.map((item) => ({
           id_tipo_entrada: item.id_tipo_entrada,
           cantidad: item.cantidad,
           precio_unitario: item.precio_unitario
@@ -338,9 +256,8 @@ export default {
       }
 
       try {
-        const ordenCreada = await this.iniciarCompraAction(payload) // <-- Acá SÍ descuenta stock
-
-        if (this.$toast) this.$toast.info('Redirigiendo a Mercado Pago...')
+        const ordenCreada = await this.iniciarCompraAction(payload)
+        if (this.$toast) this.$toast.info('Redirigiendo a Mercado Pago seguro...')
         
         const payloadMP = {
           orden_id: ordenCreada.id_orden,
@@ -357,9 +274,7 @@ export default {
       } catch (error) {
         if (this.$toast) this.$toast.error(error.message || 'Hubo un problema al procesar tu solicitud.')
       } finally {
-        this.purchaseLoading = false
-        this.showConfirmPurchaseModal = false 
-        this.itemsToConfirm = []
+        this.purchaseLoading = false;
       }
     },
     

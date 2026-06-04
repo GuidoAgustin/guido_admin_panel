@@ -216,6 +216,8 @@
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    /* Obliga a la tarjeta a estirarse completo en la grilla */
 }
 
 .ticket-card:hover {
@@ -258,6 +260,8 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
+    /* Empaqueta el texto arriba */
 }
 
 .ticket-info h3 {
@@ -274,17 +278,17 @@
     color: var(--medium-light-text);
     margin-bottom: 15px;
     line-height: 1.6;
-    flex-grow: 1;
-    /* Para que la descripción ocupe espacio disponible */
+    flex-grow: 0;
+    /* MATAMOS EL INFLADOR ACÁ (Antes decía 1) */
     min-height: 4.8em;
-    /* Aprox 3 líneas */
 }
 
 .ticket-details {
     font-size: 0.85rem;
     color: #95a5a6;
-    /* Un gris más suave */
-    margin-bottom: 15px;
+    margin-top: 0;
+    margin-bottom: 0;
+    /* Le sacamos el margen de 15px que tenía antes */
 }
 
 .ticket-details p {
@@ -306,17 +310,58 @@
 }
 
 
+/* ==========================================================
+   FOOTER PREMIUM: PRECIO CENTRADO + BOTÓN ANCHO
+========================================================== */
 .ticket-purchase-section {
-    padding: 15px 20px 20px;
-    border-top: 1px solid var(--input-border-color);
-    /* Borde sutil */
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    /* Borde súper sutil */
     margin-top: auto;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     gap: 15px;
-    flex-wrap: wrap;
-    /* Para que se adapte si no hay espacio */
+    /* Separación perfecta entre bloque de precio y botón */
+}
+
+/* El bloque que contiene el "Desde" y el Número */
+.price-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centramos todo maravillosamente */
+    justify-content: center;
+    line-height: 1;
+    /* Matamos espacios invisibles */
+}
+
+/* El "Desde" con look de etiqueta pro */
+.price-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    /* Separamos un poco las letras (se ve muy elegante) */
+    color: var(--medium-light-text);
+    margin-bottom: 6px;
+}
+
+/* El Número Gigante */
+.price-amount {
+    font-size: 1.8rem;
+    /* Un poquito más grande para que impacte */
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+/* El Botón ocupando toda la base */
+.ticket-purchase-section .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    /* Le da más fuerza al call to action */
+    letter-spacing: 0.5px;
 }
 
 .ticket-price {

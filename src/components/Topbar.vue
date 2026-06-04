@@ -6,22 +6,23 @@
         {{ $store.getters.user.first_name }}
       </span>!
     </div>
-    <ul class="topbar-buttons">
-      <li v-if="$store.getters.isLoggedIn" @click="goToCart" title="Mis Compras">
+    <div class="custom-topbar-actions">
+      <a class="action-link" v-if="$store.getters.isLoggedIn" @click="goToCart" title="Mis Compras">
         <i class="fa-solid fa-cart-shopping"></i> 
-      </li>
+      </a>
       
-      <li v-if="$store.getters.isAdmin" @click="goToScanner" title="Escáner de Entradas">
+      <a class="action-link" v-if="$store.getters.isAdmin" @click="goToScanner" title="Escáner de Entradas">
         <i class="fa-solid fa-qrcode"></i>
-      </li>
+      </a>
 
-      <li v-if="$store.getters.isAdmin" @click="goToAdminPanel" title="Panel de administración">
+      <a class="action-link" v-if="$store.getters.isAdmin" @click="goToAdminPanel" title="Panel de administración">
         <i class="fa-solid fa-tools"></i>
-      </li>
-      <li @click="handleLogoutOrLogin">
+      </a>
+      
+      <a class="action-link" @click="handleLogoutOrLogin">
         <i class="fa-solid fa-power-off"></i>
-      </li>
-    </ul>
+      </a>
+    </div>
   </div>
 </template>
 
@@ -69,3 +70,84 @@ export default {
   }
 }
 </script>
+<style scoped>
+/* ==========================================================
+   BLINDAJE DE TOPBAR (Nitidez Cristalina Forzada)
+========================================================== */
+
+/* 1. Escudo de la topbar (flexbox centering) */
+.topbar {
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+/* 2. El contenedor de Matrix */
+.custom-topbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important; /* Separación perfecta */
+  margin: 0 !important;
+  padding: 0 10px !important; /* Aire prolijo a los costados */
+}
+
+/* 3. Nuestros enlaces blindados nítidos */
+.action-link {
+  /* Mantenemos el tamaño que definimos antes */
+  font-size: 1.15rem !important; 
+  color: #343a40 !important; /* Gris oscuro original */
+  cursor: pointer !important;
+  
+  /* Mantenemos una transición suave SOLO PARA EL COLOR */
+  transition: color 0.2s ease-in-out !important; 
+  
+  padding: 0.5rem !important; /* Gordura del area clickeable */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  border: none !important;
+  width: auto !important;
+  opacity: 1 !important; /* Fuerza visibilidad total */
+}
+
+/* 4. Efecto HOVER BLINDADO (Solo color, sin agrandar) */
+.action-link:hover {
+  color: #3b7a57 !important; /* Verde Ticketing */
+  
+  /* 👇 👇 ELIMINAMOS ESTO PARA QUE NO SE VEA BORROSO 👇 👇 */
+  /* transform: scale(1.05) !important; */ 
+  
+  /* Nos aseguramos que no herede ningún transform raro del admin */
+  transform: none !important; 
+}
+
+/* Quitamos cualquier borde o outline molesto */
+.action-link:focus, .action-link:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================
+   BLINDAJE ULTRA AGRESIVO PARA NITIDEZ Y GORDURA DEL ICONO
+========================================================== */
+
+.action-link i {
+  /* Forzamos el grosor exacto de FontAwesome Solid */
+  font-weight: 900 !important; 
+  
+  /* Suavizado de bordes óptimo (Nitidez 4K) */
+  -webkit-font-smoothing: antialiased !important; /* Chrome/Edge */
+  -moz-osx-font-smoothing: grayscale !important; /* Mac/Safari */
+  
+  /* Forzamos a que el renderizado priorice calidad y legibilidad */
+  text-rendering: geometricPrecision !important; 
+  
+  /* Blindamos el color y opacity nativo de FA */
+  opacity: 1 !important; 
+  color: inherit !important; 
+  text-shadow: none !important; 
+  line-height: 1 !important;
+  display: inline-block !important;
+}
+</style>
