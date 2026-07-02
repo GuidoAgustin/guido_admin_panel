@@ -38,9 +38,8 @@ export default {
   }),
   beforeMount() {
     const default_email = localStorage.getItem('default_email')
-    const default_pw = localStorage.getItem('default_pw')
+    // Ya no buscamos el password en el localStorage
     if (default_email) this.form.email = default_email
-    if (default_pw) this.form.password = default_pw
   },
   methods: {
     signIn() {

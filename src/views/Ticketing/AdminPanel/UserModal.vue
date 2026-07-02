@@ -97,28 +97,26 @@ export default {
     },
 
     async confirmAction() {
-  this.loading = true;
-  try {
-    // 👇 ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ ASÍ
-    // Algunos endpoints devuelven 'id' y otros 'user_id', esto cubre ambos.
-    const id = this.localUser.user_id || this.localUser.id; 
+      this.loading = true;
+      try {
+        const id = this.localUser.user_id || this.localUser.id; 
 
-    console.log("ID a borrar:", id); // <--- Míralo en la consola del navegador (F12)
+        if (!id) {
+           this.$toast.error("Error: No se encuentra el ID del usuario");
+           return;
+        }
 
-    if (!id) {
-       this.$toast.error("Error: No se encuentra el ID del usuario");
-       return;
-    }
-
-    if (this.mode === 'edit') {
-       // ...
-    } else if (this.mode === 'delete') {
-       await this.deleteUserAction(id);
-       this.$toast.success('Usuario eliminado correctamente');
-    }
-    
-    this.$emit('saved');
-    this.close();
+        if (this.mode === 'edit') {
+           // 🔥 EL FIX: Llamamos a la acción de actualizar y le pasamos el usuario modificado
+           await this.updateUserAction({ id: id, data: this.localUser });
+           this.$toast.success('Usuario actualizado correctamente');
+        } else if (this.mode === 'delete') {
+           await this.deleteUserAction(id);
+           this.$toast.success('Usuario eliminado correctamente');
+        }
+        
+        this.$emit('saved');
+        this.close();
 
       } catch (error) {
         console.error(error);

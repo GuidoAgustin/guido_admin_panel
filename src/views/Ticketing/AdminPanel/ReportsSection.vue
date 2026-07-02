@@ -311,7 +311,7 @@ export default {
 
     async cargarListaEventos() {
       try {
-        const response = await fetch('http://localhost:3011/eventos')
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}eventos`)
         const data = await response.json()
 
         const eventosReales = data.data || data.eventos || data

@@ -93,23 +93,26 @@ class ApiClient {
           return newTokens.token; // Retorna el NUEVO token de acceso
         } catch (refreshError) {
           console.error('[AUTH] _verifyToken: ¡FALLÓ EL INTENTO DE REFRESCAR EL TOKEN!');
+          
+          // 🔥 MATAMOS AL ZOMBIE: Forzamos el cierre de sesión
+          this.store.dispatch('logout');
+
           if (refreshError.response) {
             console.error(`[AUTH] Status: ${refreshError.response.status}, Data:`, refreshError.response.data);
           } else {
             console.error('[AUTH] Error:', refreshError.message);
           }
-          // Importante: decide qué hacer. Re-lanzar es una opción para que la llamada original falle claramente.
-          // O podrías forzar un logout aquí: this.store.dispatch('logout');
           throw refreshError;
         }
       }
       return token; // Retorna el token original (o el que ya estaba en store)
     } catch (e) {
       console.error('[AUTH] _verifyToken: Error decodificando tokens o error inesperado:', e);
-      // Podrías estar intentando decodificar un token inválido o nulo.
-      // Si los tokens son inválidos, quizás deberías limpiar el estado y forzar logout.
-      // this.store.dispatch('logout');
-      throw e; // Relanza para que la petición original falle.
+      
+      // 🔥 MATAMOS AL ZOMBIE: Por si intentaron trucar el token a mano
+      this.store.dispatch('logout');
+      
+      throw e; 
     }
   }
 

@@ -79,7 +79,7 @@ export default {
     async descargarTicketAction({ getters }, codigo_unico) {
       try {
         // 1. Armamos la ruta (usando tu variable de entorno si existe)
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3011';
+        const baseUrl = import.meta.env.VITE_API_URL;
         
         // 2. Mandamos al cadete (Fetch), pero le damos la credencial de seguridad de Vuex! 🛡️
         const response = await fetch(`${baseUrl}/entradas_vendidases/ticket/${codigo_unico}`, {

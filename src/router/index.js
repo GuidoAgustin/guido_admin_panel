@@ -23,7 +23,7 @@ const routes = [
   {
     path: '/escaner',
     name: 'escaner',
-    component: () => import('@/views/Ticketing/ScannerView.vue'),
+    component: () => import('@/views/Ticketing/AdminPanel/ScannerView.vue'),
     meta: { requiresAuth: true } // 🔒 Descomentá esto a futuro si querés que solo entren logueados
   },
   //Carrito (Usa el diseño normal, pero pide login)
@@ -31,7 +31,7 @@ const routes = [
     path: '/mi-carrito',
     name: 'mi-carrito',
     component: () => import('@/views/Carrito/MiCarrito.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true } // 🔒 ACÁ ESTÁ EL CANDADO
+    meta: { requiresAuth: true } // 🔒 ACÁ ESTÁ EL CANDADO
   },
 
   // 3) Rutas de autenticación (login, forgot/reset password, activación)
@@ -138,5 +138,25 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
+// 🔥 EL PATOVICA DEL FRONTEND (Navigation Guard)
+router.beforeEach((to, from, next) => {
+  // Leemos si hay alguien logueado desde el localStorage (que tu auth.js ya guarda ahí)
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+
+  // 1. ¿La ruta pide estar logueado y NO hay token? Afuera.
+  if (to.meta.requiresAuth && !token) {
+    return next({ name: 'login' });
+  }
+
+  // 2. ¿La ruta pide ser ADMIN y el usuario no es admin? A la home.
+  if (to.meta.requiresAdmin && (!user || user.rol !== 'admin')) {
+    return next({ name: 'home' });
+  }
+
+  // 3. Si todo está en orden, lo dejamos pasar
+  next();
+});
 
 export default router

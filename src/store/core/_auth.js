@@ -40,11 +40,10 @@ export default {
           .post('login', form)
           .then(({ data }) => {
             if (form.remember) {
+              // SOLO guardamos el email, Chrome se encarga del password
               localStorage.setItem('default_email', form.email)
-              localStorage.setItem('default_pw', form.password)
             } else {
               localStorage.removeItem('default_email')
-              localStorage.removeItem('default_pw')
             }
             commit('SET_TOKEN', data.data.token)
             commit('SET_USER', data.data.user)

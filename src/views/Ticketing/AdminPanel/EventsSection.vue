@@ -77,18 +77,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['tickets', 'loading', 'error']),
+    ...mapGetters(['tickets', 'loading', 'error', 'formatNumber']), // 🔥 Agregamos formatNumber acá
   },
   created() {
     this.fetchTickets();
   },
   methods: {
     ...mapActions(['fetchTickets', 'deleteEventoAction']),
-
-    formatNumber(num) {
-      if (typeof num !== 'number') return num;
-      return num.toLocaleString('es-AR');
-    },
 
     getBadgeClass(estado) {
       if (!estado) return 'bg-secondary';

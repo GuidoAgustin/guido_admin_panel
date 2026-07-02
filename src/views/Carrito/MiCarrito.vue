@@ -257,7 +257,7 @@
             <div
               v-for="entrada in entradasPasadas.slice(0, limiteHistorial)"
               :key="entrada.id"
-              class="card border border-secondary bg-dark text-white ticket-card historial mb-2"
+              class="card border border-secondary bg-dark text-white ticket-card historial mb-2 h-auto"
             >
               <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -279,7 +279,7 @@
             <div
               v-for="pedido in productosPasados.slice(0, limiteHistorial)"
               :key="pedido.id"
-              class="card border border-secondary bg-dark text-white product-card historial mb-2"
+              class="card border border-secondary bg-dark text-white product-card historial mb-2 h-auto"
             >
               <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">

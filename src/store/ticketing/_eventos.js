@@ -10,24 +10,6 @@ state: () => ({
   totalUsers: 0,
 
   // 👇 EL ESTADO QUE FALTA PARA EL DASHBOARD 👇
-  stats: {
-    totalTickets: 0,
-    ticketsGrowth: 0,
-    totalRevenue: 0,
-    revenueGrowth: 0,
-    activeEvents: 0,
-    upcomingEvents: 0,
-    totalUsers: 0,
-    newUsers: 0
-  },
-  reports: {
-  monthlyRevenue: 0,
-  averageSale: 0,
-  topEvent: 'N/A',
-  completedEvents: 0,
-  averageOccupancy: 0,
-  cancellations: 0
-},
   recentActivities: []
 }),
   mutations: {

@@ -87,7 +87,6 @@
 <script>
 // Importamos la librería de la cámara
 import { QrcodeStream } from 'vue-qrcode-reader'
-import axios from 'axios'
 
 export default {
   name: 'ScannerView',
@@ -144,38 +143,36 @@ export default {
       await this.procesarCodigo(this.codigoManual)
     },
 
-    // El cerebro de la conexión
+   // El cerebro de la conexión (Ahora limpio y elegante)
     async procesarCodigo(codigo) {
       this.cargando = true
-      try {
-        // Le pegamos al endpoint que armamos en el backend
-        const response = await axios.post('http://localhost:3011/admin/escaner/validar', {
-          codigo_qr: codigo
+      
+      // 🔥 Despachamos la acción de Vuex pasándole el código
+      this.$store.dispatch('escaner/validarTicketAction', codigo)
+        .then((data) => {
+          // Seteamos el semáforo según lo que dijo el backend
+          this.estadoValidacion = data.color // 'verde', 'rojo' o 'negro'
+          this.mensajeResultado = data.mensaje
+          this.tipoEntrada = data.datosEntrada ? data.datosEntrada.tipo : ''
+          this.resultadoVisible = true
+
+          if (this.estadoValidacion === 'verde') {
+            if (this.$toast) this.$toast.success('Entrada validada')
+          } else {
+            // Si hay error, vibra el celular si lo soporta
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200])
+          }
         })
-
-        const data = response.data
-
-        // Seteamos el semáforo según lo que dijo el backend
-        this.estadoValidacion = data.color // 'verde', 'rojo' o 'negro'
-        this.mensajeResultado = data.mensaje
-        this.tipoEntrada = data.datosEntrada ? data.datosEntrada.tipo : ''
-        this.resultadoVisible = true
-
-        if (this.estadoValidacion === 'verde') {
-          if (this.$toast) this.$toast.success('Entrada validada')
-        } else {
-          // Si hay error, le metemos un sonidito o vibra el celular si lo soporta
-          if (navigator.vibrate) navigator.vibrate([200, 100, 200])
-        }
-      } catch (error) {
-        console.error('Error al validar:', error)
-        this.estadoValidacion = 'negro'
-        this.mensajeResultado = 'Error de conexión con el servidor.'
-        this.resultadoVisible = true
-      } finally {
-        this.cargando = false
-        this.codigoManual = '' // Limpiamos el input
-      }
+        .catch((error) => {
+          console.error('Error al validar:', error)
+          this.estadoValidacion = 'negro'
+          this.mensajeResultado = 'Error de conexión con el servidor.'
+          this.resultadoVisible = true
+        })
+        .finally(() => {
+          this.cargando = false
+          this.codigoManual = '' // Limpiamos el input siempre
+        })
     },
 
     reiniciarEscaner() {
