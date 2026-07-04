@@ -24,7 +24,7 @@ const routes = [
     path: '/escaner',
     name: 'escaner',
     component: () => import('@/views/Ticketing/AdminPanel/ScannerView.vue'),
-    meta: { requiresAuth: true } // 🔒 Descomentá esto a futuro si querés que solo entren logueados
+    meta: { requiresAuth: true, requiresStaff: true } // 🔒 Descomentá esto a futuro si querés que solo entren logueados
   },
   //Carrito (Usa el diseño normal, pero pide login)
   {
@@ -155,7 +155,12 @@ router.beforeEach((to, from, next) => {
     return next({ name: 'home' });
   }
 
-  // 3. Si todo está en orden, lo dejamos pasar
+  // 🔥 3. ¿La ruta pide ser STAFF y el usuario no es ni admin ni portero? A la home.
+  if (to.meta.requiresStaff && (!user || (user.rol !== 'admin' && user.rol !== 'portero'))) {
+    return next({ name: 'home' });
+  }
+
+  // 4. Si todo está en orden, lo dejamos pasar
   next();
 });
 

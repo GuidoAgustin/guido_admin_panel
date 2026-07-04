@@ -7,23 +7,31 @@
 
     <template #body>
       <form v-if="mode === 'edit'" @submit.prevent="confirmAction" class="p-2">
-        <div class="form-group">
-          <label>Nombre</label>
+        <div class="form-group mb-3">
+          <label class="fw-bold mb-1">Nombre</label>
           <input type="text" class="form-control" v-model="localUser.first_name" required>
         </div>
-        <div class="form-group">
-          <label>Apellido</label>
+        
+        <div class="form-group mb-3">
+          <label class="fw-bold mb-1">Apellido</label>
           <input type="text" class="form-control" v-model="localUser.last_name" required>
         </div>
-        <div class="form-group">
-          <label>Email</label>
+        
+        <div class="form-group mb-3">
+          <label class="fw-bold mb-1">Email</label>
           <input type="email" class="form-control" v-model="localUser.email" required>
         </div>
-        <div class="form-group">
-          <label>Rol</label>
-          <input type="text" class="form-control" v-model="localUser.rol" required>
+        
+        <div class="form-group mb-3">
+          <label class="fw-bold mb-1">Rol del Sistema</label>
+          <select class="form-control" v-model="localUser.rol" required>
+            <option value="usuario">Cliente Común (usuario)</option>
+            <option value="portero">Staff del Escáner (portero)</option>
+            <option value="admin">Administrador (admin)</option>
+          </select>
+          <small class="text-muted">Define los permisos de acceso del usuario al panel.</small>
         </div>
-        </form>
+      </form>
 
       <div v-else-if="mode === 'delete'" class="p-3 text-center">
         <i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>
@@ -89,7 +97,6 @@ export default {
     }
   },
   methods: {
-    // Aquí puedes importar tus acciones reales de Vuex
     ...mapActions(['updateUserAction', 'deleteUserAction']),
 
     close() {
@@ -107,7 +114,6 @@ export default {
         }
 
         if (this.mode === 'edit') {
-           // 🔥 EL FIX: Llamamos a la acción de actualizar y le pasamos el usuario modificado
            await this.updateUserAction({ id: id, data: this.localUser });
            this.$toast.success('Usuario actualizado correctamente');
         } else if (this.mode === 'delete') {
