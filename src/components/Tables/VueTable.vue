@@ -146,7 +146,7 @@
               </button>
               <FormDropdown position="bottom">
                 <template #action="{ open }">
-                  <button class="btn btn-sm btn-borderless-dark actions-btn" @click.stop="open">
+                  <button class="btn btn-sm btn-borderless actions-btn" @click.stop="open">
                     <i class="fa fa-ellipsis"></i>
                   </button>
                 </template>
