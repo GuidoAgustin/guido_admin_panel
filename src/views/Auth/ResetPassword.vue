@@ -30,7 +30,7 @@ export default {
     }
   }),
   mounted() {
-    this.form.token = this.$route.params.token
+    this.form.token = this.$route.query.token
   },
   methods: {
     resetPassword() {

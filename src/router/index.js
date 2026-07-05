@@ -55,7 +55,7 @@ const routes = [
         component: () => import('@/views/Auth/ForgotPassword.vue')
       },
       {
-        path: 'reset_password/:token',
+        path: 'reset_password',
         name: 'resetPassword',
         component: () => import('@/views/Auth/ResetPassword.vue')
       },
@@ -96,41 +96,41 @@ const routes = [
         path: 'adminpanel/reports',
         name: 'admin-reports',
         component: () => import('@/views/Ticketing/AdminPanel/ReportsSection.vue')
-      },
+      }
       // ...aquí puedes agregar más rutas hijas bajo DashboardLayout...{
-  //       path: 'dashboard',
-  //       name: 'dashboard',
-  //       component: () => import('@/views/Dashboard/Dashboard.vue')
-  //     },
-  //     {
-  //       path: 'forms',
-  //       name: 'forms',
-  //       component: () => import('@/views/UI/Forms.vue')
-  //     },
-  //     {
-  //       path: 'tables',
-  //       name: 'tables',
-  //       component: () => import('@/views/UI/Tables.vue')
-  //     },
-  //     {
-  //       path: 'modals',
-  //       name: 'modals',
-  //       component: () => import('@/views/UI/Modals.vue')
-  //     },
-  //     {
-  //       path: 'tabs',
-  //       name: 'tabs',
-  //       component: () => import('@/views/UI/Tabs.vue')
-  //     },
-  //     {
-  //       path: 'opciones',
-  //       name: 'opciones',
-  //       component: () => import('@/views/Dashboard/Options.vue')
-  //     },
-  //     // E-Commerce y ticketing se movieron a rutas públicas, por lo que se eliminan de aquí
-  //   ]
-  // },
-      ]
+      //       path: 'dashboard',
+      //       name: 'dashboard',
+      //       component: () => import('@/views/Dashboard/Dashboard.vue')
+      //     },
+      //     {
+      //       path: 'forms',
+      //       name: 'forms',
+      //       component: () => import('@/views/UI/Forms.vue')
+      //     },
+      //     {
+      //       path: 'tables',
+      //       name: 'tables',
+      //       component: () => import('@/views/UI/Tables.vue')
+      //     },
+      //     {
+      //       path: 'modals',
+      //       name: 'modals',
+      //       component: () => import('@/views/UI/Modals.vue')
+      //     },
+      //     {
+      //       path: 'tabs',
+      //       name: 'tabs',
+      //       component: () => import('@/views/UI/Tabs.vue')
+      //     },
+      //     {
+      //       path: 'opciones',
+      //       name: 'opciones',
+      //       component: () => import('@/views/Dashboard/Options.vue')
+      //     },
+      //     // E-Commerce y ticketing se movieron a rutas públicas, por lo que se eliminan de aquí
+      //   ]
+      // },
+    ]
   }
 ]
 
@@ -141,27 +141,27 @@ const router = createRouter({
 // 🔥 EL PATOVICA DEL FRONTEND (Navigation Guard)
 router.beforeEach((to, from, next) => {
   // Leemos si hay alguien logueado desde el localStorage (que tu auth.js ya guarda ahí)
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
+  const token = localStorage.getItem('token')
+  const userStr = localStorage.getItem('user')
+  const user = userStr ? JSON.parse(userStr) : null
 
   // 1. ¿La ruta pide estar logueado y NO hay token? Afuera.
   if (to.meta.requiresAuth && !token) {
-    return next({ name: 'login' });
+    return next({ name: 'login' })
   }
 
   // 2. ¿La ruta pide ser ADMIN y el usuario no es admin? A la home.
   if (to.meta.requiresAdmin && (!user || user.rol !== 'admin')) {
-    return next({ name: 'home' });
+    return next({ name: 'home' })
   }
 
   // 🔥 3. ¿La ruta pide ser STAFF y el usuario no es ni admin ni portero? A la home.
   if (to.meta.requiresStaff && (!user || (user.rol !== 'admin' && user.rol !== 'portero'))) {
-    return next({ name: 'home' });
+    return next({ name: 'home' })
   }
 
   // 4. Si todo está en orden, lo dejamos pasar
-  next();
-});
+  next()
+})
 
 export default router
