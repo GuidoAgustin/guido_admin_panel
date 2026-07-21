@@ -2,11 +2,45 @@
   <div class="ticket-page-container">
     <Topbar />
 
-    <header class="page-header container d-flex align-items-center justify-content-between">
-      <div>
+    <!-- 🌟 HEADER CON BUSCADOR INTEGRADO (FLEXBOX PURO) -->
+    <header class="page-header container d-flex align-items-center justify-content-between flex-wrap gap-3 my-4">
+      
+      <!-- Lado Izquierdo: Títulos originales (sin estilos forzados) -->
+      <div class="header-titles">
         <h1>Nuestros Próximos Eventos</h1>
         <p>Explora nuestra selección de eventos y asegura tu lugar. ¡Vive experiencias inolvidables!</p>
       </div>
+
+      <!-- Lado Derecho: 🔍 Buscador Compacto Robusto -->
+      <div class="search-container" style="max-width: 350px; width: 100%;">
+        <!-- Contenedor blanco con flexbox estricto -->
+        <div class="d-flex align-items-center bg-white shadow-sm" style="border-radius: 8px; padding: 0.35rem 1rem; border: 1px solid #e2e8f0;">
+          
+          <!-- Ícono de la lupa -->
+          <i class="fas fa-search" style="color: #6c757d;"></i>
+
+          <!-- Input de texto -->
+          <input 
+            type="text" 
+            class="form-control border-0 shadow-none bg-transparent" 
+            v-model="searchQuery" 
+            placeholder="Buscar evento, tipo, lugar..."
+            style="font-size: 0.95rem; color: #333; flex-grow: 1; padding-left: 12px;"
+          >
+
+          <!-- Botón de limpiar la cruz -->
+          <button 
+            v-if="searchQuery" 
+            class="btn btn-link text-muted p-0 border-0" 
+            @click="searchQuery = ''"
+            style="text-decoration: none;"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+          
+        </div>
+      </div>
+
     </header>
 
     <div class="ticket-layout container">
@@ -21,15 +55,18 @@
           <p>{{ error }}</p>
         </div>
 
-        <div v-else-if="!tickets || tickets.length === 0" class="no-results">
+        <!-- 👇 Ahora validamos contra filteredTickets -->
+        <div v-else-if="!filteredTickets || filteredTickets.length === 0" class="no-results">
           <i class="fas fa-sad-tear"></i>
-          <p>No se encontraron eventos disponibles.</p>
+          <p v-if="searchQuery">No encontramos eventos que coincidan con "{{ searchQuery }}".</p>
+          <p v-else>No se encontraron eventos disponibles.</p>
         </div>
 
         <div class="tickets-grid" v-else>
+          <!-- 👇 Acá está la magia: iteramos filteredTickets en vez de tickets -->
           <div
             class="ticket-card"
-            v-for="ticket in tickets"
+            v-for="ticket in filteredTickets"
             :key="ticket.evento_id"
           >
             <div class="ticket-image-container">
@@ -70,14 +107,12 @@
             </div>
 
             <div class="ticket-purchase-section">
-              <!-- CONTENEDOR DEL PRECIO LIMPIO -->
               <div v-if="ticket.precio_minimo !== undefined" class="price-container">
                 <span class="price-label">DESDE</span>
                 <span class="price-amount">${{ formatPrice(ticket.precio_minimo) }}</span>
               </div>
               <div v-else></div>
               
-              <!-- BOTÓN -->
               <button
                 class="btn btn-primary fw-bold shadow-sm"
                 @click="prepararCompra(ticket)"
@@ -119,6 +154,7 @@ export default {
   components: { Topbar, Modals, SiteFooter },
   data() {
     return {
+      searchQuery: '', // 👈 La memoria de lo que escribe el usuario
       showBuyModal: false,
       showRegisterModal: false,
       ticketSeleccionado: null,     
@@ -127,6 +163,25 @@ export default {
   },
   computed: {
     ...mapGetters(['tickets', 'loading', 'error']),
+    
+    // 🧠 EL MOTOR DE BÚSQUEDA EN TIEMPO REAL
+    filteredTickets() {
+      if (!this.tickets) return [];
+      
+      // Si la barra está vacía, devolvemos todo intacto
+      if (!this.searchQuery.trim()) return this.tickets;
+
+      const termino = this.searchQuery.toLowerCase().trim();
+
+      return this.tickets.filter(ticket => {
+        return (
+          (ticket.nombre_evento && ticket.nombre_evento.toLowerCase().includes(termino)) ||
+          (ticket.lugar_nombre && ticket.lugar_nombre.toLowerCase().includes(termino)) ||
+          (ticket.categoria && ticket.categoria.toLowerCase().includes(termino)) ||
+          (ticket.descripcion && ticket.descripcion.toLowerCase().includes(termino))
+        );
+      });
+    }
   },
   mounted() {
     this.fetchTickets();
@@ -154,13 +209,11 @@ export default {
       return ahora >= inicio && fin && ahora <= fin;
     },
 
-    // ✨ UX: Formateamos el precio para que no tenga decimales si no los necesita y use puntos
     formatPrice(price) {
       if (!price) return '0';
       return Math.round(price).toLocaleString('es-AR');
     },
 
-    // ✨ UX: Fechas legibles (ej: "25 de mayo de 2026, 20:00")
     formatDate(dateString) {
       if (!dateString) return '—';
       const options = {
@@ -202,4 +255,10 @@ export default {
 <style>
 /* Importamos el archivo base original sin tocarlo */
 @import '@/assets/scss/_ticketing.scss';
+
+/* Un toque de magia extra para que el buscador no tenga ese borde azul feo de Chrome */
+.input-group input:focus {
+  outline: none;
+  box-shadow: none;
+}
 </style>
