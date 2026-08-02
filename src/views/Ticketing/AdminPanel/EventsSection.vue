@@ -32,7 +32,14 @@
               <li class="mb-2"><i class="fa-solid fa-location-dot text-muted me-2"></i> {{ event.lugar_nombre }}</li>
               <li class="mb-2" v-if="event.precio_minimo != null"><i class="fa-solid fa-tag text-muted me-2"></i> Precio Base: <strong class="text-success">${{ formatNumber(Math.round(event.precio_minimo)) }}</strong></li>
             </ul>
-
+            <button 
+              class="btn w-100 mb-2 fw-bold shadow-sm d-flex justify-content-center align-items-center"
+              :class="event.estado_evento === 'borrador' ? 'btn-success' : 'btn-outline-warning'"
+              @click="toggleVisibility(event)"
+            >
+              <i class="fa-solid me-2" :class="event.estado_evento === 'borrador' ? 'fa-eye' : 'fa-eye-slash'"></i>
+              {{ event.estado_evento === 'borrador' ? 'Publicar Evento' : 'Ocultar (Borrador)' }}
+            </button>
             <div class="d-flex gap-2 mt-auto pt-3 border-top border-secondary">
               <button class="btn btn-outline-light w-50 fw-bold shadow-sm" @click="handleEditEvent(event)">
                 <i class="fa-solid fa-pen-to-square me-1"></i> Editar
@@ -119,6 +126,33 @@ export default {
 
     handleEventSaved() {
       this.showCreateOrEditModal = false;
+    },
+
+    // 👇 NUEVO MÉTODO PARA EL BOTÓN 👇
+    async toggleVisibility(event) {
+      const nuevoEstado = event.estado_evento === 'borrador' ? 'disponible' : 'borrador';
+      
+      try {
+        const updateData = {
+          estado_evento: nuevoEstado
+        };
+
+        // 👇 ACÁ ESTÁ LA MAGIA: Ajustamos los pines para que encajen perfecto en Vuex
+        await this.$store.dispatch('updateEventoAction', { 
+          eventoId: event.evento_id,    // Cambiamos evento_id por eventoId
+          eventoData: updateData        // Cambiamos eventData por eventoData
+        });
+
+        if (this.$toast) {
+          this.$toast.success(nuevoEstado === 'borrador' ? 'Evento ocultado de la tienda.' : '¡Evento publicado con éxito!');
+        }
+        
+        this.fetchTickets();
+        
+      } catch (err) {
+        if (this.$toast) this.$toast.error('Error al cambiar la visibilidad.');
+        console.error(err);
+      }
     },
   }
 }

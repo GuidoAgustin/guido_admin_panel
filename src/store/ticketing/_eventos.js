@@ -51,11 +51,13 @@ state: () => ({
     },
   },
   actions: {
-    async fetchTickets({ commit }) {
+    // Actualizamos fetchTickets para que soporte parámetros de consulta
+    async fetchTickets({ commit }, params = {}) {
       commit('SET_LOADING', true)
       commit('SET_ERROR', null)
       try {
-        const { data } = await this.$clients.api.get('eventos')
+        // 👇 Axios enviará ?publico=true a la URL si se lo mandamos
+        const { data } = await this.$clients.api.get('eventos', { params })
         commit('SET_TICKETS', data.data)
       } catch (err) {
         commit('SET_ERROR', 'Error al cargar eventos')
@@ -219,15 +221,10 @@ state: () => ({
           }
         })
         await dispatch('fetchTickets') // <-- Agregado: refresca eventos tras compra
-        return Promise.resolve(data.data)
+        return data.data // Resolvemos la data limpia
       } catch (err) {
-        const errorMessage =
-          err.response?.data?.message || err.message || 'Error al iniciar el proceso de compra.'
-        commit('SET_ERROR', errorMessage)
-        if (this.$errorHandler) {
-          this.$errorHandler(err)
-        }
-        return Promise.reject(new Error(errorMessage))
+        commit('SET_ERROR', err.response?.data?.message || err.message)
+        throw err;
       } finally {
         commit('HIDE_LOADER')
       }

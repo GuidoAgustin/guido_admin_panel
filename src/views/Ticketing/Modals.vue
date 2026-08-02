@@ -165,7 +165,8 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchTipos', 'iniciarCompraAction', 'pagarOrden']),
+    // 👇 1. Agregamos fetchTickets al mapActions para poder recargar la página
+    ...mapActions(['fetchTipos', 'iniciarCompraAction', 'pagarOrden', 'fetchTickets']),
     
     formatPrice(price) {
       if (!price) return '0';
@@ -195,7 +196,6 @@ export default {
       }
     },
 
-    // ✨ NUEVA FUNCIÓN: Arma la lista de items leyendo el State directamente
     buildItemsPayload() {
       const items = [];
       this.tiposPorEvento.forEach((tipo) => {
@@ -212,7 +212,6 @@ export default {
       return items;
     },
 
-    // ✨ LA FUNCIÓN MAESTRA QUE EJECUTA LA COMPRA O GUARDA EN CARRITO
     async proceedWithAction(accion) {
       const itemsToConfirm = this.buildItemsPayload();
 
@@ -272,7 +271,30 @@ export default {
           throw new Error("No se obtuvo el link de Mercado Pago")
         }
       } catch (error) {
-        if (this.$toast) this.$toast.error(error.message || 'Hubo un problema al procesar tu solicitud.')
+        
+        const status = error.response?.status;
+        
+        // Vamos a buscar el mensaje en todos los bolsillos posibles por si `getResponseCustom` lo esconde
+        const data = error.response?.data;
+        let mensajeBackend = error.message || 'Hubo un problema al procesar tu solicitud.';
+
+        if (data) {
+          // Buscamos en .message, .msg, o si la data es directamente un string
+          mensajeBackend = data.message || data.msg || data.error || (typeof data === 'string' ? data : mensajeBackend);
+        }
+
+        if (status === 403 || status === 409) {
+          // Si el mensaje sigue diciendo "forbidden" (el genérico de Axios), lo pisamos con uno lindo nuestro
+          if (mensajeBackend.toLowerCase().includes('forbid')) {
+            mensajeBackend = "La venta para este evento ya se encuentra cerrada.";
+          }
+          
+          if (this.$toast) this.$toast.warning(`Aviso: ${mensajeBackend}`);
+          this.onClose(); 
+          this.fetchTickets({ publico: true }); 
+        } else {
+          if (this.$toast) this.$toast.error(`Error: ${mensajeBackend}`);
+        }
       } finally {
         this.purchaseLoading = false;
       }

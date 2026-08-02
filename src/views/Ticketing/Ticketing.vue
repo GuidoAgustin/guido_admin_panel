@@ -184,7 +184,7 @@ export default {
     }
   },
   mounted() {
-    this.fetchTickets();
+    this.fetchTickets({ publico: true });
   },
   methods: {
     ...mapActions(['fetchTickets']),
