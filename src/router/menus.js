@@ -25,6 +25,11 @@ export default [
     to: '/adminpanel/reports'
   },
   {
+    icon: 'fa-solid fa-clock-rotate-left', // 📈
+    title: 'Historial',
+    to: '/adminpanel/history'
+  },
+  {
     icon: 'fa-solid fa-arrow-left', // <-
     title: 'Atras',
     to: '/ticketing'

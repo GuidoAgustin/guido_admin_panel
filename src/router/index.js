@@ -96,6 +96,11 @@ const routes = [
         path: 'adminpanel/reports',
         name: 'admin-reports',
         component: () => import('@/views/Ticketing/AdminPanel/ReportsSection.vue')
+      },
+      {
+        path: 'adminpanel/history',
+        name: 'admin-history',
+        component: () => import('@/views/Ticketing/AdminPanel/HistorySection.vue')
       }
       // ...aquí puedes agregar más rutas hijas bajo DashboardLayout...{
       //       path: 'dashboard',

@@ -24,6 +24,7 @@
             type="text" 
             class="form-control border-0 shadow-none bg-transparent" 
             v-model="searchQuery" 
+            @keyup.enter="handleSearch"
             placeholder="Buscar evento, tipo, lugar..."
             style="font-size: 0.95rem; color: #333; flex-grow: 1; padding-left: 12px;"
           >
@@ -32,7 +33,7 @@
           <button 
             v-if="searchQuery" 
             class="btn btn-link text-muted p-0 border-0" 
-            @click="searchQuery = ''"
+            @click="clearSearch"
             style="text-decoration: none;"
           >
             <i class="fas fa-times"></i>
@@ -56,17 +57,18 @@
         </div>
 
         <!-- 👇 Ahora validamos contra filteredTickets -->
-        <div v-else-if="!filteredTickets || filteredTickets.length === 0" class="no-results">
+        <!-- 🛡️ Validamos directo contra la Caja Fuerte del backend -->
+        <div v-else-if="!tickets?.data || tickets.data.length === 0" class="no-results">
           <i class="fas fa-sad-tear"></i>
           <p v-if="searchQuery">No encontramos eventos que coincidan con "{{ searchQuery }}".</p>
           <p v-else>No se encontraron eventos disponibles.</p>
         </div>
 
         <div class="tickets-grid" v-else>
-          <!-- 👇 Acá está la magia: iteramos filteredTickets en vez de tickets -->
+          <!-- 📦 Dibujamos las porciones sacadas de la caja fuerte -->
           <div
             class="ticket-card"
-            v-for="ticket in filteredTickets"
+            v-for="ticket in tickets?.data || []"
             :key="ticket.evento_id"
           >
             <div class="ticket-image-container">
@@ -100,7 +102,8 @@
                 </p>
                 <p>
                   <i class="fas fa-info-circle"></i>
-                  Estado: <strong>{{ ticket.estado_evento.toUpperCase() }}</strong>
+                  <!-- 🛡️ ESCUDO ACTIVADO: El ?. evita crasheos si estado_evento no existe -->
+                  Estado: <strong>{{ ticket.estado_evento?.toUpperCase() || 'DESCONOCIDO' }}</strong>
                   <span v-if="estaEnCurso(ticket)" class="badge bg-warning text-dark ms-2"><i class="fas fa-fire"></i> Último Minuto</span>
                 </p>
               </div>
@@ -123,6 +126,19 @@
             </div>
           </div>
         </div>
+
+        <!-- 🧭 EL PAGINADOR DE NIVEL ENTERPRISE (Inyectado al final de la grilla) -->
+        <div class="d-flex justify-content-center mt-5 mb-3" v-if="tickets?.data?.length">
+          <SimplePager 
+            :from="tickets.from"
+            :to="tickets.to"
+            :total="tickets.total"
+            :lastPage="tickets.last_page"
+            :actualPage="tickets.current_page"
+            @change="changePage"
+          />
+        </div>
+
       </main>
     </div>
 
@@ -148,46 +164,60 @@ import { mapGetters, mapActions } from 'vuex';
 import Topbar from '@/components/Topbar.vue';
 import Modals from './Modals.vue'; 
 import SiteFooter from '@/components/SiteFooter.vue';
+import SimplePager from '@/components/SimplePager.vue'; // 👈 IMPORTAMOS EL PAGINADOR
 
 export default {
   name: 'TicketPage',
-  components: { Topbar, Modals, SiteFooter },
+  components: { Topbar, Modals, SiteFooter, SimplePager }, // 👈 LO REGISTRAMOS ACÁ
   data() {
     return {
-      searchQuery: '', // 👈 La memoria de lo que escribe el usuario
+      searchQuery: '', 
       showBuyModal: false,
       showRegisterModal: false,
       ticketSeleccionado: null,     
-      selectedImageUrl: null
+      selectedImageUrl: null,
+      currentPage: 1 // 👈 MEMORIA PARA LA PÁGINA ACTUAL
     };
   },
   computed: {
     ...mapGetters(['tickets', 'loading', 'error']),
-    
-    // 🧠 EL MOTOR DE BÚSQUEDA EN TIEMPO REAL
-    filteredTickets() {
-      if (!this.tickets) return [];
-      
-      // Si la barra está vacía, devolvemos todo intacto
-      if (!this.searchQuery.trim()) return this.tickets;
-
-      const termino = this.searchQuery.toLowerCase().trim();
-
-      return this.tickets.filter(ticket => {
-        return (
-          (ticket.nombre_evento && ticket.nombre_evento.toLowerCase().includes(termino)) ||
-          (ticket.lugar_nombre && ticket.lugar_nombre.toLowerCase().includes(termino)) ||
-          (ticket.categoria && ticket.categoria.toLowerCase().includes(termino)) ||
-          (ticket.descripcion && ticket.descripcion.toLowerCase().includes(termino))
-        );
-      });
-    }
   },
+    
   mounted() {
-    this.fetchTickets({ publico: true });
+    this.fetchData(); // 👈 LLAMAMOS A NUESTRA NUEVA FUNCIÓN EN LUGAR DE FETCHTICKETS DIRECTO
   },
   methods: {
     ...mapActions(['fetchTickets']),
+
+    // 📡 CONTROLADOR CENTRAL DE DATOS (Tsunami Mode activado)
+    fetchData() {
+      this.fetchTickets({ 
+        publico: true, 
+        page: this.currentPage, 
+        per_page: 9,     // Le pedimos exactamente 9 al backend
+        search: this.searchQuery // Opcional: Si tu backend soporta búsqueda global, esto le avisa
+      });
+    },
+
+    // 🔄 FUNCIÓN PARA CAMBIAR DE PÁGINA
+    changePage(newPage) {
+      this.currentPage = newPage;
+      this.fetchData();
+      // UX Premium: Llevamos al usuario arriba suavecito al cambiar de página
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    // 🔍 FUNCIONES PARA EL BUSCADOR (Disparan la búsqueda contra el backend)
+    handleSearch() {
+      this.currentPage = 1; // Resetea a la pág 1 para no buscar en páginas vacías
+      this.fetchData();
+    },
+
+    clearSearch() {
+      this.searchQuery = '';
+      this.currentPage = 1;
+      this.fetchData();
+    },
 
     puedeComprar(ticket) {
       if (ticket.estado_evento === 'disponible') return true;

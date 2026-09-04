@@ -7,6 +7,7 @@ import adminReportes from './adminTicketing/_reportes'
 import ventas from './adminTicketing/_ventas'
 import usuariosAdmin from './adminTicketing/_usuarios'
 import escaner from './adminTicketing/_escaner'
+import historial from './adminTicketing/_history'
 
 export default createStore({
   modules: {
@@ -17,6 +18,7 @@ export default createStore({
     adminReportes,
     ventas,
     usuariosAdmin,
-    escaner
+    escaner,
+    historial
   }
 })

@@ -70,7 +70,8 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+// 1. Invitamos a todos los VIP de Vuex (incluido mapGetters)
+import { mapState, mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'DashboardSection',
@@ -82,29 +83,20 @@ export default {
   computed: {
     ...mapState({
       ventas: state => state.ventas?.ventas || [],
-      
-      // 👇 1. LE APUNTAMOS AL NOMBRE CORRECTO EN TU VUEX (tickets en lugar de eventos) 👇
-      eventos: state => state.eventos?.tickets || [], 
-      
+      // Ya no necesitamos traer 'eventos' enteros acá para contarlos, el backend lo hace por nosotros 😎
       totalUsuariosRegistrados: state => state.usuariosAdmin?.totalUsuarios || 0
     }),
+    
+    // 2. Traemos el "post-it" con las estadísticas reales calculadas por Node+MySQL
+    ...mapGetters(['dashboardStats']),
 
+    // 3. Le pasamos los datos ultra limpios y ligeros a las tarjetitas
     stats() {
-      const ventasPagadas = this.ventas.filter(v => v.status && v.status.toLowerCase().includes('pagad'));
-      
-      const totalIngresos = ventasPagadas.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
-      const totalEntradas = ventasPagadas.reduce((acc, v) => acc + (Number(v.quantity) || 0), 0);
-      
-      // 👇 Filtra los eventos ahora que ya sabe cómo se llaman en tu State
-      // Las pasamos a minúsculas para que las encuentre sí o sí, sin importar cómo se guardaron
-      const activos = this.eventos.filter(e => e.estado_evento && e.estado_evento.toLowerCase().includes('disponible')).length;
-      const proximos = this.eventos.filter(e => e.estado_evento && e.estado_evento.toLowerCase().includes('proxima')).length;
-
       return {
-        totalTickets: totalEntradas,
-        totalRevenue: totalIngresos,
-        activeEvents: activos,
-        upcomingEvents: proximos,
+        totalTickets: this.dashboardStats?.totalTickets || 0,
+        totalRevenue: this.dashboardStats?.totalRevenue || 0,
+        activeEvents: this.dashboardStats?.activeEvents || 0,
+        upcomingEvents: this.dashboardStats?.upcomingEvents || 0,
         totalUsers: this.totalUsuariosRegistrados 
       };
     },
@@ -129,11 +121,9 @@ export default {
     }
   },
   methods: {
+    // 4. Mapeamos todas las acciones necesarias de los distintos módulos
     ...mapActions('ventas', ['fetchVentasAction']),
-    
-    // 👇 2. LE APUNTAMOS AL NOMBRE CORRECTO DE LA ACCIÓN 👇
-    ...mapActions( ['fetchTickets']),
-    
+    ...mapActions(['fetchTickets', 'fetchDashboardStats']), // <-- Acciones globales
     ...mapActions('usuariosAdmin', ['fetchTotalUsersAction']),
 
     formatNumber(value) {
@@ -146,19 +136,19 @@ export default {
     }
   },
   async mounted() {
-    await this.fetchVentasAction();
-    
+    // 5. 🌊 TSUNAMI MODE NETWORK ACTIVADO: Promise.all
+    // En lugar de esperar a que termine una petición para arrancar la otra,
+    // disparamos las 4 peticiones a la API AL MISMO TIEMPO. 
+    // ¡Tu dashboard va a cargar a la velocidad de la luz! ⚡
     try { 
-      // 👇 3. LLAMAMOS A LA ACCIÓN CORRECTA 👇
-      await this.fetchTickets(); 
+      await Promise.all([
+        this.fetchVentasAction(),
+        this.fetchTickets(),
+        this.fetchTotalUsersAction(),
+        this.fetchDashboardStats() // Pide los numeritos del post-it
+      ]);
     } catch(e) { 
-      console.error("Error al cargar eventos automáticamente:", e); 
-    }
-    
-    try {
-      await this.fetchTotalUsersAction();
-    } catch(e) {
-      console.error("Error al cargar el total de usuarios:", e);
+      console.error("Error al cargar el Dashboard:", e); 
     }
   }
 }

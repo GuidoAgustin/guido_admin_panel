@@ -1,17 +1,18 @@
 export default {
-state: () => ({
-  // Tu estado original
-  tickets: [],
-  loading: false,
-  error: null,
-  tipos: [],
-  loadingTipos: false,
-  errorTipos: null,
-  totalUsers: 0,
+  state: () => ({
+    // Tu estado original
+    tickets: [],
+    loading: false,
+    error: null,
+    tipos: [],
+    loadingTipos: false,
+    errorTipos: null,
+    totalUsers: 0,
 
-  // 👇 EL ESTADO QUE FALTA PARA EL DASHBOARD 👇
-  recentActivities: []
-}),
+    // 👇 EL ESTADO QUE FALTA PARA EL DASHBOARD 👇
+    recentActivities: [],
+    dashboardStats: { activeEvents: 0, upcomingEvents: 0, totalRevenue: 0, totalTickets: 0 }
+  }),
   mutations: {
     SET_TICKETS(state, tickets) {
       state.tickets = tickets
@@ -37,18 +38,21 @@ state: () => ({
     HIDE_LOADER(state) {
       state.loading = false
     },
-      SET_USERS(state, users) {
-    state.users = users;
-  },
-  SET_LOADING_USERS(state, loading) {
-    state.loadingUsers = loading;
-  },
-  SET_ERROR_USERS(state, error) {
-    state.errorUsers = error;
-  },
-  SET_TOTAL_USERS(state, total) {
-      state.totalUsers = total;
+    SET_USERS(state, users) {
+      state.users = users
     },
+    SET_LOADING_USERS(state, loading) {
+      state.loadingUsers = loading
+    },
+    SET_ERROR_USERS(state, error) {
+      state.errorUsers = error
+    },
+    SET_TOTAL_USERS(state, total) {
+      state.totalUsers = total
+    },
+    SET_DASHBOARD_STATS(state, stats) {
+      state.dashboardStats = stats
+    }
   },
   actions: {
     // Actualizamos fetchTickets para que soporte parámetros de consulta
@@ -56,12 +60,12 @@ state: () => ({
       commit('SET_LOADING', true)
       commit('SET_ERROR', null)
       try {
-        // 👇 Axios enviará ?publico=true a la URL si se lo mandamos
         const { data } = await this.$clients.api.get('eventos', { params })
+        // 🌊 TSUNAMI MODE: Guardamos el objeto paginado COMPLETO (La caja entera)
         commit('SET_TICKETS', data.data)
       } catch (err) {
         commit('SET_ERROR', 'Error al cargar eventos')
-        commit('SET_TICKETS', [])
+        commit('SET_TICKETS', {}) // 👈 Pasamos objeto vacío por si falla
       } finally {
         commit('SET_LOADING', false)
       }
@@ -224,44 +228,58 @@ state: () => ({
         return data.data // Resolvemos la data limpia
       } catch (err) {
         commit('SET_ERROR', err.response?.data?.message || err.message)
-        throw err;
+        throw err
       } finally {
         commit('HIDE_LOADER')
       }
     },
 
-      async fetchUsers({ commit, getters }, params = {}) {
-  commit('SET_LOADING_USERS', true);
-  commit('SET_ERROR_USERS', null);
-  try {
-    const queryParams = {};
-    
-    // --- Paginación y Búsqueda (Ya estaban) ---
-    if (params.page) queryParams.page = params.page;
-    if (params.per_page) queryParams.per_page = params.per_page;
-    if (params.search && params.search !== null) queryParams.search = params.search;
+    async fetchUsers({ commit, getters }, params = {}) {
+      commit('SET_LOADING_USERS', true)
+      commit('SET_ERROR_USERS', null)
+      try {
+        const queryParams = {}
 
-    // --- 👇 AGREGAR ESTO: Ordenamiento ---
-    if (params.sort_by) queryParams.sort_by = params.sort_by;
-    if (params.sort_dir) queryParams.sort_dir = params.sort_dir;
+        // --- Paginación y Búsqueda (Ya estaban) ---
+        if (params.page) queryParams.page = params.page
+        if (params.per_page) queryParams.per_page = params.per_page
+        if (params.search && params.search !== null) queryParams.search = params.search
 
-    const { data } = await this.$clients.api.get('users', {
-      params: queryParams, // Axios ahora enviará ?sort_by=email&sort_dir=asc
-      headers: {
-        Authorization: `Bearer ${getters.token}`
+        // --- 👇 AGREGAR ESTO: Ordenamiento ---
+        if (params.sort_by) queryParams.sort_by = params.sort_by
+        if (params.sort_dir) queryParams.sort_dir = params.sort_dir
+
+        const { data } = await this.$clients.api.get('users', {
+          params: queryParams, // Axios ahora enviará ?sort_by=email&sort_dir=asc
+          headers: {
+            Authorization: `Bearer ${getters.token}`
+          }
+        })
+
+        commit('SET_USERS', data.data.data)
+        commit('SET_TOTAL_USERS', data.data.total)
+      } catch (err) {
+        commit('SET_ERROR_USERS', 'Error al cargar usuarios')
+        commit('SET_USERS', [])
+        commit('SET_TOTAL_USERS', 0)
+      } finally {
+        commit('SET_LOADING_USERS', false)
       }
-    });
+    },
 
-    commit('SET_USERS', data.data.data);
-    commit('SET_TOTAL_USERS', data.data.total);
-  } catch (err) {
-    commit('SET_ERROR_USERS', 'Error al cargar usuarios');
-    commit('SET_USERS', []);
-    commit('SET_TOTAL_USERS', 0);
-  } finally {
-    commit('SET_LOADING_USERS', false);
-  }
-},
+    // 👇 NUEVA ACCIÓN GIGANTE PARA EL DASHBOARD 👇
+    async fetchDashboardStats({ commit, getters }) {
+      try {
+        const { data } = await this.$clients.api.get('eventos/dashboard-stats/global', {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        });
+        
+        // data.data contiene el "post-it" con los 4 numeritos
+        commit('SET_DASHBOARD_STATS', data.data);
+      } catch (err) {
+        console.error('Error al traer estadísticas:', err);
+      }
+    },
   },
   getters: {
     tickets: (state) => state.tickets,
@@ -270,9 +288,10 @@ state: () => ({
     tipos: (state) => state.tipos,
     loadingTipos: (state) => state.loadingTipos,
     errorTipos: (state) => state.errorTipos,
+    dashboardStats: (state) => state.dashboardStats,
     formatNumber: () => (num) => {
-    if (typeof num !== 'number') return num;
-    return num.toLocaleString('es-AR');
-  }
+      if (typeof num !== 'number') return num
+      return num.toLocaleString('es-AR')
+    }
   }
 }
