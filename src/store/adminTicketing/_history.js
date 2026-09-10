@@ -63,6 +63,18 @@ export default {
         commit('SET_LOADING_HISTORY', false);
       }
     },
+    // ⚡ 3. LA LUPA DEL FORENSE (Traer stats de 1 solo evento)
+    async fetchSingleEventStats({ getters }, eventoId) {
+      try {
+        const { data } = await this.$clients.api.get(`eventos/${eventoId}/stats`, {
+          headers: { Authorization: `Bearer ${getters.token}` }
+        });
+        return data.data; // Devolvemos los números limpitos
+      } catch (err) {
+        console.error('Error al traer estadísticas del evento:', err);
+        return null; // Si falla, no rompemos la vista
+      }
+    },
   },
   
   getters: {
