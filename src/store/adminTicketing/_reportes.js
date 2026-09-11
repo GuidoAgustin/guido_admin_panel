@@ -1,7 +1,5 @@
-// Ruta: src/store/adminTicketing/_reportes.js
-
 export default {
-  namespaced: true, // 👈 ¡MAGIA! Aísla este archivo del resto
+  namespaced: true, 
 
   state: () => ({
     reports: {
@@ -12,7 +10,10 @@ export default {
       averageOccupancy: 0,
       cancellations: 0
     },
-    cargandoReportes: false
+    cargandoReportes: false,
+    
+    // 👇 NUEVO: Guardamos la lista de eventos en el estado global
+    eventosParaFiltro: [] 
   }),
 
   mutations: {
@@ -21,22 +22,54 @@ export default {
     },
     SET_LOADING(state, status) {
       state.cargandoReportes = status;
+    },
+    // 👇 NUEVO: Mutación para guardar la lista
+    SET_EVENTOS_FILTRO(state, eventos) {
+      state.eventosParaFiltro = eventos;
     }
   },
 
   actions: {
-    // 👇 1. Agregamos id_evento para que lo reciba correctamente
+    // 🛡️ Clean Architecture: La acción del Sabueso Inteligente
+   // 🛡️ Clean Architecture: La acción del Sabueso Inteligente (Versión Axios)
+    async fetchEventosFiltroAction({ commit, state }) {
+      // 🌊 Tsunami Mode (Caché): Si ya los cargamos, no volvemos a golpear la DB
+      if (state.eventosParaFiltro.length > 1) return; 
+
+      try {
+        // En vez de desestructurar con { data }, agarramos la respuesta completa
+        const response = await this.$clients.api.get('eventos');
+        const payload = response.data;
+
+        // 🐶 EL SABUESO NINJA (Clean Code de alta gama)
+        // Metemos todas las posibles ubicaciones en una lista y buscamos la primera que sea un Array real.
+        const sospechosos = [payload, payload?.data?.data, payload?.data, payload?.rows];
+        const eventosReales = sospechosos.find(Array.isArray) || [];
+
+        if (eventosReales.length === 0) {
+          console.warn("⚠️ El sabueso no encontró el Array:", payload);
+        }
+
+        const listaFinal = [
+          { evento_id: '', nombre_evento: 'Todos los eventos' },
+          ...eventosReales
+        ];
+
+        commit('SET_EVENTOS_FILTRO', listaFinal);
+      } catch (error) {
+        console.error("🔥 Error en Vuex cargando eventos para el filtro:", error);
+        commit('SET_EVENTOS_FILTRO', [{ evento_id: '', nombre_evento: 'Todos los eventos' }]);
+      }
+    },
+
     async fetchReportesAction({ commit, rootGetters }, { start, end, id_evento }) {
       commit('SET_LOADING', true);
       try {
         const queryParams = {};
         if (start) queryParams.start = start;
         if (end) queryParams.end = end;
-        
-        // 👇 2. Lo sumamos a la URL si es que el usuario eligió uno
         if (id_evento) queryParams.id_evento = id_evento;
 
-        // Vamos a buscar los datos usando el token del usuario que está en el core/_auth
         const { data } = await this.$clients.api.get('admin/reportes', {
           params: queryParams,
           headers: { Authorization: `Bearer ${rootGetters.token}` }

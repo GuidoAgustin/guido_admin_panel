@@ -203,14 +203,14 @@ export default {
         end: null
       },
       eventoSeleccionado: '',
-      listaEventos: [],
       mostrarPlataMejorEvento: false,
       menuExportarAbierto: false
     }
   },
   computed: {
     ...mapState({
-      reports: (state) => state.adminReportes.reports
+      reports: (state) => state.adminReportes.reports,
+      listaEventos: (state) => state.adminReportes.eventosParaFiltro
     }),
     ...mapGetters(['formatNumber']),
 
@@ -309,20 +309,9 @@ export default {
       }
     },
 
+    // 🛡️ Clean Architecture: El Mozo solo delega el trabajo a la cocina
     async cargarListaEventos() {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}eventos`)
-        const data = await response.json()
-
-        const eventosReales = data.data || data.eventos || data
-
-        this.listaEventos = [
-          { evento_id: '', nombre_evento: 'Todos los eventos' },
-          ...eventosReales
-        ]
-      } catch (error) {
-        console.error('Error cargando la lista de eventos:', error)
-      }
+      await this.$store.dispatch('adminReportes/fetchEventosFiltroAction');
     },
 
     async cargarReportes() {
@@ -419,7 +408,7 @@ export default {
         this.exportarReporteCSV();
       }
     },
-  }
+  }  
 }
 </script>
 
