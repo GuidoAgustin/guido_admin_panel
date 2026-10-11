@@ -39,21 +39,32 @@
       </div>
 
       <div v-if="tabActual === 'ticketing'" class="animate__animated animate__fadeIn">
-        
         <div class="mb-5">
           <h4 class="text-warning border-bottom border-secondary pb-2 mb-4">
             <i class="fa-solid fa-cart-shopping me-2"></i> Entradas por Pagar
           </h4>
-          
-          <div v-if="carritoLocalEntradas.length > 0" class="d-flex align-items-start mb-4 p-3" style="border-left: 4px solid #ffc107; background: transparent;">
+
+          <div
+            v-if="carritoLocalEntradas.length > 0"
+            class="d-flex align-items-start mb-4 p-3"
+            style="border-left: 4px solid #ffc107; background: transparent"
+          >
             <i class="fa-solid fa-triangle-exclamation fa-2x me-3 text-warning"></i>
             <div>
-              <strong class="d-block mb-1 text-warning">¡Importante! El carrito no reserva tu lugar.</strong>
-              <small class="text-light opacity-75">El stock solo se asegura al confirmar el pago. Si el evento se agota o cierra ventas, estas entradas se eliminarán automáticamente.</small>
+              <strong class="d-block mb-1 text-warning"
+                >¡Importante! El carrito no reserva tu lugar.</strong
+              >
+              <small class="text-light opacity-75"
+                >El stock solo se asegura al confirmar el pago. Si el evento se agota o cierra
+                ventas, estas entradas se eliminarán automáticamente.</small
+              >
             </div>
           </div>
 
-          <div v-if="carritoLocalEntradas.length === 0" class="text-center py-4 bg-dark rounded border border-secondary shadow-sm">
+          <div
+            v-if="carritoLocalEntradas.length === 0"
+            class="text-center py-4 bg-dark rounded border border-secondary shadow-sm"
+          >
             <i class="fa-solid fa-cart-arrow-down fa-3x text-muted mb-3"></i>
             <h5 class="text-white">Tu carrito está vacío</h5>
             <p class="text-muted small mb-4">Asegurá tu lugar antes de que se agoten.</p>
@@ -76,7 +87,7 @@
                       class="btn btn-sm border-0 bg-transparent"
                       @click="eliminarDelCarritoLocal(entrada.id_local)"
                       title="Eliminar del carrito"
-                      style="margin-top: -5px; margin-right: -5px; color: #ff4d4d;"
+                      style="margin-top: -5px; margin-right: -5px; color: #ff4d4d"
                     >
                       <i class="fa-solid fa-trash fa-lg"></i>
                     </button>
@@ -85,17 +96,28 @@
                     <i class="fa-regular fa-calendar me-2"></i>{{ formatearFecha(entrada.fecha) }}
                   </p>
 
-                 <div class="mt-3 mb-4">
-                    <div v-for="item in entrada.items" :key="item.id_tipo_entrada" class="mb-2" style="font-size: 0.95rem;">
-                      <i class="fa-solid fa-ticket text-warning" style="margin-right: 8px;"></i>
-                      <strong class="text-white">{{ item.cantidad }}x</strong> 
-                      <span class="text-light" style="margin: 0 10px;">{{ item.nombre_tipo_original }}</span>
+                  <div class="mt-3 mb-4">
+                    <div
+                      v-for="item in entrada.items"
+                      :key="item.id_tipo_entrada"
+                      class="mb-2"
+                      style="font-size: 0.95rem"
+                    >
+                      <i class="fa-solid fa-ticket text-warning" style="margin-right: 8px"></i>
+                      <strong class="text-white">{{ item.cantidad }}x</strong>
+                      <span class="text-light" style="margin: 0 10px">{{
+                        item.nombre_tipo_original
+                      }}</span>
                       <span class="text-muted">(${{ formatPrice(item.precio_unitario) }} c/u)</span>
                     </div>
                   </div>
 
-                  <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary">
-                    <h5 class="mb-0 fw-bold text-white">Total: <span class="text-success">${{ formatPrice(entrada.total) }}</span></h5>
+                  <div
+                    class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary"
+                  >
+                    <h5 class="mb-0 fw-bold text-white">
+                      Total: <span class="text-success">${{ formatPrice(entrada.total) }}</span>
+                    </h5>
                     <button
                       @click="iniciarPagoDesdeCarritoLocal(entrada)"
                       class="btn btn-success rounded-pill px-4 fw-bold shadow-sm"
@@ -113,40 +135,96 @@
           <h4 class="text-success border-bottom border-secondary pb-2 mb-4">
             <i class="fa-solid fa-ticket me-2"></i> Mis Próximos Eventos
           </h4>
-          
+
           <div v-if="entradasProximas.length === 0" class="text-white small px-2">
             No tenés eventos próximos confirmados.
           </div>
 
           <div class="row">
+            <!-- 🔄 CAMBIO: Ahora iteramos sobre ordenesAgrupadas -->
             <div
-              v-for="entrada in entradasProximas.slice(0, limiteProximas)"
-              :key="entrada.id"
+              v-for="orden in ordenesAgrupadas.slice(0, limiteProximas)"
+              :key="orden.id_orden"
               class="col-md-6 mb-3"
             >
               <div class="card shadow-sm border-0 ticket-card pagada bg-dark text-white">
                 <div class="card-body">
-                  <div class="d-flex justify-content-between mb-2">
-                    <h5 class="card-title mb-0 fw-bold">{{ entrada.evento }}</h5>
-                    <span class="badge bg-success d-flex align-items-center"><i class="fas fa-check-circle me-1"></i> Confirmado</span>
+                  <div class="d-flex justify-content-between mb-2 align-items-start">
+                    <h5 class="card-title mb-0 fw-bold">{{ orden.evento }}</h5>
+                    <span class="badge bg-success d-flex align-items-center mb-1">
+                      <i class="fas fa-check-circle me-1"></i> Pagado
+                    </span>
                   </div>
+                  
                   <p class="mb-1 text-muted small">
-                    <i class="fa-regular fa-calendar me-2"></i>{{ formatearFecha(entrada.fecha) }}
+                    <i class="fa-regular fa-calendar me-2"></i>{{ formatearFecha(orden.fecha) }}
                   </p>
                   
-                  <p class="mb-3 text-muted small">
-                    <i class="fa-solid fa-hashtag me-2"></i>Ticket ID:
-                    <strong class="text-white">{{ shortCode(entrada.codigo) }}</strong>
+                  <p class="mb-3 text-info small">
+                    <i class="fa-solid fa-ticket me-2"></i>
+                    <strong>{{ orden.cantidad_tickets }} entradas confirmadas</strong>
                   </p>
                   
-                  <div class="border-top border-secondary pt-3 mt-3 text-end">
+                  <div class="border-top border-secondary pt-3 mt-3 d-flex flex-column gap-2">
+                    
+                    <!-- Menú Desplegable de Descargas -->
+<div class="dropdown w-100">
+  <!-- 🔽 BOTÓN PARA ABRIR/CERRAR EL MENÚ DE DESCARGAS 🔽 -->
+<button
+  @click="descargasAbiertasId = descargasAbiertasId === orden.id_orden ? null : orden.id_orden"
+  class="btn rounded-pill px-4 btn-sm w-100 fw-bold shadow-sm"
+  style="background-color: #2c3e38; color: #e9ecef; border: 1px solid #3d564e;"
+>
+  <i class="fa-solid" :class="descargasAbiertasId === orden.id_orden ? 'fa-chevron-up' : 'fa-file-pdf text-success'"></i> 
+  {{ descargasAbiertasId === orden.id_orden ? 'Ocultar Entradas' : 'Ver Entradas' }}
+</button>
+
+<!-- 🔽 EL PANEL DESPLEGABLE (Solo se muestra si hacés clic) 🔽 -->
+<div v-if="descargasAbiertasId === orden.id_orden" class="mt-2 p-3 rounded shadow-sm animate__animated animate__fadeIn" style="background-color: #1a2922; border: 1px solid #2a4136;">
+  <p class="text-muted small mb-3 text-center fw-bold">¿Qué querés descargar?</p>
+
+  <!-- Opción Masiva -->
+  <button 
+    @click="descargarTodas(orden)"
+    class="btn btn-sm btn-success w-100 mb-3 fw-bold"
+  >
+    <i class="fa-solid fa-layer-group me-2"></i> Descargar Todas Juntas
+  </button>
+
+  <h6 class="text-secondary small mb-2 border-bottom border-secondary pb-1">Descargas Individuales:</h6>
+
+  <!-- Opción Individual (Iteramos los tickets adentro de la orden) -->
+  <div class="d-flex flex-column gap-2">
+    <button 
+      v-for="(ticket, index) in orden.tickets" 
+      :key="ticket.codigo"
+      @click="descargarTicket(ticket.codigo)"
+      class="btn btn-sm btn-outline-light d-flex justify-content-between align-items-center"
+      style="border-color: #3d564e;"
+    >
+      <span><i class="fa-solid fa-ticket text-muted me-2"></i> Entrada {{ index + 1 }}</span>
+      <i class="fa-solid fa-download text-success"></i>
+    </button>
+  </div>
+</div>
+<!-- 🔼 FIN DEL PANEL DESPLEGABLE 🔼 -->
+</div>
+
+                    <!-- 🛑 TSUNAMI MODE: El Botón Rojo Nuclear -->
                     <button
-                      @click="descargarTicket(entrada.codigo)"
+                      @click="anularOrden(orden.id_orden)" 
+                      :disabled="isCanceling && ordenCancelandoId === orden.id_orden"
                       class="btn rounded-pill px-4 btn-sm w-100 fw-bold shadow-sm"
-                      style="background-color: #2c3e38; color: #e9ecef; border: 1px solid #3d564e;"
+                      style="background-color: #3e2c2c; color: #ff6b6b; border: 1px solid #563d3d;"
                     >
-                      <i class="fa-solid fa-file-pdf me-2 text-danger"></i> Descargar PDF
+                      <span v-if="isCanceling && ordenCancelandoId === orden.id_orden">
+                        <i class="fa-solid fa-circle-notch fa-spin me-2"></i> Anulando compra...
+                      </span>
+                      <span v-else>
+                        <i class="fa-solid fa-ban me-2"></i> Anular Compra Completa
+                      </span>
                     </button>
+
                   </div>
                 </div>
               </div>
@@ -166,11 +244,17 @@
           <h4 class="text-warning border-bottom border-secondary pb-2 mb-4">
             <i class="fa-solid fa-cart-shopping me-2"></i> Carrito de Compras
           </h4>
-          
-          <div v-if="productosEnCarrito.length === 0" class="text-center py-4 bg-dark rounded border border-secondary shadow-sm">
+
+          <div
+            v-if="productosEnCarrito.length === 0"
+            class="text-center py-4 bg-dark rounded border border-secondary shadow-sm"
+          >
             <i class="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
             <h5 class="text-white">No hay productos en tu carrito</h5>
-            <button class="btn btn-primary rounded-pill px-4 fw-bold mt-2" @click="$router.push('/tienda')">
+            <button
+              class="btn btn-primary rounded-pill px-4 fw-bold mt-2"
+              @click="$router.push('/tienda')"
+            >
               Ir a la Tienda
             </button>
           </div>
@@ -181,13 +265,19 @@
                 <div class="card-body d-flex align-items-center py-3">
                   <div class="flex-grow-1">
                     <h6 class="mb-1 fw-bold text-warning">{{ prod.nombre }}</h6>
-                    <span class="small text-muted">Cant: {{ prod.cantidad }} | <strong class="text-white">${{ formatPrice(prod.total) }}</strong></span>
+                    <span class="small text-muted"
+                      >Cant: {{ prod.cantidad }} |
+                      <strong class="text-white">${{ formatPrice(prod.total) }}</strong></span
+                    >
                   </div>
                   <div class="d-flex gap-2">
                     <button class="btn btn-sm btn-outline-danger">
                       <i class="fa-solid fa-trash"></i>
                     </button>
-                    <button @click="iniciarPago(prod, 'producto')" class="btn btn-sm btn-success fw-bold">
+                    <button
+                      @click="iniciarPago(prod, 'producto')"
+                      class="btn btn-sm btn-success fw-bold"
+                    >
                       Pagar
                     </button>
                   </div>
@@ -217,7 +307,9 @@
                     <h6 class="card-title mb-0 fw-bold">Pedido #{{ pedido.id }}</h6>
                     <span class="badge bg-info text-dark">{{ pedido.estado_envio }}</span>
                   </div>
-                  <p class="mb-0 small text-muted">Comprado el: {{ formatearFecha(pedido.fecha) }}</p>
+                  <p class="mb-0 small text-muted">
+                    Comprado el: {{ formatearFecha(pedido.fecha) }}
+                  </p>
                   <div class="progress mt-3" style="height: 6px">
                     <div class="progress-bar bg-info" role="progressbar" style="width: 75%"></div>
                   </div>
@@ -229,12 +321,19 @@
       </div>
 
       <div v-if="tabActual === 'historial'" class="animate__animated animate__fadeIn">
-        <div class="row mb-4 align-items-center bg-dark text-white p-3 rounded border border-secondary mx-0 shadow-sm">
+        <div
+          class="row mb-4 align-items-center bg-dark text-white p-3 rounded border border-secondary mx-0 shadow-sm"
+        >
           <div class="col-md-6">
-            <p class="mb-0 fw-bold"><i class="fa-solid fa-filter me-2 text-primary"></i>Filtrar movimientos:</p>
+            <p class="mb-0 fw-bold">
+              <i class="fa-solid fa-filter me-2 text-primary"></i>Filtrar movimientos:
+            </p>
           </div>
           <div class="col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
-            <select class="form-select w-auto shadow-sm bg-secondary text-white border-0" v-model="filtroAnio">
+            <select
+              class="form-select w-auto shadow-sm bg-secondary text-white border-0"
+              v-model="filtroAnio"
+            >
               <option value="ultimos_6_meses">Últimos 6 meses</option>
               <option value="2026">2026</option>
               <option value="2025">2025</option>
@@ -242,14 +341,21 @@
           </div>
         </div>
 
-        <div v-if="entradasPasadas.length === 0 && productosPasados.length === 0" class="text-center py-5 bg-dark rounded border border-secondary">
+        <div
+          v-if="entradasPasadas.length === 0 && productosPasados.length === 0"
+          class="text-center py-5 bg-dark rounded border border-secondary"
+        >
           <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
           <h5 class="text-white">Tu historial está vacío</h5>
           <p class="text-muted small mb-0">Aún no tenés eventos asistidos ni pedidos entregados.</p>
         </div>
 
         <div class="row" v-else>
-          <div v-if="entradasPasadas.length > 0" :class="productosPasados.length === 0 ? 'col-12' : 'col-md-6'" class="mb-4">
+          <div
+            v-if="entradasPasadas.length > 0"
+            :class="productosPasados.length === 0 ? 'col-12' : 'col-md-6'"
+            class="mb-4"
+          >
             <h5 class="text-light border-bottom border-secondary pb-2 mb-3">
               <i class="fa-solid fa-ticket me-2 text-muted"></i> Eventos Asistidos
             </h5>
@@ -262,16 +368,26 @@
               <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <span class="fw-bold">{{ entrada.evento }}</span>
-                  <span class="badge" :class="entrada.estado === 'cancelada' ? 'bg-danger' : 'bg-secondary'">
+                  <span
+                    class="badge"
+                    :class="entrada.estado === 'cancelada' ? 'bg-danger' : 'bg-secondary'"
+                  >
                     {{ entrada.estado === 'cancelada' ? 'Cancelada' : 'Utilizada' }}
                   </span>
                 </div>
-                <span class="small text-muted"><i class="fa-regular fa-calendar me-1"></i> {{ formatearFecha(entrada.fecha) }}</span>
+                <span class="small text-muted"
+                  ><i class="fa-regular fa-calendar me-1"></i>
+                  {{ formatearFecha(entrada.fecha) }}</span
+                >
               </div>
             </div>
           </div>
 
-          <div v-if="productosPasados.length > 0" :class="entradasPasadas.length === 0 ? 'col-12' : 'col-md-6'" class="mb-4">
+          <div
+            v-if="productosPasados.length > 0"
+            :class="entradasPasadas.length === 0 ? 'col-12' : 'col-md-6'"
+            class="mb-4"
+          >
             <h5 class="text-light border-bottom border-secondary pb-2 mb-3">
               <i class="fa-solid fa-box-open me-2 text-muted"></i> Pedidos Entregados
             </h5>
@@ -284,15 +400,25 @@
               <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                   <span class="fw-bold">Pedido #{{ pedido.id }}</span>
-                  <span class="badge bg-secondary"><i class="fas fa-check me-1"></i> Entregado</span>
+                  <span class="badge bg-secondary"
+                    ><i class="fas fa-check me-1"></i> Entregado</span
+                  >
                 </div>
-                <span class="small text-muted"><i class="fa-regular fa-calendar-check me-1"></i> {{ formatearFecha(pedido.fecha_entrega || pedido.fecha) }}</span>
+                <span class="small text-muted"
+                  ><i class="fa-regular fa-calendar-check me-1"></i>
+                  {{ formatearFecha(pedido.fecha_entrega || pedido.fecha) }}</span
+                >
               </div>
             </div>
           </div>
         </div>
 
-        <div class="text-center mt-4" v-if="entradasPasadas.length > limiteHistorial || productosPasados.length > limiteHistorial">
+        <div
+          class="text-center mt-4"
+          v-if="
+            entradasPasadas.length > limiteHistorial || productosPasados.length > limiteHistorial
+          "
+        >
           <button class="btn btn-outline-light rounded-pill px-4" @click="limiteHistorial += 5">
             Cargar más movimientos <i class="fa-solid fa-angle-down ms-1"></i>
           </button>
@@ -325,11 +451,43 @@ export default {
       entradasProximas: [],
       entradasPasadas: [],
       productosActivos: [],
-      productosPasados: []
+      productosPasados: [],
+      isCanceling: false,
+      ordenCancelandoId: null,
+      descargasAbiertasId: null, // 👈 NUEVO: Controla el acordeón de descargas
     }
   },
   computed: {
-    ...mapGetters(['entradasEnCarrito', 'productosEnCarrito'])
+    ...mapGetters(['entradasEnCarrito', 'productosEnCarrito']),
+    
+    // 👇 NUEVO: El clasificador de sobres
+    ordenesAgrupadas() {
+      if (!this.entradasProximas || this.entradasProximas.length === 0) return [];
+
+      // Usamos .reduce() para agrupar los tickets que tengan el mismo id_orden
+      const grupos = this.entradasProximas.reduce((acumulador, ticket) => {
+        // Si es la primera vez que vemos este id_orden, creamos el "sobre" vacío
+        if (!acumulador[ticket.id_orden]) {
+          acumulador[ticket.id_orden] = {
+            id_orden: ticket.id_orden,
+            evento: ticket.evento,
+            fecha: ticket.fecha,
+            total: ticket.total, // Usamos el total que ya trae
+            cantidad_tickets: 0,
+            tickets: [] // Guardamos los tickets individuales por si querés descargar los PDFs
+          };
+        }
+        
+        // Metemos el ticket adentro del sobre y sumamos 1 a la cantidad
+        acumulador[ticket.id_orden].tickets.push(ticket);
+        acumulador[ticket.id_orden].cantidad_tickets += 1;
+        
+        return acumulador;
+      }, {});
+
+      // Convertimos el objeto de nuevo en un Array para que Vue lo pueda dibujar
+      return Object.values(grupos);
+    }
   },
   async mounted() {
     await this.cargarPantalla()
@@ -360,6 +518,7 @@ export default {
         if (this.tabActual === 'ticketing') {
           const datos = await this.$store.dispatch('obtenerEntradasActivasAction')
           this.entradasProximas = datos.entradasProximas || []
+          console.log("🎟️ DATA DE ENTRADAS:", this.entradasProximas)
           this.carritoLocalEntradas = JSON.parse(localStorage.getItem('carrito_entradas')) || []
         } else if (this.tabActual === 'ecommerce') {
           const datos = await this.$store.dispatch('obtenerTiendaActivaAction')
@@ -386,7 +545,7 @@ export default {
       let carrito = JSON.parse(localStorage.getItem('carrito_entradas')) || []
       carrito = carrito.filter((item) => item.id_local !== id_local)
       localStorage.setItem('carrito_entradas', JSON.stringify(carrito))
-      this.carritoLocalEntradas = carrito 
+      this.carritoLocalEntradas = carrito
       if (this.$toast) this.$toast.success('Entradas removidas del carrito')
     },
 
@@ -466,21 +625,90 @@ export default {
 
     // ✨ UX: CÓDIGO CORTO
     shortCode(uuid) {
-      if(!uuid) return 'N/A';
-      return uuid.split('-')[0].toUpperCase();
+      if (!uuid) return 'N/A'
+      return uuid.split('-')[0].toUpperCase()
     },
 
     // ✨ UX: PRECIOS LIMPIOS
     formatPrice(price) {
-      if (!price) return '0';
-      return Math.round(price).toLocaleString('es-AR');
+      if (!price) return '0'
+      return Math.round(price).toLocaleString('es-AR')
     },
 
     // ✨ UX: FECHAS EN ESPAÑOL
     formatearFecha(fechaString) {
       if (!fechaString) return 'Fecha desconocida'
-      const opciones = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+      const opciones = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
       return new Date(fechaString).toLocaleDateString('es-AR', opciones)
+    },
+    // 👇 LA BÓVEDA DEL FRONTEND
+    async anularOrden(orden_id) {
+      // 1. Confirmación estricta (Para evitar clics por error)
+      const seguro = confirm(
+        '⚠️ ¿Estás totalmente seguro de anular esta orden? Se cancelarán los tickets y se devolverá el stock.'
+      )
+      if (!seguro) return
+
+      // 2. Tsunami Mode ON: Bloqueamos la interfaz
+      this.isCanceling = true
+      this.ordenCancelandoId = orden_id
+      this.$store.commit('SHOW_LOADER') // Usamos tu loader global
+
+      try {
+        // 3. Le pegamos al endpoint que armamos hoy
+        await this.$store.dispatch('anularOrdenAction', orden_id)
+
+        if (this.$toast) this.$toast.success('¡Orden anulada y stock devuelto! 🎟️🔄')
+
+        // 4. Magia Reactiva: Recargamos los datos para que el ticket desaparezca de la pantalla
+        await this.cargarPantalla()
+      } catch (error) {
+        console.error('💥 Error al anular la orden:', error)
+
+        // Atrapamos el error que nos manda nuestro Controlador (ej. "La orden ya fue cancelada")
+        const mensajeError =
+          error.response?.data?.message || 'Hubo un problema al cancelar la orden.'
+        if (this.$toast) this.$toast.error(mensajeError)
+      } finally {
+        // 5. Tsunami Mode OFF: Liberamos los candados
+        this.isCanceling = false
+        this.ordenCancelandoId = null
+        this.$store.commit('HIDE_LOADER')
+      }
+    },
+
+    // 👇 NUEVO: Descarga masiva en 1 solo archivo
+    async descargarTodas(orden) {
+      if (this.$toast) this.$toast.info('Armando tu PDF con todas las entradas... ⏳');
+      this.$store.commit('SHOW_LOADER');
+
+      try {
+        // 1. Llamamos a tu flamante acción de Vuex
+        const blob = await this.$store.dispatch('descargarPdfOrdenAction', orden.id_orden);
+        
+        // 2. Magia del navegador para descargar archivos invisibles
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Mis-Entradas-Orden-${orden.id_orden}.pdf`);
+        
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+
+        if (this.$toast) this.$toast.success('¡PDF listo y descargado! 🎉');
+      } catch (error) {
+        console.error('💥 Error en descarga masiva:', error);
+        if (this.$toast) this.$toast.error('Uy, falló la descarga. Revisá la consola.');
+      } finally {
+        this.$store.commit('HIDE_LOADER');
+      }
     }
   }
 }
@@ -514,7 +742,7 @@ export default {
 .ticket-card,
 .product-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: none !important; 
+  border: none !important;
   border-left: 4px solid transparent !important;
 }
 .ticket-card:hover:not(.historial),
